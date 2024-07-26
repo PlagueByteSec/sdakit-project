@@ -7,6 +7,6 @@ import (
 
 func GetPanic(base string, args ...interface{}) {
 	message := fmt.Sprintf(base, args...)
-	fmt.Println(message)
+	fmt.Println("ERROR: " + message)
 	os.Exit(-1)
 }

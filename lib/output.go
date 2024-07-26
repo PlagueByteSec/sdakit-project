@@ -10,7 +10,7 @@ func WriteOutput(filePath string, content string) {
 		GetPanic("ERROR: %s\n", err)
 	}
 	defer stream.Close()
-	if _, err = stream.WriteString(content); err != nil {
+	if _, err = stream.WriteString(content + "\n"); err != nil {
 		GetPanic("ERROR: %s\n", err)
 	}
 }
