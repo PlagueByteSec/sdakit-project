@@ -1,10 +1,8 @@
 package lib
 
 import (
-	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"regexp"
 )
 
@@ -15,8 +13,7 @@ func Request(pool Pool, host string, url string) {
 	}
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Printf("ERROR: failed to read body\n%s\n", err)
-		os.Exit(-1)
+		GetPanic("ERROR: failed to read body\n%s\n", err)
 	}
 	// Filter the HTML reponse for results
 	body := string(responseBody)
