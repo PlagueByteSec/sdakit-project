@@ -25,7 +25,7 @@ Sentinel Project
  -p Send ICMP packages to ping all entries
 `
 
-// Read database file (URL.txt) and process the entries
+// Pool init and preparation
 func Manager(host string) {
 	pool := make(lib.Pool)
 	for _, entry := range lib.Db {
