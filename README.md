@@ -13,7 +13,7 @@ further processing.
 ```
 
 ### Compile:
-- `Build` the Sentinals `project`
+- `Build` the Sentinel `project`
 
 `Windows`
 ```cmd
