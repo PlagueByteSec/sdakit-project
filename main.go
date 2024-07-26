@@ -43,12 +43,17 @@ func EntryPoint(args Args) {
 		lib.Request(pool, args.host, url)
 	}
 	for result := range pool {
-		fmt.Println(args.host, ": ", result)
+		subdomain := strings.ReplaceAll(result, "."+args.host, "")
+		consoleOutput := fmt.Sprintf("[+] %s\n    ╚► %s", subdomain, result)
+		fmt.Println(consoleOutput)
+		var filePath string
 		if args.outFile == "default" {
 			defaultOutput := DefaultOutputName(args.host)
-			filePath := filepath.Join("output", defaultOutput)
-			lib.WriteOutput(filePath, result)
+			filePath = filepath.Join("output", defaultOutput)
+		} else {
+			filePath = args.outFile
 		}
+		lib.WriteOutput(filePath, result)
 	}
 }
 
