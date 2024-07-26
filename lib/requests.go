@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-func Request(pool Pool, host string, url string) {
+func Request(pool *Pool, host string, url string) {
 	response, err := http.Get(url)
 	if err != nil {
 		return
@@ -27,9 +27,5 @@ func Request(pool Pool, host string, url string) {
 		if !pool.ContainsEntry(match) {
 			pool.AddEntry(match)
 		}
-	}
-	for entry := range pool {
-		// Print results to STDOUT
-		fmt.Println(entry)
 	}
 }

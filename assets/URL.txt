@@ -1,6 +1,0 @@
-# This is the database file for the Sentinel project.
-# More URLs can be added here. Replace the 
-# hostname with the key HOST.
-
-https://crt.sh/?q=%25.HOST
-https://rapiddns.io/subdomain/HOST?full=1

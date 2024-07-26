@@ -2,7 +2,6 @@ package main
 
 import (
 	"Sentinel/lib"
-	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -28,26 +27,13 @@ Sentinel Project
 
 // Read database file (URL.txt) and process the entries
 func Manager(host string) {
-	filePath := lib.DefaultPath()
-	if lib.FileExist(filePath) {
-		pool := make(lib.Pool)
-		stream, err := os.Open(filePath)
-		if err != nil {
-			fmt.Printf("ERROR: failed to open file: %s\n%s\n", filePath, err)
-			os.Exit(-1)
-		}
-		defer stream.Close()
-		scanner := bufio.NewScanner(stream)
-		for scanner.Scan() {
-			line := scanner.Text()
-			if !strings.HasPrefix(line, "#") {
-				url := strings.Replace(line, "HOST", host, 1)
-				lib.Request(pool, host, url)
-			}
-		}
-	} else {
-		fmt.Printf("ERROR: file not found in default path: %s\n", filePath)
-		os.Exit(-1)
+	pool := make(lib.Pool)
+	for _, entry := range lib.Db {
+		url := strings.Replace(entry, "HOST", host, 1)
+		lib.Request(&pool, host, url)
+	}
+	for result := range pool {
+		fmt.Println(host, ": ", result)
 	}
 }
 
