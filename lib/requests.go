@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-func Request(pool *Pool, host string, url string) {
+func Request(pool Pool, host string, url string) {
 	response, err := http.Get(url)
 	if err != nil {
 		return

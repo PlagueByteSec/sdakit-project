@@ -30,7 +30,7 @@ func Manager(host string) {
 	pool := make(lib.Pool)
 	for _, entry := range lib.Db {
 		url := strings.Replace(entry, "HOST", host, 1)
-		lib.Request(&pool, host, url)
+		lib.Request(pool, host, url)
 	}
 	for result := range pool {
 		fmt.Println(host, ": ", result)
