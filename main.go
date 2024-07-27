@@ -40,15 +40,15 @@ func EntryPoint(args Args) {
 	CreateOutputDir()
 	pool := make(lib.Pool)
 	fmt.Println("[*] Sending GET request to endpoints..")
-	fmt.Println()
 	for _, entry := range lib.Db {
 		url := strings.Replace(entry, "HOST", args.host, 1)
 		lib.Request(pool, args.host, url)
 	}
-	if len(lib.Db) == 0 {
-		fmt.Println("[-] Could not detemine subdomains :(")
+	if len(pool) == 0 {
+		fmt.Println("[-] Could not determine subdomains :(")
 		os.Exit(0)
 	}
+	fmt.Println()
 	for result := range pool {
 		var filePath string
 		if args.outFile == "default" {
