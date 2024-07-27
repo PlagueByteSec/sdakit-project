@@ -6,7 +6,7 @@
 ### Description:
 ```txt
 This program is designed to fetch, filter and validate subdomains from a specific host.
-The Sentinal project replaces the platform-dependent script "uma.sh" and makes it possible
+The Sentinel project replaces the platform-dependent script "uma.sh" and makes it possible
 to passively enumerate subdomains of a target using crt.sh and RapidDNS services independently of
 the OS. The results will be saved among each other to provide a quick solution for
 further processing.
@@ -29,7 +29,7 @@ go build -o bin/sentinel
 ```
 <sentinel> -t example.com
 ```
-#### Or simply `run` the <sentinels> `executable` without args to see the available `options`
+#### Or simply `run` the <sentinel> `executable` without args to see the available `options`
 
 ### Example Output:
 ```txt
