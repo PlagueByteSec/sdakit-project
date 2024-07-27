@@ -1,8 +1,8 @@
 package lib
 
 var Help = `
-Sentinel Project 
-****************
+Sentinel
+********
 ===[ Description
  This program is designed to fetch, filter and validate subdomains from a specific host.
  The Sentinel project replaces the platform-dependent script "uma.sh" and makes it possible
@@ -17,4 +17,5 @@ Sentinel Project
 
 ===[ Not implemented yet
  -p Send ICMP packages to ping all entries
+ -w Buteforce subdomains using custom wordlist
 `

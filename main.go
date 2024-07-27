@@ -9,27 +9,10 @@ import (
 	"time"
 )
 
-func DefaultOutputName(hostname string) string {
-	currentTime := time.Now()
-	formatTime := currentTime.Format("2006-01-02_15-04-05")
-	outputFile := fmt.Sprintf("%s-%s.txt", formatTime, hostname)
-	return outputFile
-}
-
-func CreateOutputDir() {
-	outputDir := "output"
-	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
-		err := os.MkdirAll(outputDir, 0755)
-		if err != nil {
-			lib.GetPanic("Unable to create output directory: %s\n", outputDir)
-		}
-	}
-}
-
 // Pool init and preparation
 func EntryPoint(args *lib.Args) {
 	startTime := time.Now()
-	CreateOutputDir()
+	lib.CreateOutputDir()
 	pool := make(lib.Pool)
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for _, entry := range lib.Db {
@@ -44,7 +27,7 @@ func EntryPoint(args *lib.Args) {
 	for result := range pool {
 		var filePath string
 		if args.OutFile == "default" {
-			defaultOutput := DefaultOutputName(args.Host)
+			defaultOutput := lib.DefaultOutputName(args.Host)
 			filePath = filepath.Join("output", defaultOutput)
 		} else {
 			filePath = args.OutFile
@@ -65,6 +48,8 @@ func EntryPoint(args *lib.Args) {
 }
 
 func main() {
+	lib.VersionCompare()
+	os.Exit(0)
 	args := lib.CliParser()
 	EntryPoint(&args)
 }

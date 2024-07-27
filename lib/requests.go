@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"regexp"
+	"runtime"
 )
 
 func Request(pool Pool, host string, url string) {
@@ -36,4 +38,29 @@ func HttpStatusCode(host string) int {
 	}
 	defer response.Body.Close()
 	return response.StatusCode
+}
+
+func GetCurrentRepoVersion() string {
+	url := "https://raw.githubusercontent.com/fhAnso/Sentinel/main/version.txt"
+	client := &http.Client{}
+	request, err := http.NewRequest("GET", url, nil)
+	TestVersionFail(err)
+	response, err := client.Do(request)
+	TestVersionFail(err)
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	TestVersionFail(err)
+	return string(body)
+}
+
+func GetCurrentLocalVersion() string {
+	var versionPath string
+	if runtime.GOOS == "windows" {
+		versionPath = "..\\version.txt"
+	} else if runtime.GOOS == "linux" {
+		versionPath = "../version.txt"
+	}
+	version, err := os.ReadFile(versionPath)
+	TestVersionFail(err)
+	return string(version)
 }
