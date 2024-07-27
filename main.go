@@ -68,7 +68,7 @@ func EntryPoint(args Args) {
 	}
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
-	fmt.Printf("[*] %d subdomains obtained. Finished in %s\n",
+	fmt.Printf("\n[*] %d subdomains obtained. Finished in %s\n",
 		len(pool), duration)
 }
 
