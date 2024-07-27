@@ -17,11 +17,11 @@ further processing.
 
 `Windows`
 ```cmd
-go build -o .\bin\sentinel.exe .\main.go
+go build -o .\bin\sentinel.exe 
 ```
 `Linux`
 ```bash
-go build -o bin/sentinel main.go
+go build -o bin/sentinel 
 ```
 
 ### Usage:
@@ -48,4 +48,4 @@ go build -o bin/sentinel main.go
 ```
 
 # License
-Sentinels is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license
+Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license
