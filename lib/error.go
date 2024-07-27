@@ -10,3 +10,11 @@ func GetPanic(base string, args ...interface{}) {
 	fmt.Println("ERROR: " + message)
 	os.Exit(-1)
 }
+
+func TestVersionFail(err error) string {
+	var value string
+	if err != nil {
+		value = "n/a"
+	}
+	return value
+}

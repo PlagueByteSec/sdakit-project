@@ -33,11 +33,3 @@ func VersionCompare() {
 		fmt.Printf("[*] An update is available! %s->%s\n", local, repo)
 	}
 }
-
-func TestVersionFail(err error) string {
-	var value string
-	if err != nil {
-		value = "n/a"
-	}
-	return value
-}

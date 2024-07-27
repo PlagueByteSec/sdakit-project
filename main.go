@@ -49,7 +49,6 @@ func EntryPoint(args *lib.Args) {
 
 func main() {
 	lib.VersionCompare()
-	os.Exit(0)
 	args := lib.CliParser()
 	EntryPoint(&args)
 }
