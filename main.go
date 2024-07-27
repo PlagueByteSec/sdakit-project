@@ -36,16 +36,20 @@ func CreateOutputDir() {
 
 // Pool init and preparation
 func EntryPoint(args Args) {
+	startTime := time.Now()
 	CreateOutputDir()
 	pool := make(lib.Pool)
+	fmt.Println("[*] Sending GET request to endpoints..")
+	fmt.Println()
 	for _, entry := range lib.Db {
 		url := strings.Replace(entry, "HOST", args.host, 1)
 		lib.Request(pool, args.host, url)
 	}
+	if len(lib.Db) == 0 {
+		fmt.Println("[-] Could not detemine subdomains :(")
+		os.Exit(0)
+	}
 	for result := range pool {
-		subdomain := strings.ReplaceAll(result, "."+args.host, "")
-		consoleOutput := fmt.Sprintf("[+] %s\n    ╚► %s", subdomain, result)
-		fmt.Println(consoleOutput)
 		var filePath string
 		if args.outFile == "default" {
 			defaultOutput := DefaultOutputName(args.host)
@@ -53,8 +57,20 @@ func EntryPoint(args Args) {
 		} else {
 			filePath = args.outFile
 		}
-		lib.WriteOutput(filePath, result)
+		params := lib.Params{
+			FilePath:    filePath,
+			FileContent: result,
+			Result:      result,
+			Hostname:    args.host,
+		}
+		lib.OutputWriter(lib.File, params)
+		lib.OutputWriter(lib.Stdout, params)
 	}
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	fmt.Println()
+	fmt.Printf("[*] %d subdomains obtained. Finished in %s\n",
+		len(lib.Db), duration)
 }
 
 func main() {
