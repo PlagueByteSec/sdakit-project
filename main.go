@@ -2,20 +2,12 @@ package main
 
 import (
 	"Sentinel/lib"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 )
-
-type Args struct {
-	host        string
-	outFile     string
-	httpCode    bool
-	pingResults bool
-}
 
 func DefaultOutputName(hostname string) string {
 	currentTime := time.Now()
@@ -35,14 +27,14 @@ func CreateOutputDir() {
 }
 
 // Pool init and preparation
-func EntryPoint(args Args) {
+func EntryPoint(args *lib.Args) {
 	startTime := time.Now()
 	CreateOutputDir()
 	pool := make(lib.Pool)
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for _, entry := range lib.Db {
-		url := strings.Replace(entry, "HOST", args.host, 1)
-		lib.Request(pool, args.host, url)
+		url := strings.Replace(entry, "HOST", args.Host, 1)
+		lib.Request(pool, args.Host, url)
 	}
 	if len(pool) == 0 {
 		fmt.Println("[-] Could not determine subdomains :(")
@@ -51,20 +43,20 @@ func EntryPoint(args Args) {
 	fmt.Println()
 	for result := range pool {
 		var filePath string
-		if args.outFile == "default" {
-			defaultOutput := DefaultOutputName(args.host)
+		if args.OutFile == "default" {
+			defaultOutput := DefaultOutputName(args.Host)
 			filePath = filepath.Join("output", defaultOutput)
 		} else {
-			filePath = args.outFile
+			filePath = args.OutFile
 		}
 		params := lib.Params{
 			FilePath:    filePath,
 			FileContent: result,
 			Result:      result,
-			Hostname:    args.host,
+			Hostname:    args.Host,
 		}
-		lib.OutputWriter(lib.File, params)
-		lib.OutputWriter(lib.Stdout, params)
+		lib.OutputWriter(*args, lib.File, params)
+		lib.OutputWriter(*args, lib.Stdout, params)
 	}
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
@@ -73,20 +65,6 @@ func EntryPoint(args Args) {
 }
 
 func main() {
-	host := flag.String("t", "", "Target host")
-	outFile := flag.String("o", "default", "Output file")
-	httpCode := flag.Bool("c", false, "Get HTTP status code of each entry")
-	pingResults := flag.Bool("p", false, "Send ICMP packet to each entry")
-	flag.Parse()
-	if flag.NFlag() == 0 {
-		fmt.Println(lib.Help)
-		os.Exit(-1)
-	}
-	args := Args{
-		host:        *host,
-		outFile:     *outFile,
-		httpCode:    *httpCode,
-		pingResults: *pingResults,
-	}
-	EntryPoint(args)
+	args := lib.CliParser()
+	EntryPoint(&args)
 }

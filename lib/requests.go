@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -25,4 +26,14 @@ func Request(pool Pool, host string, url string) {
 			pool.AddEntry(match)
 		}
 	}
+}
+
+func HttpStatusCode(host string) int {
+	buildUrl := fmt.Sprintf("http://%s", host)
+	response, err := http.Get(buildUrl)
+	if err != nil {
+		return -1
+	}
+	defer response.Body.Close()
+	return response.StatusCode
 }

@@ -35,15 +35,19 @@ func FileWriteResults(param Params) {
 	}
 }
 
-func StdoutWriteResults(params Params) {
+func StdoutWriteResults(args *Args, params Params) {
 	consoleOutput := fmt.Sprintf(" ===[ %s", params.Result)
+	if args.HttpCode {
+		httpStatusCode := HttpStatusCode(params.Result)
+		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %d", consoleOutput, httpStatusCode)
+	}
 	fmt.Println(consoleOutput)
 }
 
-func OutputWriter(outputType OutputType, params Params) {
+func OutputWriter(args Args, outputType OutputType, params Params) {
 	switch outputType {
 	case Stdout:
-		StdoutWriteResults(params)
+		StdoutWriteResults(&args, params)
 	case File:
 		FileWriteResults(params)
 	}

@@ -13,8 +13,8 @@ Sentinel Project
  -t Set the target hostname. This host will be be send to "RapidDNS" and "crt.sh"
 	Example: targethostname.xyz 
  -o Specify the output (.txt) file where every regex match from the main pool will be saved
+ -c Send GET request to retrieve the HTTP status code of every entry
 
 ===[ Not implemented yet
- -c Send GET request to retrieve the HTTP status code of every entry
  -p Send ICMP packages to ping all entries
 `
