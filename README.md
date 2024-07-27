@@ -33,18 +33,15 @@ go build -o bin/sentinel
 
 ### Example Output:
 ```txt
-[+] support
-    ╚► support.example.com
-[+] 20mail2
-    ╚► 20mail2.example.com
-[+] www
-    ╚► www.example.com
-[+] m
-    ╚► m.example.com
-[+] dev
-    ╚► dev.example.com
-[+] products
-    ╚► products.example.com
+[*] Sending GET request to endpoints..
+
+ ===[ support.example.com
+ ===[ 20mail2.example.com
+ ===[ www.example.com
+ ===[ dev.example.com
+ ===[ products.example.com
+
+[*] 2 subdomains obtained. Finished in 2.5233288s
 ```
 
 # License
