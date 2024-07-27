@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"runtime"
 )
 
 func Request(pool Pool, host string, url string) {
@@ -54,12 +53,7 @@ func GetCurrentRepoVersion() string {
 }
 
 func GetCurrentLocalVersion() string {
-	var versionPath string
-	if runtime.GOOS == "windows" {
-		versionPath = "..\\version.txt"
-	} else if runtime.GOOS == "linux" {
-		versionPath = "../version.txt"
-	}
+	versionPath := "version.txt"
 	version, err := os.ReadFile(versionPath)
 	TestVersionFail(err)
 	return string(version)
