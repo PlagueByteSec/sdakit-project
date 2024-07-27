@@ -2,12 +2,12 @@
   <img src="https://github.com/fhAnso/Sentinel/blob/main/assets/logo.png" />
 </p>
 
-# Sentinel - Passive Subdomain Emumeration
+# Sentinel - (Passive) Subdomain Emumeration
 ### Description:
 ```txt
 This program is designed to fetch, filter and validate subdomains from a specific host.
 The Sentinel project replaces the platform-dependent script "uma.sh" and makes it possible
-to passively enumerate subdomains of a target using crt.sh and RapidDNS services independently of
+to enumerate subdomains of a target using crt.sh and RapidDNS services independently of
 the OS. The results will be saved among each other to provide a quick solution for
 further processing.
 ```
