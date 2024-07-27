@@ -41,7 +41,7 @@ go build -o bin/sentinel
  ===[ dev.example.com
  ===[ products.example.com
 
-[*] 2 subdomains obtained. Finished in 2.5233288s
+[*] 5 subdomains obtained. Finished in 2.5233288s
 ```
 
 # License
