@@ -10,11 +10,12 @@ Sentinel
  saved among each other to provide a quick solution for further processing.
 
 ===[ Usage
- -t Set the target hostname. This host will be be send to "RapidDNS" and "crt.sh"
+ -t Set the target hostname. 
+	[passive] (Without -w) this hostname will be be send to "RapidDNS" and "crt.sh"
 	Example: targethostname.xyz 
  -o Specify the output (.txt) file where every regex match from the main pool will be saved
- -c Send GET request to retrieve the HTTP status code of every entry
- -w Use wordlist to bruteforce subdomains of the target
+ -c Send GET request to retrieve the HTTP status code of every passive enumeration result
+ -w [direct] Use wordlist to bruteforce subdomains of the target
  -e Exclude response codes from bruteforce results (comma seperated)
 
 ===[ Not implemented yet
