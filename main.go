@@ -2,6 +2,8 @@ package main
 
 import (
 	"Sentinel/lib"
+	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,12 +11,16 @@ import (
 	"time"
 )
 
+func Evaluation(startTime time.Time, count int) {
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	fmt.Printf("\n[*] %d subdomains obtained. Finished in %s\n", count, duration)
+}
+
 // Pool init and preparation
-func EntryPoint(args *lib.Args) {
+func PassiveEnum(args *lib.Args) {
 	startTime := time.Now()
-	lib.CreateOutputDir()
 	pool := make(lib.Pool)
-	fmt.Println("[*] Sending GET request to endpoints..")
 	for _, entry := range lib.Db {
 		url := strings.Replace(entry, "HOST", args.Host, 1)
 		lib.Request(pool, args.Host, url)
@@ -41,14 +47,49 @@ func EntryPoint(args *lib.Args) {
 		lib.OutputWriter(*args, lib.File, params)
 		lib.OutputWriter(*args, lib.Stdout, params)
 	}
-	endTime := time.Now()
-	duration := endTime.Sub(startTime)
-	fmt.Printf("\n[*] %d subdomains obtained. Finished in %s\n",
-		len(pool), duration)
+	poolSize := len(pool)
+	Evaluation(startTime, poolSize)
+}
+
+func DirectEnum(args *lib.Args) {
+	var counter int
+	startTime := time.Now()
+	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
+		lib.GetPanic("Could not find wordlist \"%s\" :(", args.WordlistPath)
+	}
+	stream, err := os.Open(args.WordlistPath)
+	if err != nil {
+		lib.GetPanic("%s", err)
+	}
+	defer stream.Close()
+	excludes := strings.Split(args.ExcHttpCodes, ",")
+	scanner := bufio.NewScanner(stream)
+	fmt.Println()
+	for scanner.Scan() {
+		entry := scanner.Text()
+		url := fmt.Sprintf("http://%s.%s", entry, args.Host)
+		statusCode := lib.HttpStatusCode(url)
+		code := fmt.Sprintf("%d", statusCode)
+		if len(excludes) != 0 && lib.IsInExclude(code, excludes) {
+			continue
+		}
+		fmt.Printf(" ===[ %s.%s: %d\n", entry, args.Host, statusCode)
+		counter++
+	}
+	if err := scanner.Err(); err != nil {
+		lib.GetPanic("%s", err)
+	}
+	Evaluation(startTime, counter)
 }
 
 func main() {
-	lib.VersionCompare()
 	args := lib.CliParser()
-	EntryPoint(&args)
+	lib.VersionCompare()
+	lib.CreateOutputDir()
+	fmt.Println("[*] Sending GET request to endpoints..")
+	if len(args.WordlistPath) == 0 {
+		PassiveEnum(&args)
+	} else {
+		DirectEnum(&args)
+	}
 }

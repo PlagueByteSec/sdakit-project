@@ -14,8 +14,10 @@ Sentinel
 	Example: targethostname.xyz 
  -o Specify the output (.txt) file where every regex match from the main pool will be saved
  -c Send GET request to retrieve the HTTP status code of every entry
+ -w Use wordlist to bruteforce subdomains of the target
+ -e Exclude response codes from bruteforce results (comma seperated)
 
 ===[ Not implemented yet
+ -f Show only specific HTTP response codes from bruteforce results (comma seperated)
  -p Send ICMP packages to ping all entries
- -w Buteforce subdomains using custom wordlist
 `

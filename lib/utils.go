@@ -50,3 +50,12 @@ func VersionCompare() {
 		fmt.Printf("[*] An update is available! %s->%s\n", local, repo)
 	}
 }
+
+func IsInExclude(httpCode string, list []string) bool {
+	for _, code := range list {
+		if httpCode == code {
+			return true
+		}
+	}
+	return false
+}
