@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"regexp"
 )
 
@@ -50,11 +49,4 @@ func GetCurrentRepoVersion() string {
 	body, err := io.ReadAll(response.Body)
 	TestVersionFail(err)
 	return string(body)
-}
-
-func GetCurrentLocalVersion() string {
-	versionPath := "version.txt"
-	version, err := os.ReadFile(versionPath)
-	TestVersionFail(err)
-	return string(version)
 }

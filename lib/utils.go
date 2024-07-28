@@ -1,8 +1,10 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -23,10 +25,25 @@ func CreateOutputDir() {
 	}
 }
 
+func GetCurrentLocalVersion() string {
+	var versionPath string
+	if runtime.GOOS == "windows" {
+		versionPath = "..\\version.txt"
+	} else if runtime.GOOS == "linux" {
+		versionPath = "../version.txt"
+	}
+	if _, err := os.Stat(versionPath); errors.Is(err, os.ErrNotExist) {
+		versionPath = "version.txt"
+	}
+	version, err := os.ReadFile(versionPath)
+	TestVersionFail(err)
+	return string(version)
+}
+
 func VersionCompare() {
 	repo := GetCurrentRepoVersion()
 	local := GetCurrentLocalVersion()
-	if repo == "n/a" || local == "n/a" {
+	if repo == "n/a" || local == "n/a" || local == "" {
 		return
 	}
 	if repo != local {
