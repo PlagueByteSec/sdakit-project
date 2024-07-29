@@ -33,6 +33,18 @@ go build -o bin/sentinel
 
 ### Example Output:
 ```txt
+ ===[ Sentinel, v1.1.0 ]===
+
+[*] Using passive enum method
+[*] Formatting db entries..
+
+1. Entry: https://crt.sh/?q=%25.HOST
+ ===[ https://crt.sh/?q=%25.example.com
+
+2. Entry: https://rapiddns.io/subdomain/HOST?full=1
+ ===[ https://rapiddns.io/subdomain/example.com?full=1
+
+[*] Using 2 endpoints
 [*] Sending GET request to endpoints..
 
  ===[ support.example.com
@@ -41,7 +53,7 @@ go build -o bin/sentinel
  ===[ dev.example.com
  ===[ products.example.com
 
-[*] 5 subdomains obtained. Finished in 2.5233288s
+[*] 5 subdomains obtained. Finished in 1.458662222s
 ```
 
 # License

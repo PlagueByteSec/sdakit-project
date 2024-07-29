@@ -21,9 +21,11 @@ func Evaluation(startTime time.Time, count int) {
 func PassiveEnum(args *lib.Args) {
 	startTime := time.Now()
 	pool := make(lib.Pool)
-	for _, entry := range lib.Db {
-		url := strings.Replace(entry, "HOST", args.Host, 1)
-		lib.Request(pool, args.Host, url)
+	fmt.Println("[*] Formatting db entries..")
+	endpoints := lib.EditDbEntries(lib.Db, args.Host)
+	fmt.Println("[*] Sending GET request to endpoints..")
+	for idx := 0; idx < len(endpoints); idx++ {
+		lib.Request(pool, args.Host, endpoints[idx])
 	}
 	if len(pool) == 0 {
 		fmt.Println("[-] Could not determine subdomains :(")
@@ -83,13 +85,16 @@ func DirectEnum(args *lib.Args) {
 }
 
 func main() {
+	localVersion := lib.GetCurrentLocalVersion()
+	fmt.Printf(" ===[ Sentinel, v%s ]===\n\n", localVersion)
 	args := lib.CliParser()
 	lib.VersionCompare()
 	lib.CreateOutputDir()
-	fmt.Println("[*] Sending GET request to endpoints..")
 	if len(args.WordlistPath) == 0 {
+		fmt.Println("[*] Using passive enum method")
 		PassiveEnum(&args)
 	} else {
+		fmt.Println("[*] Using direct enum method")
 		DirectEnum(&args)
 	}
 }

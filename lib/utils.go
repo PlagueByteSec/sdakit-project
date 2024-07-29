@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"time"
+
+	"github.com/hashicorp/go-version"
 )
 
 func DefaultOutputName(hostname string) string {
@@ -46,7 +49,9 @@ func VersionCompare() {
 	if repo == "n/a" || local == "n/a" || local == "" {
 		return
 	}
-	if repo != local {
+	parseRepoVersion, _ := version.NewVersion(repo)
+	parseLocalVersion, _ := version.NewVersion(local)
+	if repo != local && parseLocalVersion.LessThan(parseRepoVersion) {
 		fmt.Printf("[*] An update is available! %s->%s\n", local, repo)
 	}
 }
@@ -58,4 +63,17 @@ func IsInExclude(httpCode string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func EditDbEntries(db []string, hostname string) []string {
+	entries := make([]string, len(db))
+	var n int
+	for idx := 0; idx < len(db); idx++ {
+		endpoint := strings.Replace(db[idx], "HOST", hostname, 1)
+		fmt.Printf("\n%d. Entry: %s\n ===[ %s\n", idx+1, db[idx], endpoint)
+		entries = append(entries, endpoint)
+		n++
+	}
+	fmt.Printf("\n[*] Using %d endpoints\n", n)
+	return entries
 }
