@@ -36,15 +36,17 @@ func HttpStatusCode(url string) int {
 	return response.StatusCode
 }
 
-func GetCurrentRepoVersion() string {
+func GetCurrentRepoVersion(failHandler *VersionHandler) string {
+	var version string
 	url := "https://raw.githubusercontent.com/fhAnso/Sentinel/main/version.txt"
 	client := &http.Client{}
 	request, err := http.NewRequest("GET", url, nil)
-	TestVersionFail(err)
+	TestVersionFail(*failHandler, &version, err)
 	response, err := client.Do(request)
-	TestVersionFail(err)
+	TestVersionFail(*failHandler, &version, err)
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
-	TestVersionFail(err)
-	return string(body)
+	TestVersionFail(*failHandler, &version, err)
+	version = string(body)
+	return version
 }

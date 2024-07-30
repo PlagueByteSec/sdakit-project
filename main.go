@@ -85,7 +85,8 @@ func DirectEnum(args *lib.Args) {
 }
 
 func main() {
-	localVersion := lib.GetCurrentLocalVersion()
+	failHandler := &lib.VersionHandler{}
+	localVersion := lib.GetCurrentLocalVersion(failHandler)
 	fmt.Printf(" ===[ Sentinel, v%s ]===\n\n", localVersion)
 	args := lib.CliParser()
 	lib.VersionCompare()

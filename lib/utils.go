@@ -28,8 +28,12 @@ func CreateOutputDir() {
 	}
 }
 
-func GetCurrentLocalVersion() string {
-	var versionPath string
+func GetCurrentLocalVersion(failHandler *VersionHandler) string {
+	var (
+		versionPath string
+		content     []byte
+		err         error
+	)
 	if runtime.GOOS == "windows" {
 		versionPath = "..\\version.txt"
 	} else if runtime.GOOS == "linux" {
@@ -38,14 +42,16 @@ func GetCurrentLocalVersion() string {
 	if _, err := os.Stat(versionPath); errors.Is(err, os.ErrNotExist) {
 		versionPath = "version.txt"
 	}
-	version, err := os.ReadFile(versionPath)
-	TestVersionFail(err)
-	return string(version)
+	content, err = os.ReadFile(versionPath)
+	version := string(content)
+	TestVersionFail(*failHandler, &version, err)
+	return version
 }
 
 func VersionCompare() {
-	repo := GetCurrentRepoVersion()
-	local := GetCurrentLocalVersion()
+	failHandler := &VersionHandler{}
+	repo := GetCurrentRepoVersion(failHandler)
+	local := GetCurrentLocalVersion(failHandler)
 	if repo == "n/a" || local == "n/a" || local == "" {
 		return
 	}
