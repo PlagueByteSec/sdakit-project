@@ -1,10 +1,5 @@
 package lib
 
-import (
-	"fmt"
-	"os"
-)
-
 type VersionHandler struct{}
 
 type TestVersion interface {
@@ -22,12 +17,6 @@ func (handler *VersionHandler) HandleVersion(err error) string {
 func TestVersionFail(handler VersionHandler, version *string, err error) {
 	check := handler.HandleVersion(err)
 	if check == "n/a" {
-		*version = handler.HandleVersion(err)
+		*version = check
 	}
-}
-
-func GetPanic(base string, args ...interface{}) {
-	message := fmt.Sprintf(base, args...)
-	fmt.Println("[-] ERROR: " + message)
-	os.Exit(-1)
 }

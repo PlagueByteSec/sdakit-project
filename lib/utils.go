@@ -18,14 +18,15 @@ func DefaultOutputName(hostname string) string {
 	return outputFile
 }
 
-func CreateOutputDir() {
+func CreateOutputDir() error {
 	outputDir := "output"
 	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
 		err := os.MkdirAll(outputDir, 0755)
 		if err != nil {
-			GetPanic("Unable to create output directory: %s\n", outputDir)
+			return fmt.Errorf("unable to create output directory: %s", outputDir)
 		}
 	}
+	return nil
 }
 
 func GetCurrentLocalVersion(failHandler *VersionHandler) string {
@@ -71,15 +72,13 @@ func IsInExclude(httpCode string, list []string) bool {
 	return false
 }
 
-func EditDbEntries(db []string, hostname string) []string {
-	entries := make([]string, len(db))
-	var n int
-	for idx := 0; idx < len(db); idx++ {
-		endpoint := strings.Replace(db[idx], "HOST", hostname, 1)
-		fmt.Printf("\n%d. Entry: %s\n ===[ %s\n", idx+1, db[idx], endpoint)
+func EditDbEntries(hostname string) []string {
+	entries := make([]string, 0, len(Db))
+	for idx, entry := range Db {
+		endpoint := strings.Replace(entry, "HOST", hostname, 1)
+		fmt.Printf("\n%d. Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 		entries = append(entries, endpoint)
-		n++
 	}
-	fmt.Printf("\n[*] Using %d endpoints\n", n)
+	fmt.Printf("\n[*] Using %d endpoints\n", len(entries))
 	return entries
 }

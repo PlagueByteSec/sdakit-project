@@ -1,19 +1,20 @@
 package lib
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"regexp"
 )
 
-func Request(pool Pool, host string, url string) {
+func Request(pool Pool, host string, url string) error {
 	response, err := http.Get(url)
 	if err != nil {
-		return
+		return fmt.Errorf("failed to send GET request to: %s", url)
 	}
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		GetPanic("ERROR: failed to read body\n%s\n", err)
+		return fmt.Errorf("failed to read body: %s", err)
 	}
 	// Filter the HTML reponse for results
 	body := string(responseBody)
@@ -25,6 +26,7 @@ func Request(pool Pool, host string, url string) {
 			pool.AddEntry(match)
 		}
 	}
+	return nil
 }
 
 func HttpStatusCode(url string) int {

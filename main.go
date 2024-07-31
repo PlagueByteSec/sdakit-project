@@ -22,10 +22,13 @@ func PassiveEnum(args *lib.Args) {
 	startTime := time.Now()
 	pool := make(lib.Pool)
 	fmt.Println("[*] Formatting db entries..")
-	endpoints := lib.EditDbEntries(lib.Db, args.Host)
+	endpoints := lib.EditDbEntries(args.Host)
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for idx := 0; idx < len(endpoints); idx++ {
-		lib.Request(pool, args.Host, endpoints[idx])
+		if err := lib.Request(pool, args.Host, endpoints[idx]); err != nil {
+			fmt.Printf("[-] %s\n", err)
+			continue
+		}
 	}
 	if len(pool) == 0 {
 		fmt.Println("[-] Could not determine subdomains :(")
@@ -53,15 +56,15 @@ func PassiveEnum(args *lib.Args) {
 	Evaluation(startTime, poolSize)
 }
 
-func DirectEnum(args *lib.Args) {
+func DirectEnum(args *lib.Args) error {
 	var counter int
 	startTime := time.Now()
 	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
-		lib.GetPanic("Could not find wordlist \"%s\" :(", args.WordlistPath)
+		return fmt.Errorf("could not find wordlist: %s", args.WordlistPath)
 	}
 	stream, err := os.Open(args.WordlistPath)
 	if err != nil {
-		lib.GetPanic("%s", err)
+		return errors.New("unable to open file stream to wordlist")
 	}
 	defer stream.Close()
 	excludes := strings.Split(args.ExcHttpCodes, ",")
@@ -79,9 +82,10 @@ func DirectEnum(args *lib.Args) {
 		counter++
 	}
 	if err := scanner.Err(); err != nil {
-		lib.GetPanic("%s", err)
+		return fmt.Errorf("scanner returns an error while reading wordlist")
 	}
 	Evaluation(startTime, counter)
+	return nil
 }
 
 func main() {
@@ -90,12 +94,18 @@ func main() {
 	fmt.Printf(" ===[ Sentinel, v%s ]===\n\n", localVersion)
 	args := lib.CliParser()
 	lib.VersionCompare()
-	lib.CreateOutputDir()
+	if err := lib.CreateOutputDir(); err != nil {
+		fmt.Println(err)
+		os.Exit(-1)
+	}
 	if len(args.WordlistPath) == 0 {
 		fmt.Println("[*] Using passive enum method")
 		PassiveEnum(&args)
 	} else {
 		fmt.Println("[*] Using direct enum method")
-		DirectEnum(&args)
+		if err := DirectEnum(&args); err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
 	}
 }

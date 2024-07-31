@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -20,19 +21,20 @@ type Params struct {
 	Hostname    string
 }
 
-func FileWriteResults(param Params) {
+func FileWriteResults(param Params) error {
 	hasExt := strings.HasSuffix(param.FilePath, ".txt")
 	if !hasExt {
 		param.FilePath = param.FilePath + ".txt"
 	}
 	stream, err := os.OpenFile(param.FilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		GetPanic("ERROR: %s\n", err)
+		return errors.New("failed to open output file stream")
 	}
 	defer stream.Close()
 	if _, err = stream.WriteString(param.FileContent + "\n"); err != nil {
-		GetPanic("ERROR: %s\n", err)
+		return errors.New("output write operation failed")
 	}
+	return nil
 }
 
 func StdoutWriteResults(args *Args, params Params) {
@@ -50,6 +52,8 @@ func OutputWriter(args Args, outputType OutputType, params Params) {
 	case Stdout:
 		StdoutWriteResults(&args, params)
 	case File:
-		FileWriteResults(params)
+		if err := FileWriteResults(params); err != nil {
+			fmt.Println(err)
+		}
 	}
 }
