@@ -7,4 +7,5 @@ package lib
 var Db = []string{
 	"https://crt.sh/?q=%25.HOST",
 	"https://rapiddns.io/subdomain/HOST?full=1",
+	"https://jldc.me/anubis/subdomains/HOST",
 }
