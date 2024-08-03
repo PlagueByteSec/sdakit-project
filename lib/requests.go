@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 func Request(pool Pool, host string, url string) error {
@@ -30,7 +31,10 @@ func Request(pool Pool, host string, url string) error {
 }
 
 func HttpStatusCode(url string) int {
-	response, err := http.Get(url)
+	client := &http.Client{
+		Timeout: 2 * time.Second,
+	}
+	response, err := client.Get(url)
 	if err != nil {
 		return -1
 	}
