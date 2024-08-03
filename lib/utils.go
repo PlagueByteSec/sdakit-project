@@ -3,6 +3,7 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"runtime"
 	"strings"
@@ -81,4 +82,17 @@ func EditDbEntries(hostname string) []string {
 	}
 	fmt.Printf("\n[*] Using %d endpoints\n", len(entries))
 	return entries
+}
+
+func RequestIpAddresses(subdomain string) string {
+	ips, err := net.LookupIP(subdomain)
+	if err != nil {
+		return ""
+	}
+	var results []string
+	for _, ip := range ips {
+		results = append(results, ip.String())
+	}
+	result := fmt.Sprintf("(%s)", strings.Join(results, ", "))
+	return result
 }

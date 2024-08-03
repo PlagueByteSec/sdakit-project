@@ -38,7 +38,8 @@ func FileWriteResults(param Params) error {
 }
 
 func StdoutWriteResults(args *Args, params Params) {
-	consoleOutput := fmt.Sprintf(" ===[ %s", params.Result)
+	ips := RequestIpAddresses(params.Result)
+	consoleOutput := fmt.Sprintf(" ===[ %s %s", params.Result, ips)
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
 		httpStatusCode := fmt.Sprintf("%d", HttpStatusCode(url))
