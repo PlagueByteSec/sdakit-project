@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+var DisplayCount int
+
 type OutputType int
 
 const (
@@ -39,6 +41,9 @@ func FileWriteResults(param Params) error {
 
 func StdoutWriteResults(args *Args, params Params) {
 	ips := RequestIpAddresses(params.Result)
+	if args.SubOnlyIp && ips == "" {
+		return
+	}
 	consoleOutput := fmt.Sprintf(" ===[ %s %s", params.Result, ips)
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
@@ -49,6 +54,7 @@ func StdoutWriteResults(args *Args, params Params) {
 		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %s", consoleOutput, httpStatusCode)
 	}
 	fmt.Println(consoleOutput)
+	DisplayCount++
 }
 
 func OutputWriter(args Args, outputType OutputType, params Params) {

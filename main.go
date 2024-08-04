@@ -14,7 +14,8 @@ import (
 func Evaluation(startTime time.Time, count int) {
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
-	fmt.Printf("\n[*] %d subdomains obtained. Finished in %s\n", count, duration)
+	fmt.Printf("\n[*] %d subdomains obtained, %d displayed\n", count, lib.DisplayCount)
+	fmt.Printf("[*] Finished in %s\n", duration)
 }
 
 // Pool init and preparation
@@ -98,6 +99,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
+	lib.DisplayCount = 0
 	if len(args.WordlistPath) == 0 {
 		fmt.Println("[*] Using passive enum method")
 		PassiveEnum(&args)

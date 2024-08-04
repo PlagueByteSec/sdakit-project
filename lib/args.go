@@ -13,7 +13,7 @@ type Args struct {
 	WordlistPath string
 	ExcHttpCodes string
 	FilHttpCodes string
-	PingResults  bool
+	SubOnlyIp    bool
 }
 
 func CliParser() Args {
@@ -23,7 +23,7 @@ func CliParser() Args {
 	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomain")
 	excHttpCodes := flag.String("e", "", "Exclude HTTP codes (comma seperated)")
 	filtHttpCodes := flag.String("f", "", "Show only specific HTTP codes (comma seperated)")
-	pingResults := flag.Bool("p", false, "Send ICMP packet to each entry")
+	subOnlyIp := flag.Bool("s", false, "Display only specific subdomains")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(Help)
@@ -36,7 +36,7 @@ func CliParser() Args {
 		WordlistPath: *wordlistPath,
 		ExcHttpCodes: *excHttpCodes,
 		FilHttpCodes: *filtHttpCodes,
-		PingResults:  *pingResults,
+		SubOnlyIp:    *subOnlyIp,
 	}
 	return args
 }

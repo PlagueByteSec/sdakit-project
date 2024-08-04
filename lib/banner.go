@@ -17,7 +17,8 @@ Sentinel
  -c Send GET request to retrieve the HTTP status code of every passive enumeration result
  -w [direct] Use wordlist to bruteforce subdomains of the target
  -e Exclude response codes from bruteforce results (comma seperated)
-
+ -s Only show subdomains that can be resolved to ip addresses 
+ 
 ===[ Not implemented yet
  -f Show only specific HTTP response codes from bruteforce results (comma seperated)
 `
