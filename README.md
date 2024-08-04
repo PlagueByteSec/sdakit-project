@@ -7,14 +7,12 @@
 ```txt
 This program is designed to fetch, filter and validate subdomains from a specific host.
 The Sentinel project replaces the platform-dependent script "uma.sh" and makes it possible
-to enumerate subdomains of a target passively using crt.sh and RapidDNS services or
+to enumerate subdomains of a target passively using external services or
 directly via brute-force using a custom wordlist. The results will be saved among each 
 other to provide a quick solution for further processing.
 ```
 
-### Compile:
-- `Build` the Sentinel `project`
-
+### Build:
 `Windows`
 ```cmd
 go build -o .\bin\sentinel.exe 
@@ -24,8 +22,15 @@ go build -o .\bin\sentinel.exe
 go build -o bin/sentinel 
 ```
 
+```txt
+The endpoints are read and processed from a simple database. After the results have 
+arrived, they are checked and inserted into a main pool. From there, the program will 
+perform various operations (IP Lookup etc.) for each entry. Further options are 
+available as CLI parameters.
+```
+
 ### Usage:
-- Request subdomains
+- Specify the target and request subdomains
 ```
 <sentinel> -t example.com
 ```
@@ -44,16 +49,19 @@ go build -o bin/sentinel
 2. Entry: https://rapiddns.io/subdomain/HOST?full=1
  ===[ https://rapiddns.io/subdomain/example.com?full=1
 
-[*] Using 2 endpoints
+3. Entry: https://jldc.me/anubis/subdomains/HOST
+ ===[ https://jldc.me/anubis/subdomains/example.com
+
+[*] Using 3 endpoints
 [*] Sending GET request to endpoints..
 
- ===[ support.example.com
- ===[ 20mail2.example.com
- ===[ www.example.com
  ===[ dev.example.com
  ===[ products.example.com
+ ===[ support.example.com
+ ===[ www.example.com (2606:2800:21f:cb07:6820:80da:af6b:8b2c, 93.184.215.14)
+ ===[ m.example.com
 
-[*] 5 subdomains obtained. Finished in 1.458662222s
+[*] 5 subdomains obtained. Finished in 1.4153683s
 ```
 
 # License
