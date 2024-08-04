@@ -60,7 +60,7 @@ func DirectEnum(args *lib.Args) error {
 	var counter int
 	startTime := time.Now()
 	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
-		return fmt.Errorf("could not find wordlist: %s", args.WordlistPath)
+		return errors.New("could not find wordlist: " + args.WordlistPath)
 	}
 	stream, err := os.Open(args.WordlistPath)
 	if err != nil {
@@ -82,7 +82,7 @@ func DirectEnum(args *lib.Args) error {
 		counter++
 	}
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("scanner returns an error while reading wordlist")
+		return errors.New("scanner returns an error while reading wordlist")
 	}
 	Evaluation(startTime, counter)
 	return nil

@@ -9,14 +9,14 @@ type TestVersion interface {
 func (handler *VersionHandler) HandleVersion(err error) string {
 	var version string
 	if err != nil {
-		version = "n/a"
+		version = na
 	}
 	return version
 }
 
 func TestVersionFail(handler VersionHandler, version *string, err error) {
 	check := handler.HandleVersion(err)
-	if check == "n/a" {
+	if check == na {
 		*version = check
 	}
 }

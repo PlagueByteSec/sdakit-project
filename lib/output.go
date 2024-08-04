@@ -44,7 +44,7 @@ func StdoutWriteResults(args *Args, params Params) {
 		url := fmt.Sprintf("http://%s", params.Result)
 		httpStatusCode := fmt.Sprintf("%d", HttpStatusCode(url))
 		if httpStatusCode == "-1" {
-			httpStatusCode = "n/a"
+			httpStatusCode = na
 		}
 		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %s", consoleOutput, httpStatusCode)
 	}

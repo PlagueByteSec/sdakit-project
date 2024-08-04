@@ -20,5 +20,4 @@ Sentinel
 
 ===[ Not implemented yet
  -f Show only specific HTTP response codes from bruteforce results (comma seperated)
- -p Send ICMP packages to ping all entries
 `

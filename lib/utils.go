@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
+const na = "n/a"
+
 func DefaultOutputName(hostname string) string {
 	currentTime := time.Now()
 	formatTime := currentTime.Format("2006-01-02_15-04-05")
@@ -24,7 +26,7 @@ func CreateOutputDir() error {
 	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
 		err := os.MkdirAll(outputDir, 0755)
 		if err != nil {
-			return fmt.Errorf("unable to create output directory: %s", outputDir)
+			return errors.New("unable to create output directory: " + outputDir)
 		}
 	}
 	return nil
@@ -54,7 +56,7 @@ func VersionCompare() {
 	failHandler := &VersionHandler{}
 	repo := GetCurrentRepoVersion(failHandler)
 	local := GetCurrentLocalVersion(failHandler)
-	if repo == "n/a" || local == "n/a" || local == "" {
+	if repo == na || local == na || local == "" {
 		return
 	}
 	parseRepoVersion, _ := version.NewVersion(repo)
@@ -87,6 +89,7 @@ func EditDbEntries(hostname string) []string {
 func RequestIpAddresses(subdomain string) string {
 	ips, err := net.LookupIP(subdomain)
 	if err != nil {
+		// Lookup failed, leave blank
 		return ""
 	}
 	var results []string
