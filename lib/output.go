@@ -35,12 +35,15 @@ func Contains(pool []string, value string) bool {
 func OutputHandler(args *Args, params Params) {
 	ips := RequestIpAddresses(params.Result)
 	if args.SubOnlyIp && ips == "" {
+		// Skip results that cannot be resolved to an IP address
 		return
 	}
 	consoleOutput := fmt.Sprintf(" ===[ %s %s", params.Result, ips)
+	// Split IP lookup result into single addresses
 	ips = strings.TrimPrefix(ips, "(")
 	ips = strings.TrimSuffix(ips, ")")
 	ipAddrs := strings.Split(ips, ", ")
+	// Opening seperated output file streams
 	streamDomains, err := OpenOutputFileStreamDomains(params)
 	if err != nil {
 		fmt.Println(err)

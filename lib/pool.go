@@ -8,7 +8,7 @@ func (pool Pool) AddEntry(entry string) {
 	pool[entry] = entry
 }
 
-// Verify that the entry does not exist in Pool
+// Verify that the entry does not exist in main pool
 func (pool Pool) ContainsEntry(entry string) bool {
 	_, exists := pool[entry]
 	return exists
