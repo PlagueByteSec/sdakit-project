@@ -8,7 +8,8 @@ Sentinel
  Subdomains can be enumerated by requesting external ressources (passive) or via brute 
  force (direct). 
 
- Sentinel is published under the MIT license: https://github.com/fhAnso/Sentinel
+ Sentinel is published under the MIT license: 
+ 	https://github.com/fhAnso/Sentinel/blob/main/LICENSE
 
 ===[ Usage
  -v  Verbose output
