@@ -18,6 +18,20 @@ type Params struct {
 	Hostname        string
 }
 
+var (
+	IPv4Pool = make([]string, 0)
+	IPv6Pool = make([]string, 0)
+)
+
+func Contains(pool []string, value string) bool {
+	for _, entry := range pool {
+		if value == entry {
+			return true
+		}
+	}
+	return false
+}
+
 func OutputHandler(args *Args, params Params) {
 	ips := RequestIpAddresses(params.Result)
 	if args.SubOnlyIp && ips == "" {
@@ -42,11 +56,18 @@ func OutputHandler(args *Args, params Params) {
 	for _, ip := range ipAddrs {
 		if GetIpVersion(ip) == 4 {
 			params.FileContentIPv4 = ip
-			WriteOutputFileStreamIPv4(streamV4, params)
+			if !Contains(IPv4Pool, params.FileContentIPv4) {
+				IPv4Pool = append(IPv4Pool, params.FileContentIPv4)
+				fmt.Println("\"" + params.FileContentIPv4 + "\"")
+				WriteOutputFileStreamIPv4(streamV4, params)
+			}
 		}
 		if GetIpVersion(ip) == 6 {
 			params.FileContentIPv6 = ip
-			WriteOutputFileStreamIPv6(streamV6, params)
+			if !Contains(IPv6Pool, params.FileContentIPv6) {
+				IPv6Pool = append(IPv6Pool, params.FileContentIPv6)
+				WriteOutputFileStreamIPv6(streamV6, params)
+			}
 		}
 	}
 	WriteOutputFileStreamDomains(streamDomains, params)
