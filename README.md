@@ -29,6 +29,11 @@ go build -o bin/sentinel
 ```
 #### Or simply `run` the <sentinel> `executable` without args to see the available `options`
 
+```txt
+By default, Sentinel will create 3 output files. The output files are divided into subdomains, 
+IPv4 and IPv6 addresses. These are each filtered so that they can be used directly afterwards. 
+```
+
 ### Example Output:
 ```txt
  ===[ Sentinel, v1.2.0 ]===
