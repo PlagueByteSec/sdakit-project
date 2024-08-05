@@ -1,50 +1,58 @@
 package lib
 
 import (
-	"errors"
 	"fmt"
-	"os"
 	"strings"
 )
 
 var DisplayCount int
 
-type OutputType int
-
-const (
-	Stdout OutputType = iota
-	File   OutputType = iota
-)
-
 type Params struct {
-	FilePath    string
-	FileContent string
-	Result      string
-	Hostname    string
+	FilePath        string
+	FilePathIPv4    string
+	FilePathIPv6    string
+	FileContent     string
+	FileContentIPv4 string
+	FileContentIPv6 string
+	Result          string
+	Hostname        string
 }
 
-func FileWriteResults(param Params) error {
-	hasExt := strings.HasSuffix(param.FilePath, ".txt")
-	if !hasExt {
-		param.FilePath = param.FilePath + ".txt"
-	}
-	stream, err := os.OpenFile(param.FilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		return errors.New("failed to open output file stream")
-	}
-	defer stream.Close()
-	if _, err = stream.WriteString(param.FileContent + "\n"); err != nil {
-		return errors.New("output write operation failed")
-	}
-	return nil
-}
-
-func StdoutWriteResults(args *Args, params Params) {
+func OutputHandler(args *Args, params Params) {
 	ips := RequestIpAddresses(params.Result)
 	if args.SubOnlyIp && ips == "" {
 		return
 	}
 	consoleOutput := fmt.Sprintf(" ===[ %s %s", params.Result, ips)
+	ips = strings.TrimPrefix(ips, "(")
+	ips = strings.TrimSuffix(ips, ")")
+	ipAddrs := strings.Split(ips, ", ")
+	streamDomains, err := OpenOutputFileStreamDomains(params)
+	if err != nil {
+		fmt.Println(err)
+	}
+	streamV4, err := OpenOutputFileStreamIPv4(params)
+	if err != nil {
+		fmt.Println(err)
+	}
+	streamV6, err := OpenOutputFileStreamIPv6(params)
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, ip := range ipAddrs {
+		if GetIpVersion(ip) == 4 {
+			params.FileContentIPv4 = ip
+			WriteOutputFileStreamIPv4(streamV4, params)
+		}
+		if GetIpVersion(ip) == 6 {
+			params.FileContentIPv6 = ip
+			WriteOutputFileStreamIPv6(streamV6, params)
+		}
+	}
+	WriteOutputFileStreamDomains(streamDomains, params)
+	streamV4.Close()
+	streamV6.Close()
+	streamDomains.Close()
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
 		httpStatusCode := fmt.Sprintf("%d", HttpStatusCode(url))
@@ -55,15 +63,4 @@ func StdoutWriteResults(args *Args, params Params) {
 	}
 	fmt.Println(consoleOutput)
 	DisplayCount++
-}
-
-func OutputWriter(args Args, outputType OutputType, params Params) {
-	switch outputType {
-	case Stdout:
-		StdoutWriteResults(&args, params)
-	case File:
-		if err := FileWriteResults(params); err != nil {
-			fmt.Println(err)
-		}
-	}
 }

@@ -103,3 +103,14 @@ func RequestIpAddresses(subdomain string) string {
 	result := fmt.Sprintf("(%s)", strings.Join(results, ", "))
 	return result
 }
+
+func GetIpVersion(input string) int {
+	if ip := net.ParseIP(input); ip != nil {
+		if ip.To4() != nil {
+			return 4
+		} else {
+			return 6
+		}
+	}
+	return 0
+}
