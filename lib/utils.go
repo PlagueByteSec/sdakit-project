@@ -16,7 +16,7 @@ const na = "n/a"
 
 func DefaultOutputName(hostname string) string {
 	currentTime := time.Now()
-	formatTime := currentTime.Format("2006-01-02_15-04-05")
+	formatTime := currentTime.Format("2006-01-02")
 	outputFile := fmt.Sprintf("%s-%s.txt", formatTime, hostname)
 	return outputFile
 }
