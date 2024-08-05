@@ -58,7 +58,6 @@ func OutputHandler(args *Args, params Params) {
 			params.FileContentIPv4 = ip
 			if !Contains(IPv4Pool, params.FileContentIPv4) {
 				IPv4Pool = append(IPv4Pool, params.FileContentIPv4)
-				fmt.Println("\"" + params.FileContentIPv4 + "\"")
 				WriteOutputFileStreamIPv4(streamV4, params)
 			}
 		}
