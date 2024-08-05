@@ -7,6 +7,7 @@ import (
 )
 
 type Args struct {
+	Verbose      bool
 	Host         string
 	OutFile      string
 	HttpCode     bool
@@ -17,6 +18,7 @@ type Args struct {
 }
 
 func CliParser() Args {
+	verbose := flag.Bool("v", false, "Verbose output")
 	host := flag.String("t", "", "Target host")
 	outFile := flag.String("o", "default", "Output file")
 	httpCode := flag.Bool("c", false, "Get HTTP status code of each entry")
@@ -30,6 +32,7 @@ func CliParser() Args {
 		os.Exit(-1)
 	}
 	args := Args{
+		Verbose:      *verbose,
 		Host:         *host,
 		OutFile:      *outFile,
 		HttpCode:     *httpCode,

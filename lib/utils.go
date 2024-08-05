@@ -75,14 +75,18 @@ func IsInExclude(httpCode string, list []string) bool {
 	return false
 }
 
-func EditDbEntries(hostname string) []string {
+func EditDbEntries(args *Args) []string {
 	entries := make([]string, 0, len(Db))
 	for idx, entry := range Db {
-		endpoint := strings.Replace(entry, "HOST", hostname, 1)
-		fmt.Printf("\n%d. Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
+		endpoint := strings.Replace(entry, "HOST", args.Host, 1)
+		if args.Verbose {
+			fmt.Printf("\n%d. Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
+		}
 		entries = append(entries, endpoint)
 	}
-	fmt.Printf("\n[*] Using %d endpoints\n", len(entries))
+	if args.Verbose {
+		fmt.Printf("\n[*] Using %d endpoints\n", len(entries))
+	}
 	return entries
 }
 

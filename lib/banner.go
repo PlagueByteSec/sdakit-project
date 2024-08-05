@@ -11,6 +11,7 @@ Sentinel
  Sentinel is published under the MIT license: https://github.com/fhAnso/Sentinel
 
 ===[ Usage
+ -v Verbose output
  -t Set the target domain name. 
 	[passive] (Without -w) request subdomains from external endpoints
 	Example: targetdomain.xyz 

@@ -23,7 +23,7 @@ func PassiveEnum(args *lib.Args) {
 	startTime := time.Now()
 	pool := make(lib.Pool)
 	fmt.Println("[*] Formatting db entries..")
-	endpoints := lib.EditDbEntries(args.Host)
+	endpoints := lib.EditDbEntries(args)
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := lib.Request(pool, args.Host, endpoints[idx]); err != nil {
@@ -92,8 +92,8 @@ func DirectEnum(args *lib.Args) error {
 func main() {
 	failHandler := &lib.VersionHandler{}
 	localVersion := lib.GetCurrentLocalVersion(failHandler)
-	fmt.Printf(" ===[ Sentinel, v%s ]===\n\n", localVersion)
 	args := lib.CliParser()
+	fmt.Printf(" ===[ Sentinel, v%s ]===\n\n", localVersion)
 	lib.VersionCompare()
 	if err := lib.CreateOutputDir(); err != nil {
 		fmt.Println(err)
