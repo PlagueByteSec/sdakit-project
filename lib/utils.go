@@ -24,7 +24,7 @@ func DefaultOutputName(hostname string) string {
 func CreateOutputDir() error {
 	outputDir := "output"
 	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
-		err := os.MkdirAll(outputDir, 0755)
+		err := os.MkdirAll(outputDir, 0600)
 		if err != nil {
 			return errors.New("unable to create output directory: " + outputDir)
 		}
