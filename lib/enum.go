@@ -20,22 +20,22 @@ func Evaluation(startTime time.Time, count int) {
 // Pool init and preparation
 func PassiveEnum(args *Args) {
 	startTime := time.Now()
-	pool := make(Pool)
+	//pool := make(Pool)
 	fmt.Println("[*] Formatting db entries..")
 	endpoints := EditDbEntries(args)
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for idx := 0; idx < len(endpoints); idx++ {
-		if err := Request(pool, args.Host, endpoints[idx]); err != nil {
+		if err := Request(args.Host, endpoints[idx]); err != nil {
 			fmt.Printf("[-] %s\n", err)
 			continue
 		}
 	}
-	if len(pool) == 0 {
+	if len(PoolDomains) == 0 {
 		fmt.Println("[-] Could not determine subdomains :(")
 		os.Exit(0)
 	}
 	fmt.Println()
-	for result := range pool {
+	for _, result := range PoolDomains {
 		var (
 			filePath     string
 			filePathIPv4 string
@@ -66,7 +66,7 @@ func PassiveEnum(args *Args) {
 		}
 		OutputHandler(args, params)
 	}
-	poolSize := len(pool)
+	poolSize := len(PoolDomains)
 	Evaluation(startTime, poolSize)
 }
 

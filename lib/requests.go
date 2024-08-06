@@ -15,7 +15,7 @@ func ClientInit() *http.Client {
 	return client
 }
 
-func Request(pool Pool, host string, url string) error {
+func Request(host string, url string) error {
 	client := ClientInit()
 	response, err := client.Get(url)
 	if err != nil {
@@ -31,8 +31,8 @@ func Request(pool Pool, host string, url string) error {
 	matches := regex.FindAllString(body, -1)
 	for _, match := range matches {
 		// Make sure that only new entries will be added
-		if !pool.ContainsEntry(match) {
-			pool.AddEntry(match)
+		if !PoolContainsEntry(PoolDomains, match) {
+			PoolDomains = append(PoolDomains, match)
 		}
 	}
 	return nil

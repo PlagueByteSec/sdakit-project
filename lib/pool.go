@@ -1,15 +1,16 @@
 package lib
 
-// Result pool
-type Pool map[string]string
+var (
+	IPv4Pool    = make([]string, 0)
+	IPv6Pool    = make([]string, 0)
+	PoolDomains = make([]string, 0)
+)
 
-// Add new entry to result pool
-func (pool Pool) AddEntry(entry string) {
-	pool[entry] = entry
-}
-
-// Verify that the entry does not exist in main pool
-func (pool Pool) ContainsEntry(entry string) bool {
-	_, exists := pool[entry]
-	return exists
+func PoolContainsEntry(pool []string, value string) bool {
+	for _, entry := range pool {
+		if value == entry {
+			return true
+		}
+	}
+	return false
 }
