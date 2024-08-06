@@ -12,8 +12,6 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-const na = "n/a"
-
 func DefaultOutputName(hostname string) string {
 	currentTime := time.Now()
 	formatTime := currentTime.Format("2006-01-02")
@@ -48,6 +46,7 @@ func GetCurrentLocalVersion(failHandler *VersionHandler) string {
 	}
 	content, err = os.ReadFile(versionPath)
 	version := string(content)
+	// Mark version with n/a if reader failed
 	TestVersionFail(*failHandler, &version, err)
 	return version
 }
@@ -93,7 +92,7 @@ func EditDbEntries(args *Args) []string {
 func RequestIpAddresses(subdomain string) string {
 	ips, err := net.LookupIP(subdomain)
 	if err != nil {
-		// Lookup failed, leave blank
+		// Lookup failed, leave results blank
 		return ""
 	}
 	var results []string
@@ -104,13 +103,14 @@ func RequestIpAddresses(subdomain string) string {
 	return result
 }
 
-func GetIpVersion(input string) int {
-	if ip := net.ParseIP(input); ip != nil {
+func GetIpVersion(ipAddress string) int {
+	var ipVersion int
+	if ip := net.ParseIP(ipAddress); ip != nil {
 		if ip.To4() != nil {
-			return 4
+			ipVersion = 4
 		} else {
-			return 6
+			ipVersion = 6
 		}
 	}
-	return 0
+	return ipVersion
 }

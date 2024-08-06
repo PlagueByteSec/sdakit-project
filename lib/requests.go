@@ -15,8 +15,7 @@ func ClientInit() *http.Client {
 	return client
 }
 
-func Request(host string, url string) error {
-	client := ClientInit()
+func Request(client *http.Client, host string, url string) error {
 	response, err := client.Get(url)
 	if err != nil {
 		return errors.New("failed to send GET request to: " + url)
@@ -38,8 +37,7 @@ func Request(host string, url string) error {
 	return nil
 }
 
-func HttpStatusCode(url string) int {
-	client := ClientInit()
+func HttpStatusCode(client *http.Client, url string) int {
 	response, err := client.Get(url)
 	if err != nil {
 		return -1
@@ -50,9 +48,8 @@ func HttpStatusCode(url string) int {
 
 func GetCurrentRepoVersion(failHandler *VersionHandler) string {
 	var version string
-	const url = "https://raw.githubusercontent.com/fhAnso/Sentinel/main/version.txt"
 	client := ClientInit()
-	response, err := client.Get(url)
+	response, err := client.Get(versionUrl)
 	TestVersionFail(*failHandler, &version, err)
 	defer response.Body.Close()
 	if version == na {

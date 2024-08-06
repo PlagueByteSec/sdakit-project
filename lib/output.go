@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -18,7 +19,7 @@ type Params struct {
 	Hostname        string
 }
 
-func OutputHandler(args *Args, params Params) {
+func OutputHandler(client *http.Client, args *Args, params Params) {
 	ips := RequestIpAddresses(params.Result)
 	if args.SubOnlyIp && ips == "" {
 		// Skip results that cannot be resolved to an IP address
@@ -64,7 +65,7 @@ func OutputHandler(args *Args, params Params) {
 	streamDomains.Close()
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
-		httpStatusCode := fmt.Sprintf("%d", HttpStatusCode(url))
+		httpStatusCode := fmt.Sprintf("%d", HttpStatusCode(client, url))
 		if httpStatusCode == "-1" {
 			httpStatusCode = na
 		}

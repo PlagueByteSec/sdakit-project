@@ -20,12 +20,12 @@ func Evaluation(startTime time.Time, count int) {
 // Pool init and preparation
 func PassiveEnum(args *Args) {
 	startTime := time.Now()
-	//pool := make(Pool)
 	fmt.Println("[*] Formatting db entries..")
 	endpoints := EditDbEntries(args)
 	fmt.Println("[*] Sending GET request to endpoints..")
+	client := ClientInit()
 	for idx := 0; idx < len(endpoints); idx++ {
-		if err := Request(args.Host, endpoints[idx]); err != nil {
+		if err := Request(client, args.Host, endpoints[idx]); err != nil {
 			fmt.Printf("[-] %s\n", err)
 			continue
 		}
@@ -64,7 +64,7 @@ func PassiveEnum(args *Args) {
 			Result:       result,
 			Hostname:     args.Host,
 		}
-		OutputHandler(args, params)
+		OutputHandler(client, args, params)
 	}
 	poolSize := len(PoolDomains)
 	Evaluation(startTime, poolSize)
@@ -81,13 +81,14 @@ func DirectEnum(args *Args) error {
 		return errors.New("unable to open file stream to wordlist")
 	}
 	defer stream.Close()
+	client := ClientInit()
 	excludes := strings.Split(args.ExcHttpCodes, ",")
 	scanner := bufio.NewScanner(stream)
 	fmt.Println()
 	for scanner.Scan() {
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Host)
-		statusCode := HttpStatusCode(url)
+		statusCode := HttpStatusCode(client, url)
 		code := fmt.Sprintf("%d", statusCode)
 		if len(excludes) != 0 && IsInExclude(code, excludes) {
 			continue
