@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,12 +19,11 @@ func Evaluation(startTime time.Time, count int) {
 }
 
 // Pool init and preparation
-func PassiveEnum(args *Args) {
+func PassiveEnum(args *Args, client *http.Client) {
 	startTime := time.Now()
 	fmt.Println("[*] Formatting db entries..")
 	endpoints := EditDbEntries(args)
 	fmt.Println("[*] Sending GET request to endpoints..")
-	client := ClientInit()
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := Request(client, args.Host, endpoints[idx]); err != nil {
 			fmt.Printf("[-] %s\n", err)
@@ -70,7 +70,7 @@ func PassiveEnum(args *Args) {
 	Evaluation(startTime, poolSize)
 }
 
-func DirectEnum(args *Args) error {
+func DirectEnum(args *Args, client *http.Client) error {
 	var counter int
 	startTime := time.Now()
 	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
@@ -81,7 +81,6 @@ func DirectEnum(args *Args) error {
 		return errors.New("unable to open file stream to wordlist")
 	}
 	defer stream.Close()
-	client := ClientInit()
 	excludes := strings.Split(args.ExcHttpCodes, ",")
 	scanner := bufio.NewScanner(stream)
 	fmt.Println()

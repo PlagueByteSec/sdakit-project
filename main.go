@@ -17,12 +17,13 @@ func main() {
 		os.Exit(-1)
 	}
 	lib.DisplayCount = 0
+	httpClient := lib.ClientInit()
 	if len(args.WordlistPath) == 0 {
 		fmt.Println("[*] Using passive enum method")
-		lib.PassiveEnum(&args)
+		lib.PassiveEnum(&args, httpClient)
 	} else {
 		fmt.Println("[*] Using direct enum method")
-		if err := lib.DirectEnum(&args); err != nil {
+		if err := lib.DirectEnum(&args, httpClient); err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
 		}
