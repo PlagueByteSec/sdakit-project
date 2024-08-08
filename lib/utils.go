@@ -51,17 +51,14 @@ func GetCurrentLocalVersion(failHandler *VersionHandler) string {
 	return version
 }
 
-func VersionCompare() {
-	failHandler := &VersionHandler{}
-	repo := GetCurrentRepoVersion(failHandler)
-	local := GetCurrentLocalVersion(failHandler)
-	if repo == na || local == na || local == "" {
+func VersionCompare(versionRepo string, versionLocal string) {
+	if versionRepo == Na || versionLocal == Na || versionLocal == "" {
 		return
 	}
-	parseRepoVersion, _ := version.NewVersion(repo)
-	parseLocalVersion, _ := version.NewVersion(local)
-	if repo != local && parseLocalVersion.LessThan(parseRepoVersion) {
-		fmt.Printf("[*] An update is available! %s->%s\n", local, repo)
+	parseRepoVersion, _ := version.NewVersion(versionRepo)
+	parseLocalVersion, _ := version.NewVersion(versionLocal)
+	if versionRepo != versionLocal && parseLocalVersion.LessThan(parseRepoVersion) {
+		fmt.Printf("[*] An update is available! %s->%s\n", versionLocal, versionRepo)
 	}
 }
 
@@ -89,18 +86,16 @@ func EditDbEntries(args *Args) []string {
 	return entries
 }
 
-func RequestIpAddresses(subdomain string) string {
+func RequestIpAddresses(subdomain string) []string {
 	ips, err := net.LookupIP(subdomain)
 	if err != nil {
-		// Lookup failed, leave results blank
-		return ""
+		return nil
 	}
 	var results []string
 	for _, ip := range ips {
 		results = append(results, ip.String())
 	}
-	result := fmt.Sprintf("(%s)", strings.Join(results, ", "))
-	return result
+	return results
 }
 
 func GetIpVersion(ipAddress string) int {

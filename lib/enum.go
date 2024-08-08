@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func Evaluation(startTime time.Time, count int) {
+func evaluation(startTime time.Time, count int) {
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
 	fmt.Printf("\n[*] %d subdomains obtained, %d displayed\n", count, DisplayCount)
@@ -25,9 +25,8 @@ func PassiveEnum(args *Args, client *http.Client) {
 	endpoints := EditDbEntries(args)
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for idx := 0; idx < len(endpoints); idx++ {
-		if err := Request(client, args.Host, endpoints[idx]); err != nil {
+		if err := EndpointRequest(client, args.Host, endpoints[idx]); err != nil {
 			fmt.Printf("[-] %s\n", err)
-			continue
 		}
 	}
 	if len(PoolDomains) == 0 {
@@ -41,7 +40,7 @@ func PassiveEnum(args *Args, client *http.Client) {
 			filePathIPv4 string
 			filePathIPv6 string
 		)
-		if args.OutFile == "default" {
+		if args.OutFile == "defaultSd" {
 			filePath = filepath.Join("output", DefaultOutputName(args.Host))
 		} else {
 			filePath = args.OutFile
@@ -67,7 +66,7 @@ func PassiveEnum(args *Args, client *http.Client) {
 		OutputHandler(client, args, params)
 	}
 	poolSize := len(PoolDomains)
-	Evaluation(startTime, poolSize)
+	evaluation(startTime, poolSize)
 }
 
 func DirectEnum(args *Args, client *http.Client) error {
@@ -98,6 +97,6 @@ func DirectEnum(args *Args, client *http.Client) error {
 	if err := scanner.Err(); err != nil {
 		return errors.New("scanner returns an error while reading wordlist")
 	}
-	Evaluation(startTime, counter)
+	evaluation(startTime, counter)
 	return nil
 }

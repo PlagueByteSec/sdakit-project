@@ -16,9 +16,9 @@ Sentinel
  -t  Set the target domain name. 
 	 [passive] (Without -w) request subdomains from external endpoints
 	 Example: targetdomain.xyz 
- -o  Specify the output (.txt) file for subdomains
- -v4 Specify the output (.txt) file for IPv4 addresses
- -v6 Specify the output (.txt) file for IPv6 addresses
+ -oS Specify the output (.txt) file path for subdomains
+ -o4 Specify the output (.txt) file path for IPv4 addresses
+ -o6 Specify the output (.txt) file path for IPv6 addresses
  -c  Send GET request to retrieve the HTTP status code of every passive enumeration result
  -w  [direct] Use wordlist to bruteforce subdomains of the target
  -e  Exclude response codes from bruteforce results (comma seperated)

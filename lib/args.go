@@ -22,9 +22,9 @@ type Args struct {
 func CliParser() Args {
 	verbose := flag.Bool("v", false, "Verbose output")
 	host := flag.String("t", "", "Target host")
-	outFile := flag.String("o", "default", "Output file")
-	outFileIPv4 := flag.String("v4", "defaultV4", "Output file for IPv4 addresses")
-	outFileIPv6 := flag.String("v6", "defaultV6", "Output file for IPv6 addresses")
+	outFile := flag.String("oS", "defaultSd", "Output file for subdomains")
+	outFileIPv4 := flag.String("o4", "defaultV4", "Output file for IPv4 addresses")
+	outFileIPv6 := flag.String("o6", "defaultV6", "Output file for IPv6 addresses")
 	httpCode := flag.Bool("c", false, "Get HTTP status code of each entry")
 	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomain")
 	excHttpCodes := flag.String("e", "", "Exclude HTTP codes (comma seperated)")

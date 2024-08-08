@@ -15,7 +15,7 @@ func ClientInit() *http.Client {
 	return client
 }
 
-func Request(client *http.Client, host string, url string) error {
+func EndpointRequest(client *http.Client, host string, url string) error {
 	response, err := client.Get(url)
 	if err != nil {
 		return errors.New("failed to send GET request to: " + url)
@@ -46,13 +46,12 @@ func HttpStatusCode(client *http.Client, url string) int {
 	return response.StatusCode
 }
 
-func GetCurrentRepoVersion(failHandler *VersionHandler) string {
+func GetCurrentRepoVersion(client *http.Client, failHandler *VersionHandler) string {
 	var version string
-	client := ClientInit()
-	response, err := client.Get(versionUrl)
+	response, err := client.Get(VersionUrl)
 	TestVersionFail(*failHandler, &version, err)
 	defer response.Body.Close()
-	if version == na {
+	if version == Na {
 		// Instant return to avoid ReadAll execution if request failed
 		return version
 	}

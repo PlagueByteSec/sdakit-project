@@ -3,6 +3,7 @@ package lib
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -20,16 +21,16 @@ type Params struct {
 }
 
 func OutputHandler(client *http.Client, args *Args, params Params) {
-	ips := RequestIpAddresses(params.Result)
-	if args.SubOnlyIp && ips == "" {
+	ipAddrs := RequestIpAddresses(params.Result)
+	if args.SubOnlyIp && ipAddrs == nil {
 		// Skip results that cannot be resolved to an IP address
 		return
 	}
-	consoleOutput := fmt.Sprintf(" ===[ %s %s", params.Result, ips)
-	// Split IP lookup result into single addresses
-	ips = strings.TrimPrefix(ips, "(")
-	ips = strings.TrimSuffix(ips, ")")
-	ipAddrs := strings.Split(ips, ", ")
+	var ipAddrsOut string
+	if ipAddrs != nil {
+		ipAddrsOut = fmt.Sprintf("(%s)", strings.Join(ipAddrs, ", "))
+	}
+	consoleOutput := fmt.Sprintf(" ===[ %s %s", params.Result, ipAddrsOut)
 	// Opening seperated output file streams
 	streamDomains, err := OpenOutputFileStreamDomains(params)
 	if err != nil {
@@ -65,11 +66,12 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 	streamDomains.Close()
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
-		httpStatusCode := fmt.Sprintf("%d", HttpStatusCode(client, url))
-		if httpStatusCode == "-1" {
-			httpStatusCode = na
+		httpStatusCode := HttpStatusCode(client, url)
+		statusCodeConv := strconv.Itoa(httpStatusCode)
+		if statusCodeConv == "-1" {
+			statusCodeConv = Na
 		}
-		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %s", consoleOutput, httpStatusCode)
+		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %s", consoleOutput, statusCodeConv)
 	}
 	fmt.Println(consoleOutput)
 	DisplayCount++

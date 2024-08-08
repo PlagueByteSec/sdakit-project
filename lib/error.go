@@ -6,17 +6,17 @@ type TestVersion interface {
 	HandleVersion(err error)
 }
 
-func (handler *VersionHandler) HandleVersion(err error) string {
+func (handler *VersionHandler) handleVersion(err error) string {
 	var version string
 	if err != nil {
-		version = na
+		version = Na
 	}
 	return version
 }
 
 func TestVersionFail(handler VersionHandler, version *string, err error) {
-	check := handler.HandleVersion(err)
-	if check == na {
+	check := handler.handleVersion(err)
+	if check == Na {
 		*version = check
 	}
 }
