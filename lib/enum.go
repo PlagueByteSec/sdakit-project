@@ -36,28 +36,28 @@ func PassiveEnum(args *Args, client *http.Client) {
 		fmt.Println("[-] Could not determine subdomains :(")
 		os.Exit(0)
 	}
+	var (
+		filePath     string
+		filePathIPv4 string
+		filePathIPv6 string
+	)
+	if args.OutFile == "defaultSd" {
+		filePath = filepath.Join("output", DefaultOutputName(args.Host))
+	} else {
+		filePath = args.OutFile
+	}
+	if args.OutFileIPv4 == "defaultV4" {
+		filePathIPv4 = filepath.Join("output", "IPv4-"+DefaultOutputName(args.Host))
+	} else {
+		filePathIPv4 = args.OutFileIPv4
+	}
+	if args.OutFileIPv6 == "defaultV6" {
+		filePathIPv6 = filepath.Join("output", "IPv6-"+DefaultOutputName(args.Host))
+	} else {
+		filePathIPv6 = args.OutFileIPv6
+	}
 	fmt.Println()
 	for _, result := range PoolDomains {
-		var (
-			filePath     string
-			filePathIPv4 string
-			filePathIPv6 string
-		)
-		if args.OutFile == "defaultSd" {
-			filePath = filepath.Join("output", DefaultOutputName(args.Host))
-		} else {
-			filePath = args.OutFile
-		}
-		if args.OutFileIPv4 == "defaultV4" {
-			filePathIPv4 = filepath.Join("output", "IPv4-"+DefaultOutputName(args.Host))
-		} else {
-			filePathIPv4 = args.OutFileIPv4
-		}
-		if args.OutFileIPv6 == "defaultV6" {
-			filePathIPv6 = filepath.Join("output", "IPv6-"+DefaultOutputName(args.Host))
-		} else {
-			filePathIPv6 = args.OutFileIPv6
-		}
 		params := Params{
 			FilePath:     filePath,
 			FilePathIPv4: filePathIPv4,
