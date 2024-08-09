@@ -30,7 +30,7 @@ func WriteOutputFileStreamDomains(stream *os.File, params Params) error {
 }
 
 func openOutputFileStream(filePath string) (*os.File, error) {
-	stream, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	stream, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, errors.New("failed to open output file stream")
 	}
