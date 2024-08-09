@@ -1,28 +1,43 @@
 package lib
 
 import (
-	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 )
 
-func ClientInit() *http.Client {
+func HttpClientInit() *http.Client {
 	client := &http.Client{
 		Timeout: 3 * time.Second,
 	}
 	return client
 }
 
-func EndpointRequest(client *http.Client, host string, url string) error {
-	response, err := client.Get(url)
+func responseGetBody(response *http.Response) ([]byte, error) {
+	defer response.Body.Close()
+	return io.ReadAll(response.Body)
+}
+
+func requestSendGET(url string, client *http.Client) (*http.Response, error) {
+	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return errors.New("failed to send GET request to: " + url)
+		return nil, err
 	}
-	responseBody, err := io.ReadAll(response.Body)
+	request.Header.Set("User-Agent", DefaultUserAgent)
+	return client.Do(request)
+}
+
+func EndpointRequest(client *http.Client, host string, url string) error {
+	response, err := requestSendGET(url, client)
 	if err != nil {
-		return errors.New("failed to read body: " + err.Error())
+		return err
+	}
+	responseBody, err := responseGetBody(response)
+	if err != nil {
+		return err
 	}
 	// Filter the HTML reponse for results
 	body := string(responseBody)
@@ -38,25 +53,38 @@ func EndpointRequest(client *http.Client, host string, url string) error {
 }
 
 func HttpStatusCode(client *http.Client, url string) int {
-	response, err := client.Get(url)
+	response, err := requestSendGET(url, client)
 	if err != nil {
 		return -1
 	}
-	defer response.Body.Close()
 	return response.StatusCode
 }
 
-func GetCurrentRepoVersion(client *http.Client, failHandler *VersionHandler) string {
-	var version string
-	response, err := client.Get(VersionUrl)
-	TestVersionFail(*failHandler, &version, err)
-	defer response.Body.Close()
-	if version == Na {
-		// Instant return to avoid ReadAll execution if request failed
-		return version
+func GetCurrentRepoVersion(client *http.Client) string {
+	response, err := requestSendGET(VersionUrl, client)
+	if err != nil {
+		return "n/a"
 	}
-	body, err := io.ReadAll(response.Body)
-	TestVersionFail(*failHandler, &version, err)
-	version = string(body)
-	return version
+	responseBody, err := responseGetBody(response)
+	if err != nil {
+		return "n/a"
+	}
+	return string(responseBody)
+}
+
+func AnalyseHttpHeader(client *http.Client, subdomain string) (string, int) {
+	url := fmt.Sprintf("http://%s", subdomain)
+	response, err := requestSendGET(url, client)
+	if err != nil {
+		return "", 0
+	}
+	results := make([]string, 0)
+	if server := response.Header.Get("Server"); server != "" {
+		results = append(results, server)
+	}
+	if hsts := response.Header.Get("Strict-Transport-Security"); hsts != "" {
+		results = append(results, "HSTS")
+	}
+	result := strings.Join(results, ",")
+	return "╚═[ " + result, len(result)
 }

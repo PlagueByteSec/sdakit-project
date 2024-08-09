@@ -1,46 +1,42 @@
 package lib
 
 import (
-	"errors"
 	"os"
 )
 
-func OpenOutputFileStreamIPv4(params Params) (*os.File, error) {
-	return openOutputFileStream(params.FilePathIPv4)
+type FileStreams struct {
+	Ipv4AddrStream  *os.File
+	Ipv6AddrStream  *os.File
+	SubdomainStream *os.File
 }
 
-func WriteOutputFileStreamIPv4(stream *os.File, param Params) error {
-	return writeOutputFileStream(stream, param.FileContentIPv4)
-}
-
-func OpenOutputFileStreamIPv6(params Params) (*os.File, error) {
-	return openOutputFileStream(params.FilePathIPv6)
-}
-
-func WriteOutputFileStreamIPv6(stream *os.File, param Params) error {
-	return writeOutputFileStream(stream, param.FileContentIPv6)
-}
-
-func OpenOutputFileStreamDomains(params Params) (*os.File, error) {
-	return openOutputFileStream(params.FilePath)
-}
-
-func WriteOutputFileStreamDomains(stream *os.File, params Params) error {
-	return writeOutputFileStream(stream, params.FileContent)
-}
-
-func openOutputFileStream(filePath string) (*os.File, error) {
-	stream, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+func OpenOutputFileStreams(params Params) (*FileStreams, error) {
+	ipv4AddrStream, err := os.OpenFile(params.FilePathIPv4, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
-		return nil, errors.New("failed to open output file stream")
+		return nil, err
 	}
-	return stream, nil
+	ipv6AddrStream, err := os.OpenFile(params.FilePathIPv6, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		ipv4AddrStream.Close()
+		return nil, err
+	}
+	subdomainStream, err := os.OpenFile(params.FilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		ipv4AddrStream.Close()
+		ipv6AddrStream.Close()
+		return nil, err
+	}
+	return &FileStreams{
+		Ipv4AddrStream:  ipv4AddrStream,
+		Ipv6AddrStream:  ipv6AddrStream,
+		SubdomainStream: subdomainStream,
+	}, nil
 }
 
-func writeOutputFileStream(stream *os.File, content string) error {
+func WriteOutputFileStream(stream *os.File, content string) error {
 	_, err := stream.WriteString(content + "\n")
 	if err != nil {
-		return errors.New("output write operation failed")
+		return err
 	}
 	return nil
 }

@@ -7,16 +7,17 @@ import (
 )
 
 type Args struct {
-	Verbose      bool
-	Host         string
-	OutFile      string
-	OutFileIPv4  string
-	OutFileIPv6  string
-	HttpCode     bool
-	WordlistPath string
-	ExcHttpCodes string
-	FilHttpCodes string
-	SubOnlyIp    bool
+	Verbose       bool
+	Host          string
+	OutFile       string
+	OutFileIPv4   string
+	OutFileIPv6   string
+	HttpCode      bool
+	WordlistPath  string
+	ExcHttpCodes  string
+	FilHttpCodes  string
+	SubOnlyIp     bool
+	AnalyzeHeader bool
 }
 
 func CliParser() Args {
@@ -30,22 +31,24 @@ func CliParser() Args {
 	excHttpCodes := flag.String("e", "", "Exclude HTTP codes (comma seperated)")
 	filtHttpCodes := flag.String("f", "", "Show only specific HTTP codes (comma seperated)")
 	subOnlyIp := flag.Bool("s", false, "Display only specific subdomains")
+	analyzeHeader := flag.Bool("a", false, "Analyze HTTP header of each subdomain")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(Help)
 		os.Exit(-1)
 	}
 	args := Args{
-		Verbose:      *verbose,
-		Host:         *host,
-		OutFile:      *outFile,
-		OutFileIPv4:  *outFileIPv4,
-		OutFileIPv6:  *outFileIPv6,
-		HttpCode:     *httpCode,
-		WordlistPath: *wordlistPath,
-		ExcHttpCodes: *excHttpCodes,
-		FilHttpCodes: *filtHttpCodes,
-		SubOnlyIp:    *subOnlyIp,
+		Verbose:       *verbose,
+		Host:          *host,
+		OutFile:       *outFile,
+		OutFileIPv4:   *outFileIPv4,
+		OutFileIPv6:   *outFileIPv6,
+		HttpCode:      *httpCode,
+		WordlistPath:  *wordlistPath,
+		ExcHttpCodes:  *excHttpCodes,
+		FilHttpCodes:  *filtHttpCodes,
+		SubOnlyIp:     *subOnlyIp,
+		AnalyzeHeader: *analyzeHeader,
 	}
 	return args
 }

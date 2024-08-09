@@ -22,7 +22,9 @@ func evaluation(startTime time.Time, count int) {
 // Pool init and preparation
 func PassiveEnum(args *Args, client *http.Client) {
 	startTime := time.Now()
-	fmt.Println("[*] Formatting db entries..")
+	if args.Verbose {
+		fmt.Println("[*] Formatting db entries..")
+	}
 	endpoints := EditDbEntries(args)
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for idx := 0; idx < len(endpoints); idx++ {

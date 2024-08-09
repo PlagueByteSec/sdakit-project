@@ -8,23 +8,22 @@ import (
 
 func main() {
 	args := lib.CliParser()
-	failHandler := &lib.VersionHandler{}
-	httpClient := lib.ClientInit()
-	localVersion := lib.GetCurrentLocalVersion(failHandler)
-	repoVersion := lib.GetCurrentRepoVersion(httpClient, failHandler)
+	httpClient := lib.HttpClientInit()
+	localVersion := lib.GetCurrentLocalVersion()
+	repoVersion := lib.GetCurrentRepoVersion(httpClient)
 	fmt.Printf(" ===[ Sentinel, v%s ]===\n\n", localVersion)
-	// Compare local and github repo versions
 	lib.VersionCompare(repoVersion, localVersion)
 	if err := lib.CreateOutputDir(); err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
 	}
 	lib.DisplayCount = 0
+	fmt.Print("[*] Method: ")
 	if len(args.WordlistPath) == 0 {
-		fmt.Println("[*] Using passive enum method")
+		fmt.Println("PASSIVE")
 		lib.PassiveEnum(&args, httpClient)
 	} else {
-		fmt.Println("[*] Using direct enum method")
+		fmt.Println("DIRECT")
 		if err := lib.DirectEnum(&args, httpClient); err != nil {
 			fmt.Println(err)
 			os.Exit(-1)
