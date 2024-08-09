@@ -88,7 +88,7 @@ func DirectEnum(args *Args, client *http.Client) error {
 		url := fmt.Sprintf("http://%s.%s", entry, args.Host)
 		statusCode := HttpStatusCode(client, url)
 		code := fmt.Sprintf("%d", statusCode)
-		if len(excludes) != 0 && IsInExclude(code, excludes) {
+		if len(excludes) != 0 && InArgList(code, excludes) {
 			continue
 		}
 		fmt.Printf(" ===[ %s.%s: %d\n", entry, args.Host, statusCode)

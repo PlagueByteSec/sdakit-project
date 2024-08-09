@@ -62,7 +62,7 @@ func VersionCompare(versionRepo string, versionLocal string) {
 	}
 }
 
-func IsInExclude(httpCode string, list []string) bool {
+func InArgList(httpCode string, list []string) bool {
 	for _, code := range list {
 		if httpCode == code {
 			return true

@@ -64,12 +64,16 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 	streamV4.Close()
 	streamV6.Close()
 	streamDomains.Close()
+	codeFilter := strings.Split(args.FilHttpCodes, ",")
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
 		httpStatusCode := HttpStatusCode(client, url)
 		statusCodeConv := strconv.Itoa(httpStatusCode)
 		if statusCodeConv == "-1" {
 			statusCodeConv = Na
+		}
+		if len(codeFilter) != 0 && !InArgList(statusCodeConv, codeFilter) {
+			return
 		}
 		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %s", consoleOutput, statusCodeConv)
 	}
