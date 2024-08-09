@@ -60,6 +60,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 			}
 		}
 	}
+	WriteOutputFileStream(outputFileStreams.SubdomainStream, params.FileContent)
 	consoleOutput := fmt.Sprintf(" ══[ %s", params.Result)
 	codeFilter := strings.Split(args.FilHttpCodes, ",")
 	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
