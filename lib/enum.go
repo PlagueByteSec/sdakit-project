@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -80,15 +81,19 @@ func DirectEnum(args *Args, client *http.Client) error {
 		return errors.New("unable to open file stream to wordlist")
 	}
 	defer stream.Close()
-	excludes := strings.Split(args.ExcHttpCodes, ",")
+	codeFilter := strings.Split(args.FilHttpCodes, ",")
+	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
 	scanner := bufio.NewScanner(stream)
 	fmt.Println()
 	for scanner.Scan() {
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Host)
 		statusCode := HttpStatusCode(client, url)
-		code := fmt.Sprintf("%d", statusCode)
-		if len(excludes) != 0 && InArgList(code, excludes) {
+		code := strconv.Itoa(statusCode)
+		if len(codeFilter) != 0 && !InArgList(code, codeFilter) {
+			continue
+		}
+		if len(codeFilterExc) != 0 && InArgList(code, codeFilterExc) {
 			continue
 		}
 		fmt.Printf(" ===[ %s.%s: %d\n", entry, args.Host, statusCode)

@@ -65,6 +65,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 	streamV6.Close()
 	streamDomains.Close()
 	codeFilter := strings.Split(args.FilHttpCodes, ",")
+	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
 		httpStatusCode := HttpStatusCode(client, url)
@@ -72,7 +73,12 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 		if statusCodeConv == "-1" {
 			statusCodeConv = Na
 		}
-		if len(codeFilter) != 0 && !InArgList(statusCodeConv, codeFilter) {
+		// Display only the given status codes
+		if len(codeFilter) != 1 && !InArgList(statusCodeConv, codeFilter) {
+			return
+		}
+		// Exclude the given codes from console output
+		if len(codeFilterExc) != 1 && InArgList(statusCodeConv, codeFilterExc) {
 			return
 		}
 		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %s", consoleOutput, statusCodeConv)
