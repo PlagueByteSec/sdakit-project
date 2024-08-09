@@ -5,7 +5,10 @@
 # Sentinel - X-Platform Subdomain Emumeration
 ### Description:
 ```txt
-This program is designed to fetch, filter and validate subdomains from a specific host. This works by querying public services like DNS, certificate transparency logs, etc. The output can be adjusted as needed and the results are automatically saved for further processing. 
+This program is designed to fetch, filter and validate subdomains 
+from a specific host. This works by querying public services like DNS, 
+certificate transparency logs, etc. The output can be adjusted as 
+needed and the results are automatically saved for further processing. 
 ```
 
 ### Build:
