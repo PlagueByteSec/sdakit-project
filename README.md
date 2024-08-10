@@ -44,15 +44,15 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | Flags | Description |
 | ----- | ----------- |
 | -t | Specify the taget domain eg. example.com (default: passive) |
-| -w | Specify the wordlist for direct enumeration
-| -oS | Specify the output file path for subdomains
-| -o4 | Specify the output file path for IPv4 addresses
-| -o6 | Specify the output file path for IPv6 addresses
-| -c | Display the HTTP status code of each subdomain
-| -e | Exclude HTTP status codes from results
-| -f | Filter specific HTTP status codes from results
-| -s | Display only subdomains which can be resolved to IP addresses
-| -a | Analyze HTTP header of each subdomain (server etc.)
+| -w | Use direct method by specifying the wordlist |
+| -oS | Specify the output file path for subdomains |
+| -o4 | Specify the output file path for IPv4 addresses |
+| -o6 | Specify the output file path for IPv6 addresses |
+| -c | Display the HTTP status code of each subdomain |
+| -e | Exclude HTTP status codes from results |
+| -f | Filter specific HTTP status codes from results |
+| -s | Display only subdomains which can be resolved to IP addresses |
+| -a | Analyze HTTP header of each subdomain (server etc.) |
 
 # License
 Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license
