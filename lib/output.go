@@ -90,7 +90,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 				consoleOutput = fmt.Sprintf("%s\n\t╚═[ %s", consoleOutput, ipAddrsOut)
 			}
 		}
-		if headers != "" {
+		if headers != "" && count != 0 {
 			consoleOutput = fmt.Sprintf("%s\n\t%s", consoleOutput, headers)
 		}
 	} else {
