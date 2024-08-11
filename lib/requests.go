@@ -67,11 +67,11 @@ func HttpStatusCode(client *http.Client, url string) int {
 func GetCurrentRepoVersion(client *http.Client) string {
 	response, err := requestSendGET(VersionUrl, client)
 	if err != nil {
-		return "n/a"
+		return NotAvailable
 	}
 	responseBody, err := responseGetBody(response)
 	if err != nil {
-		return "n/a"
+		return NotAvailable
 	}
 	return string(responseBody)
 }
