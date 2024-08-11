@@ -29,9 +29,10 @@ go build -o bin/sentinel
 - extend the default enumeration
 ```bash
 # Discover subdomains, display HTTP status codes, analyze 
-# the header and display only resolvable subdomains.
+# the header, display only resolvable subdomains and run a
+# port scan against them.
 # All results will be saved in the "output" directory.
-./bin/sentinel -t example.com -s -c -a
+./bin/sentinel -t example.com -s -c -a -p 1-65535
 ```
 #### Or simply `run` the <sentinel> `executable` without args to see the available `options`
 
@@ -53,6 +54,8 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | -f | string | Filter specific HTTP status codes from results |
 | -s | - | Display only subdomains which can be resolved to IP addresses |
 | -a | - | Analyze HTTP header of each subdomain (server etc.) |
+| -p | string | Scan subdomains for open ports in range |
+| -x | string | Extend endpoint DB with custom list (.txt) |
 
 # License
 Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license

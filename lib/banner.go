@@ -25,4 +25,6 @@ Sentinel
  -f  Filter for specific HTTP response codes (comma seperated)
  -s  Display only subdomains which can be resolved to IP addresses
  -a  Analyze HTTP header of each subdomain (server etc.)
+ -p  Scan subdomains for open ports in range
+ -x  Extend endpoint DB with custom list (.txt)
 `
