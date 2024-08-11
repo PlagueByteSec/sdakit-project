@@ -12,10 +12,10 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	httpClient := lib.HttpClientInit()
+	httpClient := lib.HttpClientInit(args.Timeout)
 	localVersion := lib.GetCurrentLocalVersion()
 	repoVersion := lib.GetCurrentRepoVersion(httpClient)
-	fmt.Printf(" ===[ Sentinel, v%s ]===\n\n", localVersion)
+	fmt.Printf(" ===[ Sentinel, Version: %s ]===\n\n", localVersion)
 	lib.VersionCompare(repoVersion, localVersion)
 	if err := lib.CreateOutputDir(); err != nil {
 		fmt.Println(err)

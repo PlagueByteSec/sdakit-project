@@ -13,7 +13,7 @@ Sentinel
 
 ===[ Usage
  -v  Verbose output
- -t  Set the target domain name
+ -d  Set the target domain name
 	 [passive] (Without -w) request subdomains from external endpoints
 	 Example: targetdomain.xyz 
  -w  [direct] Use wordlist to bruteforce subdomains of the target
@@ -27,4 +27,5 @@ Sentinel
  -a  Analyze HTTP header of each subdomain (server etc.)
  -p  Scan subdomains for open ports in range
  -x  Extend endpoint DB with custom list (.txt)
+ -t  Specify the request timeout
 `

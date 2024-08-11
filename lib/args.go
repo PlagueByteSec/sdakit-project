@@ -19,11 +19,12 @@ type Args struct {
 	AnalyzeHeader bool
 	PortScan      string
 	DbExtendPath  string
+	Timeout       int
 }
 
 func CliParser() (Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
-	host := flag.String("t", "", "Set the target domain name")
+	host := flag.String("d", "", "Set the target domain name")
 	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
 	outFileIPv4 := flag.String("o4", "defaultV4", "Output file path for IPv4 addresses")
 	outFileIPv6 := flag.String("o6", "defaultV6", "Output file path for IPv6 addresses")
@@ -35,6 +36,7 @@ func CliParser() (Args, error) {
 	analyzeHeader := flag.Bool("a", false, "Analyze HTTP header of each subdomain")
 	portScan := flag.String("p", "", "Define port range an run scan")
 	dbExtendPath := flag.String("x", "", "Extend endpoint DB with custom list")
+	timeout := flag.Int("t", 5, "Specify the request timeout")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		return Args{}, errors.New(Help)
@@ -56,6 +58,7 @@ func CliParser() (Args, error) {
 		AnalyzeHeader: *analyzeHeader,
 		PortScan:      *portScan,
 		DbExtendPath:  *dbExtendPath,
+		Timeout:       *timeout,
 	}
 	return args, nil
 }

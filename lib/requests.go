@@ -13,9 +13,9 @@ import (
 	"github.com/Ullaakut/nmap/v3"
 )
 
-func HttpClientInit() *http.Client {
+func HttpClientInit(timeout int) *http.Client {
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: time.Duration(timeout) * time.Second,
 	}
 	return client
 }

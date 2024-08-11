@@ -21,11 +21,10 @@ func DefaultOutputName(hostname string) string {
 }
 
 func CreateOutputDir() error {
-	outputDir := "output"
-	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
-		err := os.MkdirAll(outputDir, 0755)
+	if _, err := os.Stat(OutputDir); os.IsNotExist(err) {
+		err := os.MkdirAll(OutputDir, 0755)
 		if err != nil {
-			return errors.New("unable to create output directory: " + outputDir)
+			return errors.New("unable to create output directory: " + OutputDir)
 		}
 	}
 	return nil
@@ -48,13 +47,13 @@ func GetCurrentLocalVersion() string {
 	}
 	content, err = os.ReadFile(versionPath)
 	if err != nil {
-		return "n/a"
+		return NotAvailable
 	}
 	return string(content)
 }
 
 func VersionCompare(versionRepo string, versionLocal string) {
-	if versionRepo == Na || versionLocal == Na || versionLocal == "" {
+	if versionRepo == NotAvailable || versionLocal == NotAvailable || versionLocal == "" {
 		return
 	}
 	parseRepoVersion, _ := version.NewVersion(versionRepo)
@@ -76,7 +75,7 @@ func InArgList(httpCode string, list []string) bool {
 func EditDbEntries(args *Args) ([]string, error) {
 	entries := make([]string, 0, len(Db))
 	for idx, entry := range Db {
-		endpoint := strings.Replace(entry, "HOST", args.Host, 1)
+		endpoint := strings.Replace(entry, Placeholder, args.Host, 1)
 		if args.Verbose {
 			fmt.Printf("\n%d. Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 		}
@@ -90,14 +89,14 @@ func EditDbEntries(args *Args) ([]string, error) {
 		}
 		defer stream.Close()
 		scanner := bufio.NewScanner(stream)
-		idx := 0
+		idx := 1
 		for scanner.Scan() {
 			entry := scanner.Text()
-			if !strings.Contains(entry, "HOST") {
+			if !strings.Contains(entry, Placeholder) {
 				fmt.Println("[-] Invalid pattern (HOST missing): " + entry)
 				continue
 			}
-			endpoint := strings.Replace(entry, "HOST", args.Host, 1)
+			endpoint := strings.Replace(entry, Placeholder, args.Host, 1)
 			if args.Verbose {
 				fmt.Printf("\n%d. X Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 			}

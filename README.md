@@ -6,9 +6,14 @@
 ### Description:
 ```txt
 This program is designed to fetch, filter and validate subdomains 
-from a specific host. This works by querying public services like DNS, 
-certificate transparency logs, etc. The output can be adjusted as 
-needed and the results are automatically saved for further processing. 
+from a specific host. The user can decide for himself whether external resources 
+are queried or whether subdomains are to be discovered by brute-force. Further 
+information can be queried for the individual results. This information 
+includes HTTP header analysis (which server etc.), HTTP status 
+code to find out if and how the subdomain is reachable and the possibility 
+to perform a port scan for each subdomain. The output can be customized as 
+required and the results (divided into: IPv4, IPv6 and subdomains) are automatically 
+saved for further processing. 
 ```
 
 ### Build:
@@ -24,7 +29,7 @@ go build -o bin/sentinel
 ### Usage:
 - specify the target and request subdomains
 ```
-<sentinel> -t example.com
+<sentinel> -d example.com
 ```
 - extend the default enumeration
 ```bash
@@ -32,7 +37,7 @@ go build -o bin/sentinel
 # the header, display only resolvable subdomains and run a
 # port scan against them.
 # All results will be saved in the "output" directory.
-./bin/sentinel -t example.com -s -c -a -p 1-65535
+./bin/sentinel -d example.com -s -c -a -p 1-65535
 ```
 #### Or simply `run` the <sentinel> `executable` without args to see the available `options`
 
@@ -44,7 +49,7 @@ divided into subdomains, IPv4 and IPv6 addresses.
 #### Options:
 | Flags | Argument Type | Description |
 | ----- | ----------- | ------------|
-| -t | string | Specify the taget domain eg. example.com (default: passive) |
+| -d | string | Specify the taget domain eg. example.com (default: passive) |
 | -w | string | Use direct method by specifying the wordlist |
 | -oS | string | Specify the output file path for subdomains |
 | -o4 | string | Specify the output file path for IPv4 addresses |
@@ -56,6 +61,7 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | -a | - | Analyze HTTP header of each subdomain (server etc.) |
 | -p | string | Scan subdomains for open ports in range |
 | -x | string | Extend endpoint DB with custom list (.txt) |
+| -t | int | Specify the request timeout |
 
 # License
 Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license

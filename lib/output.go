@@ -61,41 +61,39 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 		}
 	}
 	WriteOutputFileStream(outputFileStreams.SubdomainStream, params.FileContent)
-	consoleOutput := fmt.Sprintf(" ══[ %s", params.Result)
+	fmt.Printf("\n ══[ %s", params.Result)
 	codeFilter := strings.Split(args.FilHttpCodes, ",")
 	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Result)
 		httpStatusCode := HttpStatusCode(client, url)
 		statusCodeConv := strconv.Itoa(httpStatusCode)
-		if statusCodeConv == "-1" {
-			statusCodeConv = Na
+		if httpStatusCode == -1 {
+			statusCodeConv = NotAvailable
 		}
-		// Display only the given status codes
 		if len(codeFilter) != 1 && !InArgList(statusCodeConv, codeFilter) {
 			return
 		}
-		// Exclude the given codes from console output
 		if len(codeFilterExc) != 1 && InArgList(statusCodeConv, codeFilterExc) {
 			return
 		}
-		consoleOutput = fmt.Sprintf("%s, HTTP Status Code: %s", consoleOutput, statusCodeConv)
+		fmt.Printf(", HTTP Status Code: %s", statusCodeConv)
 	}
 	if args.AnalyzeHeader {
 		headers, count := AnalyseHttpHeader(client, params.Result)
 		if ipAddrsOut != "" {
 			if count != 0 {
-				consoleOutput = fmt.Sprintf("%s\n\t╠═[ %s", consoleOutput, ipAddrsOut)
+				fmt.Printf("\n\t╠═[ %s", ipAddrsOut)
 			} else {
-				consoleOutput = fmt.Sprintf("%s\n\t╚═[ %s", consoleOutput, ipAddrsOut)
+				fmt.Printf("\n\t╚═[ %s", ipAddrsOut)
 			}
 		}
 		if headers != "" && count != 0 {
-			consoleOutput = fmt.Sprintf("%s\n\t%s", consoleOutput, headers)
+			fmt.Printf("\n\t%s", headers)
 		}
 	} else {
 		if ipAddrsOut != "" {
-			consoleOutput = fmt.Sprintf("%s\n\t╚═[ %s", consoleOutput, ipAddrsOut)
+			fmt.Printf("\n\t╚═[ %s", ipAddrsOut)
 		}
 	}
 	if args.PortScan != "" {
@@ -103,8 +101,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		consoleOutput = fmt.Sprintf("%s%s", consoleOutput, ports)
+		fmt.Printf("%s", ports)
 	}
-	fmt.Println(consoleOutput)
 	DisplayCount++
 }
