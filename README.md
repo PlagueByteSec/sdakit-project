@@ -2,7 +2,7 @@
   <img src="https://github.com/fhAnso/Sentinel/blob/main/assets/logo.png" />
 </p>
 
-# Sentinel - X-Platform Subdomain Emumeration
+# Sentinel - X-Platform Subdomain Enumeration
 ### Description:
 ```txt
 This program is designed to fetch, filter and validate subdomains 
