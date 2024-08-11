@@ -98,6 +98,13 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 			consoleOutput = fmt.Sprintf("%s\n\t╚═[ %s", consoleOutput, ipAddrsOut)
 		}
 	}
+	if args.PortScan != "" {
+		ports, err := ScanPortsSubdomain(params.Result, args.PortScan)
+		if err != nil {
+			fmt.Println(err)
+		}
+		consoleOutput = fmt.Sprintf("%s%s", consoleOutput, ports)
+	}
 	fmt.Println(consoleOutput)
 	DisplayCount++
 }

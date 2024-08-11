@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"net"
@@ -72,7 +73,7 @@ func InArgList(httpCode string, list []string) bool {
 	return false
 }
 
-func EditDbEntries(args *Args) []string {
+func EditDbEntries(args *Args) ([]string, error) {
 	entries := make([]string, 0, len(Db))
 	for idx, entry := range Db {
 		endpoint := strings.Replace(entry, "HOST", args.Host, 1)
@@ -81,10 +82,33 @@ func EditDbEntries(args *Args) []string {
 		}
 		entries = append(entries, endpoint)
 	}
+	if args.DbExtendPath != "" {
+		fmt.Println("\n[*] Extending endpoints..")
+		stream, err := os.Open(args.DbExtendPath)
+		if err != nil {
+			return nil, errors.New("failed to open file stream for: " + args.DbExtendPath)
+		}
+		defer stream.Close()
+		scanner := bufio.NewScanner(stream)
+		idx := 0
+		for scanner.Scan() {
+			entry := scanner.Text()
+			if !strings.Contains(entry, "HOST") {
+				fmt.Println("[-] Invalid pattern (HOST missing): " + entry)
+				continue
+			}
+			endpoint := strings.Replace(entry, "HOST", args.Host, 1)
+			if args.Verbose {
+				fmt.Printf("\n%d. X Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
+			}
+			entries = append(entries, endpoint)
+			idx++
+		}
+	}
 	if args.Verbose {
 		fmt.Printf("\n[*] Using %d endpoints\n", len(entries))
 	}
-	return entries
+	return entries, nil
 }
 
 func RequestIpAddresses(subdomain string) []string {

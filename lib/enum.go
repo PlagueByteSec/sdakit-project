@@ -25,7 +25,10 @@ func PassiveEnum(args *Args, client *http.Client) {
 	if args.Verbose {
 		fmt.Println("[*] Formatting db entries..")
 	}
-	endpoints := EditDbEntries(args)
+	endpoints, err := EditDbEntries(args)
+	if err != nil {
+		fmt.Println(err)
+	}
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := EndpointRequest(client, args.Host, endpoints[idx]); err != nil {

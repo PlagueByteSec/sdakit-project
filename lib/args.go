@@ -17,6 +17,8 @@ type Args struct {
 	FilHttpCodes  string
 	SubOnlyIp     bool
 	AnalyzeHeader bool
+	PortScan      string
+	DbExtendPath  string
 }
 
 func CliParser() (Args, error) {
@@ -31,6 +33,8 @@ func CliParser() (Args, error) {
 	filtHttpCodes := flag.String("f", "", "Filter for specific HTTP response codes (comma seperated)")
 	subOnlyIp := flag.Bool("s", false, "Display only subdomains which can be resolved to IP addresses")
 	analyzeHeader := flag.Bool("a", false, "Analyze HTTP header of each subdomain")
+	portScan := flag.String("p", "", "Define port range an run scan")
+	dbExtendPath := flag.String("x", "", "Extend endpoint DB with custom list")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		return Args{}, errors.New(Help)
@@ -50,6 +54,8 @@ func CliParser() (Args, error) {
 		FilHttpCodes:  *filtHttpCodes,
 		SubOnlyIp:     *subOnlyIp,
 		AnalyzeHeader: *analyzeHeader,
+		PortScan:      *portScan,
+		DbExtendPath:  *dbExtendPath,
 	}
 	return args, nil
 }
