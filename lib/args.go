@@ -1,9 +1,8 @@
 package lib
 
 import (
+	"errors"
 	"flag"
-	"fmt"
-	"os"
 )
 
 type Args struct {
@@ -20,22 +19,24 @@ type Args struct {
 	AnalyzeHeader bool
 }
 
-func CliParser() Args {
+func CliParser() (Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
-	host := flag.String("t", "", "Target host")
-	outFile := flag.String("oS", "defaultSd", "Output file for subdomains")
-	outFileIPv4 := flag.String("o4", "defaultV4", "Output file for IPv4 addresses")
-	outFileIPv6 := flag.String("o6", "defaultV6", "Output file for IPv6 addresses")
-	httpCode := flag.Bool("c", false, "Get HTTP status code of each entry")
-	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomain")
+	host := flag.String("t", "", "Set the target domain name")
+	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
+	outFileIPv4 := flag.String("o4", "defaultV4", "Output file path for IPv4 addresses")
+	outFileIPv6 := flag.String("o6", "defaultV6", "Output file path for IPv6 addresses")
+	httpCode := flag.Bool("c", false, "Get HTTP status code of each subdomain")
+	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomains")
 	excHttpCodes := flag.String("e", "", "Exclude HTTP codes (comma seperated)")
-	filtHttpCodes := flag.String("f", "", "Show only specific HTTP codes (comma seperated)")
-	subOnlyIp := flag.Bool("s", false, "Display only specific subdomains")
+	filtHttpCodes := flag.String("f", "", "Filter for specific HTTP response codes (comma seperated)")
+	subOnlyIp := flag.Bool("s", false, "Display only subdomains which can be resolved to IP addresses")
 	analyzeHeader := flag.Bool("a", false, "Analyze HTTP header of each subdomain")
 	flag.Parse()
 	if flag.NFlag() == 0 {
-		fmt.Println(Help)
-		os.Exit(-1)
+		return Args{}, errors.New(Help)
+	}
+	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
+		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
 	}
 	args := Args{
 		Verbose:       *verbose,
@@ -50,5 +51,5 @@ func CliParser() Args {
 		SubOnlyIp:     *subOnlyIp,
 		AnalyzeHeader: *analyzeHeader,
 	}
-	return args
+	return args, nil
 }

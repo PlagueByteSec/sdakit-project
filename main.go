@@ -7,7 +7,11 @@ import (
 )
 
 func main() {
-	args := lib.CliParser()
+	args, err := lib.CliParser()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	httpClient := lib.HttpClientInit()
 	localVersion := lib.GetCurrentLocalVersion()
 	repoVersion := lib.GetCurrentRepoVersion(httpClient)
