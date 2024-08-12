@@ -20,6 +20,7 @@ type Args struct {
 	PortScan      string
 	DbExtendPath  string
 	Timeout       int
+	TorRoute      bool
 }
 
 func CliParser() (Args, error) {
@@ -37,6 +38,7 @@ func CliParser() (Args, error) {
 	portScan := flag.String("p", "", "Define port range an run scan")
 	dbExtendPath := flag.String("x", "", "Extend endpoint DB with custom list")
 	timeout := flag.Int("t", 5, "Specify the request timeout")
+	torRoute := flag.Bool("r", false, "Enable TOR routing")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		return Args{}, errors.New(Help)
@@ -59,6 +61,7 @@ func CliParser() (Args, error) {
 		PortScan:      *portScan,
 		DbExtendPath:  *dbExtendPath,
 		Timeout:       *timeout,
+		TorRoute:      *torRoute,
 	}
 	return args, nil
 }

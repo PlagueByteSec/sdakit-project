@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -13,11 +14,27 @@ import (
 	"github.com/Ullaakut/nmap/v3"
 )
 
-func HttpClientInit(timeout int) *http.Client {
-	client := &http.Client{
-		Timeout: time.Duration(timeout) * time.Second,
+func HttpClientInit(args *Args) (*http.Client, error) {
+	var client *http.Client
+	if args.TorRoute {
+		proxyUrl, err := url.Parse(TorProxyUrl)
+		if err != nil {
+			return nil, errors.New("failed to parse TOR proxy URL: " + err.Error())
+		}
+		client = &http.Client{
+			Transport: &http.Transport{
+				Proxy: http.ProxyURL(proxyUrl),
+			},
+			Timeout: time.Duration(args.Timeout) * time.Second,
+		}
+		fmt.Println("[*] All requests will be routet through TOR")
+	} else {
+		client = &http.Client{
+			Timeout: time.Duration(args.Timeout) * time.Second,
+		}
 	}
-	return client
+	fmt.Println()
+	return client, nil
 }
 
 func responseGetBody(response *http.Response) ([]byte, error) {
@@ -114,7 +131,7 @@ func ScanPortsSubdomain(subdomain string, ports string) (string, error) {
 			continue
 		}
 		for _, port := range host.Ports {
-			summary := fmt.Sprintf("\n\t[> Port %d/%s %s %s\n",
+			summary := fmt.Sprintf("\t[> Port %d/%s %s %s\n",
 				port.ID, port.Protocol, port.State, port.Service.Name)
 			output.WriteString(summary)
 		}

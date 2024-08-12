@@ -3,7 +3,6 @@ package main
 import (
 	"Sentinel/lib"
 	"fmt"
-	"os"
 )
 
 func main() {
@@ -12,14 +11,18 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	httpClient := lib.HttpClientInit(args.Timeout)
+	httpClient, err := lib.HttpClientInit(&args)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	localVersion := lib.GetCurrentLocalVersion()
 	repoVersion := lib.GetCurrentRepoVersion(httpClient)
 	fmt.Printf(" ===[ Sentinel, Version: %s ]===\n\n", localVersion)
 	lib.VersionCompare(repoVersion, localVersion)
 	if err := lib.CreateOutputDir(); err != nil {
 		fmt.Println(err)
-		os.Exit(-1)
+		return
 	}
 	lib.DisplayCount = 0
 	fmt.Print("[*] Method: ")
@@ -30,7 +33,7 @@ func main() {
 		fmt.Println("DIRECT")
 		if err := lib.DirectEnum(&args, httpClient); err != nil {
 			fmt.Println(err)
-			os.Exit(-1)
+			return
 		}
 	}
 }

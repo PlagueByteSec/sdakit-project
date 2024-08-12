@@ -6,9 +6,9 @@
 ### Description:
 ```txt
 This program is designed to fetch, filter and validate subdomains 
-from a specific host. The user can decide for himself whether external resources 
-are queried or whether subdomains are to be discovered by brute-force. Further 
-information can be queried for the individual results. This information 
+from a specific host. The enumeration can be done by either using the passive
+method using external ressources or directly via brute-force. Further 
+information can be queried for the each subdomain. This information 
 includes HTTP header analysis (which server etc.), HTTP status 
 code to find out if and how the subdomain is reachable and the possibility 
 to perform a port scan for each subdomain. The output can be customized as 
@@ -62,6 +62,7 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | -p | string | Scan subdomains for open ports in range |
 | -x | string | Extend endpoint DB with custom list (.txt) |
 | -t | int | Specify the request timeout |
+| -r | - | Route all requests through TOR |
 
 # License
 Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license

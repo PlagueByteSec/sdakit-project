@@ -85,7 +85,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 			if count != 0 {
 				fmt.Printf("\n\t╠═[ %s", ipAddrsOut)
 			} else {
-				fmt.Printf("\n\t╚═[ %s", ipAddrsOut)
+				fmt.Printf("\n\t╚═[ %s\n", ipAddrsOut)
 			}
 		}
 		if headers != "" && count != 0 {
@@ -93,15 +93,16 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 		}
 	} else {
 		if ipAddrsOut != "" {
-			fmt.Printf("\n\t╚═[ %s", ipAddrsOut)
+			fmt.Printf("\n\t╚═[ %s\n", ipAddrsOut)
 		}
 	}
 	if args.PortScan != "" {
+		fmt.Println()
 		ports, err := ScanPortsSubdomain(params.Result, args.PortScan)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("%s", ports)
+		fmt.Println(ports)
 	}
 	DisplayCount++
 }

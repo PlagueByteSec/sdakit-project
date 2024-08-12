@@ -15,7 +15,12 @@ import (
 func evaluation(startTime time.Time, count int) {
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
-	fmt.Printf("\n[*] %d subdomains obtained, %d displayed\n", count, DisplayCount)
+	var temp strings.Builder
+	temp.WriteString("subdomain")
+	if count != 1 {
+		temp.WriteString("s")
+	}
+	fmt.Printf("\n[*] %d %s obtained, %d displayed\n", count, temp.String(), DisplayCount)
 	fmt.Printf("[*] Finished in %s\n", duration)
 }
 
@@ -59,7 +64,6 @@ func PassiveEnum(args *Args, client *http.Client) {
 	} else {
 		filePathIPv6 = args.OutFileIPv6
 	}
-	fmt.Println()
 	for _, result := range PoolDomains {
 		params := Params{
 			FilePath:     filePath,

@@ -28,4 +28,5 @@ Sentinel
  -p  Scan subdomains for open ports in range
  -x  Extend endpoint DB with custom list (.txt)
  -t  Specify the request timeout
+ -r  Route all requests through TOR
 `
