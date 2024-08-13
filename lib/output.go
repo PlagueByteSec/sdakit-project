@@ -83,6 +83,9 @@ func IpManage(params Params, ip string, fileStream *FileStreams) {
 
 func OutputHandler(client *http.Client, args *Args, params Params) {
 	ipAddrsOut, ipAddrs := DoIpResolve(args, params)
+	if ipAddrs == nil {
+		return
+	}
 	outputFileStreams, err := OpenOutputFileStreams(params)
 	if err != nil {
 		Logger.Println(err)
