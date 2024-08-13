@@ -5,15 +5,14 @@
 # Sentinel - X-Platform Subdomain Enumeration
 ### Description:
 ```txt
-This program is designed to fetch, filter and validate subdomains 
-from a specific host. The enumeration can be done by either using the passive
-method using external ressources or directly via brute-force. Further 
-information can be queried for the each subdomain. This information 
-includes HTTP header analysis (which server etc.), HTTP status 
-code to find out if and how the subdomain is reachable and the possibility 
-to perform a port scan for each subdomain. The output can be customized as 
-required and the results (divided into: IPv4, IPv6 and subdomains) are automatically 
-saved for further processing. 
+This project is designed to enumerate, filter, and validate subdomains for 
+a specified host. Enumeration can be performed using either a passive method 
+that leverages external resources or through direct brute-force technique. 
+For each discovered subdomain, Sentinel retrieves detailed information, 
+including HTTP header analysis (e.g., server), HTTP status codes to 
+assess reachability, and the option to conduct a port scan. The output is customizable to meet user requirements, and results are categorized into 
+IPv4, IPv6, and subdomains, with all findings automatically saved for 
+subsequent processing.
 ```
 
 ### Build:
