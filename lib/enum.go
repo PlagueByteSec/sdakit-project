@@ -35,6 +35,7 @@ func PassiveEnum(args *Args, client *http.Client) {
 		Logger.Println(err)
 	}
 	fmt.Println("[*] Sending GET request to endpoints..")
+	fmt.Println()
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := EndpointRequest(client, args.Host, endpoints[idx]); err != nil {
 			Logger.Println(err)

@@ -2,9 +2,11 @@ package main
 
 import (
 	"Sentinel/lib"
+	"bufio"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 )
 
 func main() {
@@ -14,6 +16,16 @@ func main() {
 		localVersion string
 		repoVersion  string
 	)
+	stdout := bufio.NewWriter(os.Stdout)
+	defer stdout.Flush()
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt)
+	go func() {
+		for range sigChan {
+			fmt.Println("\n\nG0oDBy3!")
+			os.Exit(0)
+		}
+	}()
 	args, err := lib.CliParser()
 	if err != nil {
 		lib.Logger.Println(err)
@@ -46,5 +58,5 @@ func main() {
 	}
 	os.Exit(0)
 exitErr:
-	os.Exit(-1)
+	lib.Logger.Fatalf("Program execution failed")
 }
