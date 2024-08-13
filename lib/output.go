@@ -102,7 +102,9 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 		if err != nil {
 			Logger.Println(err)
 		}
-		fmt.Println(ports)
+		if ports != "" {
+			fmt.Println(ports)
+		}
 	}
 	DisplayCount++
 }

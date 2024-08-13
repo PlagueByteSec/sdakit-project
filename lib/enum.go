@@ -20,7 +20,7 @@ func evaluation(startTime time.Time, count int) {
 	if count != 1 {
 		temp.WriteString("s")
 	}
-	fmt.Printf("\n[*] %d %s obtained, %d displayed\n", count, temp.String(), DisplayCount)
+	fmt.Printf("\n\n[*] %d %s obtained, %d displayed\n", count, temp.String(), DisplayCount)
 	fmt.Printf("[*] Finished in %s\n", duration)
 }
 
