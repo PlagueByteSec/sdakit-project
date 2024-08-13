@@ -2,8 +2,10 @@ package lib
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -12,6 +14,12 @@ import (
 
 	"github.com/hashicorp/go-version"
 )
+
+type FilePaths struct {
+	FilePathSubdomain string
+	FilePathIPv4      string
+	FilePathIPv6      string
+}
 
 func DefaultOutputName(hostname string) string {
 	currentTime := time.Now()
@@ -128,4 +136,71 @@ func GetIpVersion(ipAddress string) int {
 		}
 	}
 	return ipVersion
+}
+
+func FileCountLines(filePath string) (int, error) {
+	stream, err := os.Open(filePath)
+	if err != nil {
+		Logger.Println(err)
+		return 0, err
+	}
+	defer stream.Close()
+	counter := 0
+	newLine := []byte{'\n'}
+	buffer := make([]byte, 32*1024)
+	for {
+		reader, err := stream.Read(buffer)
+		if reader > 0 {
+			counter += bytes.Count(buffer[:reader], newLine)
+		}
+		switch {
+		case err == io.EOF:
+			return counter, nil
+		case err != nil:
+			Logger.Println(err)
+			return counter, err
+		}
+	}
+}
+
+func Evaluation(startTime time.Time, count int) {
+	stdout := bufio.NewWriter(os.Stdout)
+	defer stdout.Flush()
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+	var temp strings.Builder
+	temp.WriteString("subdomain")
+	if count != 1 {
+		temp.WriteString("s")
+	}
+	fmt.Printf("\n\n[*] %d %s obtained, %d displayed\n", count, temp.String(), DisplayCount)
+	fmt.Printf("[*] Finished in %s\n", duration)
+}
+
+func FilePathInit(args *Args) *FilePaths {
+	var (
+		filePathSubdomain string
+		filePathIPv4      string
+		filePathIPv6      string
+	)
+	if args.OutFile == "defaultSd" {
+		filePathSubdomain = filepath.Join("output", DefaultOutputName(args.Host))
+	} else {
+		filePathSubdomain = args.OutFile
+	}
+	if args.OutFileIPv4 == "defaultV4" {
+		filePathIPv4 = filepath.Join("output", "IPv4-"+DefaultOutputName(args.Host))
+	} else {
+		filePathIPv4 = args.OutFileIPv4
+	}
+	if args.OutFileIPv6 == "defaultV6" {
+		filePathIPv6 = filepath.Join("output", "IPv6-"+DefaultOutputName(args.Host))
+	} else {
+		filePathIPv6 = args.OutFileIPv6
+	}
+	return &FilePaths{
+		FilePathSubdomain: filePathSubdomain,
+		FilePathIPv4:      filePathIPv4,
+		FilePathIPv6:      filePathIPv6,
+	}
 }

@@ -6,25 +6,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func evaluation(startTime time.Time, count int) {
-	endTime := time.Now()
-	duration := endTime.Sub(startTime)
-	var temp strings.Builder
-	temp.WriteString("subdomain")
-	if count != 1 {
-		temp.WriteString("s")
-	}
-	fmt.Printf("\n\n[*] %d %s obtained, %d displayed\n", count, temp.String(), DisplayCount)
-	fmt.Printf("[*] Finished in %s\n", duration)
-}
-
-// Pool init and preparation
 func PassiveEnum(args *Args, client *http.Client) {
 	startTime := time.Now()
 	if args.Verbose {
@@ -45,31 +31,12 @@ func PassiveEnum(args *Args, client *http.Client) {
 		fmt.Println("[-] Could not determine subdomains :(")
 		os.Exit(0)
 	}
-	var (
-		filePath     string
-		filePathIPv4 string
-		filePathIPv6 string
-	)
-	if args.OutFile == "defaultSd" {
-		filePath = filepath.Join("output", DefaultOutputName(args.Host))
-	} else {
-		filePath = args.OutFile
-	}
-	if args.OutFileIPv4 == "defaultV4" {
-		filePathIPv4 = filepath.Join("output", "IPv4-"+DefaultOutputName(args.Host))
-	} else {
-		filePathIPv4 = args.OutFileIPv4
-	}
-	if args.OutFileIPv6 == "defaultV6" {
-		filePathIPv6 = filepath.Join("output", "IPv6-"+DefaultOutputName(args.Host))
-	} else {
-		filePathIPv6 = args.OutFileIPv6
-	}
+	filePaths := FilePathInit(args)
 	for _, result := range PoolDomains {
 		params := Params{
-			FilePath:     filePath,
-			FilePathIPv4: filePathIPv4,
-			FilePathIPv6: filePathIPv6,
+			FilePath:     filePaths.FilePathSubdomain,
+			FilePathIPv4: filePaths.FilePathIPv4,
+			FilePathIPv6: filePaths.FilePathIPv6,
 			FileContent:  result,
 			Result:       result,
 			Hostname:     args.Host,
@@ -77,15 +44,21 @@ func PassiveEnum(args *Args, client *http.Client) {
 		OutputHandler(client, args, params)
 	}
 	poolSize := len(PoolDomains)
-	evaluation(startTime, poolSize)
+	Evaluation(startTime, poolSize)
 }
 
 func DirectEnum(args *Args, client *http.Client) error {
-	var counter int
+	obtainedCounter := 0
+	allCounter := 0
 	startTime := time.Now()
 	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
 		Logger.Println(err)
 		return errors.New("could not find wordlist: " + args.WordlistPath)
+	}
+	lineCount, err := FileCountLines(args.WordlistPath)
+	if err != nil {
+		Logger.Println(err)
+		return errors.New("Failed to count lines of " + args.WordlistPath)
 	}
 	stream, err := os.Open(args.WordlistPath)
 	if err != nil {
@@ -102,19 +75,34 @@ func DirectEnum(args *Args, client *http.Client) error {
 		url := fmt.Sprintf("http://%s.%s", entry, args.Host)
 		statusCode := HttpStatusCode(client, url)
 		code := strconv.Itoa(statusCode)
-		if len(codeFilter) != 0 && !InArgList(code, codeFilter) {
-			continue
+		if statusCode != -1 {
+			if len(codeFilter) != 1 && !InArgList(code, codeFilter) {
+				continue
+			}
+			if len(codeFilterExc) != 1 && InArgList(code, codeFilterExc) {
+				continue
+			}
+			subdomain := fmt.Sprintf("%s.%s", entry, args.Host)
+			filePaths := FilePathInit(args)
+			params := Params{
+				FilePath:     filePaths.FilePathSubdomain,
+				FilePathIPv4: filePaths.FilePathIPv4,
+				FilePathIPv6: filePaths.FilePathIPv6,
+				FileContent:  subdomain,
+				Result:       subdomain,
+				Hostname:     args.Host,
+			}
+			fmt.Println()
+			OutputHandler(client, args, params)
+			obtainedCounter++
 		}
-		if len(codeFilterExc) != 0 && InArgList(code, codeFilterExc) {
-			continue
-		}
-		fmt.Printf(" ===[ %s.%s: %d\n", entry, args.Host, statusCode)
-		counter++
+		allCounter++
+		fmt.Printf("\rProgress::[%d/%d]", allCounter, lineCount)
 	}
 	if err := scanner.Err(); err != nil {
 		Logger.Println(err)
 		return errors.New("scanner returns an error while reading wordlist")
 	}
-	evaluation(startTime, counter)
+	Evaluation(startTime, obtainedCounter)
 	return nil
 }

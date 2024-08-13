@@ -37,7 +37,10 @@ go build -o bin/sentinel
 # the header, display only resolvable subdomains and run a
 # port scan against them.
 # All results will be saved in the "output" directory.
-./bin/sentinel -d example.com -s -c -a -p 1-65535
+# Passive:
+./bin/sentinel -d example.com -s -c -a -p 1-1000 -f 200,401,403
+# Direct:
+./bin/sentinel -d example.com -s -a -p 1-1000 -w /wordlists/subdomains.txt
 ```
 #### Or simply `run` the <sentinel> `executable` without args to see the available `options`
 

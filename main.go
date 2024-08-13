@@ -2,7 +2,6 @@ package main
 
 import (
 	"Sentinel/lib"
-	"bufio"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,8 +15,6 @@ func main() {
 		localVersion string
 		repoVersion  string
 	)
-	stdout := bufio.NewWriter(os.Stdout)
-	defer stdout.Flush()
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt)
 	go func() {
