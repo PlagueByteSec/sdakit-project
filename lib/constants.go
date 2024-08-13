@@ -1,6 +1,7 @@
 package lib
 
 const (
+	logFileName      = "sentinel.log"
 	VersionFile      = "version.txt"
 	LoggerOutputDir  = "log"
 	OutputDir        = "output"

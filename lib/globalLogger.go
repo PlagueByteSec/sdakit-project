@@ -9,8 +9,6 @@ import (
 
 var Logger *log.Logger
 
-const logFileName = "sentinel.log"
-
 func init() {
 	if err := CreateOutputDir(LoggerOutputDir); err != nil {
 		Logger.Println(err)
