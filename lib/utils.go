@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"runtime"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -20,33 +20,27 @@ func DefaultOutputName(hostname string) string {
 	return outputFile
 }
 
-func CreateOutputDir() error {
-	if _, err := os.Stat(OutputDir); os.IsNotExist(err) {
-		err := os.MkdirAll(OutputDir, 0755)
+func CreateOutputDir(dirname string) error {
+	if _, err := os.Stat(dirname); os.IsNotExist(err) {
+		err := os.MkdirAll(dirname, 0755)
 		if err != nil {
-			return errors.New("unable to create output directory: " + OutputDir)
+			Logger.Println(err)
+			return errors.New("unable to create output directory: " + dirname)
 		}
 	}
 	return nil
 }
 
 func GetCurrentLocalVersion() string {
-	var (
-		versionPath string
-		content     []byte
-		err         error
-	)
-	switch runtime.GOOS {
-	case "windows":
-		versionPath = "..\\version.txt"
-	case "linux":
-		versionPath = "../version.txt"
-	}
-	if _, err := os.Stat(versionPath); errors.Is(err, os.ErrNotExist) {
-		versionPath = "version.txt"
-	}
-	content, err = os.ReadFile(versionPath)
+	cwd, err := os.Getwd()
 	if err != nil {
+		Logger.Println(err)
+		return NotAvailable
+	}
+	versionFilePath := filepath.Join(cwd, VersionFile)
+	content, err := os.ReadFile(versionFilePath)
+	if err != nil {
+		Logger.Println(err)
 		return NotAvailable
 	}
 	return string(content)
@@ -85,6 +79,7 @@ func EditDbEntries(args *Args) ([]string, error) {
 		fmt.Println("\n[*] Extending endpoints..")
 		stream, err := os.Open(args.DbExtendPath)
 		if err != nil {
+			Logger.Println(err)
 			return nil, errors.New("failed to open file stream for: " + args.DbExtendPath)
 		}
 		defer stream.Close()
@@ -113,6 +108,7 @@ func EditDbEntries(args *Args) ([]string, error) {
 func RequestIpAddresses(subdomain string) []string {
 	ips, err := net.LookupIP(subdomain)
 	if err != nil {
+		Logger.Println(err)
 		return nil
 	}
 	var results []string

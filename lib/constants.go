@@ -1,6 +1,8 @@
 package lib
 
 const (
+	VersionFile      = "version.txt"
+	LoggerOutputDir  = "log"
 	OutputDir        = "output"
 	Placeholder      = "HOST"
 	NotAvailable     = "n/a"

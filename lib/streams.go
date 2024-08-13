@@ -13,17 +13,20 @@ type FileStreams struct {
 func OpenOutputFileStreams(params Params) (*FileStreams, error) {
 	ipv4AddrStream, err := os.OpenFile(params.FilePathIPv4, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
+		Logger.Println(err)
 		return nil, err
 	}
 	ipv6AddrStream, err := os.OpenFile(params.FilePathIPv6, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		ipv4AddrStream.Close()
+		Logger.Println(err)
 		return nil, err
 	}
 	subdomainStream, err := os.OpenFile(params.FilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		ipv4AddrStream.Close()
 		ipv6AddrStream.Close()
+		Logger.Println(err)
 		return nil, err
 	}
 	return &FileStreams{
@@ -36,6 +39,7 @@ func OpenOutputFileStreams(params Params) (*FileStreams, error) {
 func WriteOutputFileStream(stream *os.File, content string) error {
 	_, err := stream.WriteString(content + "\n")
 	if err != nil {
+		Logger.Println(err)
 		return err
 	}
 	return nil

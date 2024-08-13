@@ -32,7 +32,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 	}
 	outputFileStreams, err := OpenOutputFileStreams(params)
 	if err != nil {
-		fmt.Println(err)
+		Logger.Println(err)
 	}
 	defer outputFileStreams.Ipv4AddrStream.Close()
 	defer outputFileStreams.Ipv6AddrStream.Close()
@@ -46,7 +46,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 				IPv4Pool = append(IPv4Pool, params.FileContentIPv4)
 				err := WriteOutputFileStream(outputFileStreams.Ipv4AddrStream, params.FileContentIPv4)
 				if err != nil {
-					fmt.Println(err)
+					Logger.Println(err)
 				}
 			}
 		case 6:
@@ -55,7 +55,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 				IPv6Pool = append(IPv6Pool, params.FileContentIPv6)
 				err := WriteOutputFileStream(outputFileStreams.Ipv6AddrStream, params.FileContentIPv6)
 				if err != nil {
-					fmt.Println(err)
+					Logger.Println(err)
 				}
 			}
 		}
@@ -100,7 +100,7 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 		fmt.Println()
 		ports, err := ScanPortsSubdomain(params.Result, args.PortScan)
 		if err != nil {
-			fmt.Println(err)
+			Logger.Println(err)
 		}
 		fmt.Println(ports)
 	}

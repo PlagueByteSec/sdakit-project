@@ -32,12 +32,12 @@ func PassiveEnum(args *Args, client *http.Client) {
 	}
 	endpoints, err := EditDbEntries(args)
 	if err != nil {
-		fmt.Println(err)
+		Logger.Println(err)
 	}
 	fmt.Println("[*] Sending GET request to endpoints..")
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := EndpointRequest(client, args.Host, endpoints[idx]); err != nil {
-			fmt.Printf("[-] %s\n", err)
+			Logger.Println(err)
 		}
 	}
 	if len(PoolDomains) == 0 {
@@ -83,10 +83,12 @@ func DirectEnum(args *Args, client *http.Client) error {
 	var counter int
 	startTime := time.Now()
 	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
+		Logger.Println(err)
 		return errors.New("could not find wordlist: " + args.WordlistPath)
 	}
 	stream, err := os.Open(args.WordlistPath)
 	if err != nil {
+		Logger.Println(err)
 		return errors.New("unable to open file stream to wordlist")
 	}
 	defer stream.Close()
@@ -109,6 +111,7 @@ func DirectEnum(args *Args, client *http.Client) error {
 		counter++
 	}
 	if err := scanner.Err(); err != nil {
+		Logger.Println(err)
 		return errors.New("scanner returns an error while reading wordlist")
 	}
 	evaluation(startTime, counter)

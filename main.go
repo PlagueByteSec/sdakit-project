@@ -8,20 +8,20 @@ import (
 func main() {
 	args, err := lib.CliParser()
 	if err != nil {
-		fmt.Println(err)
+		lib.Logger.Println(err)
 		return
 	}
 	httpClient, err := lib.HttpClientInit(&args)
 	if err != nil {
-		fmt.Println(err)
+		lib.Logger.Println(err)
 		return
 	}
 	localVersion := lib.GetCurrentLocalVersion()
 	repoVersion := lib.GetCurrentRepoVersion(httpClient)
 	fmt.Printf(" ===[ Sentinel, Version: %s ]===\n\n", localVersion)
 	lib.VersionCompare(repoVersion, localVersion)
-	if err := lib.CreateOutputDir(); err != nil {
-		fmt.Println(err)
+	if err := lib.CreateOutputDir(lib.OutputDir); err != nil {
+		lib.Logger.Println(err)
 		return
 	}
 	lib.DisplayCount = 0
@@ -32,7 +32,7 @@ func main() {
 	} else {
 		fmt.Println("DIRECT")
 		if err := lib.DirectEnum(&args, httpClient); err != nil {
-			fmt.Println(err)
+			lib.Logger.Println(err)
 			return
 		}
 	}

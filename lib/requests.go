@@ -19,6 +19,7 @@ func HttpClientInit(args *Args) (*http.Client, error) {
 	if args.TorRoute {
 		proxyUrl, err := url.Parse(TorProxyUrl)
 		if err != nil {
+			Logger.Println(err)
 			return nil, errors.New("failed to parse TOR proxy URL: " + err.Error())
 		}
 		client = &http.Client{
@@ -45,6 +46,7 @@ func responseGetBody(response *http.Response) ([]byte, error) {
 func requestSendGET(url string, client *http.Client) (*http.Response, error) {
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		Logger.Println(err)
 		return nil, err
 	}
 	request.Header.Set("User-Agent", DefaultUserAgent)
@@ -54,10 +56,12 @@ func requestSendGET(url string, client *http.Client) (*http.Response, error) {
 func EndpointRequest(client *http.Client, host string, url string) error {
 	response, err := requestSendGET(url, client)
 	if err != nil {
+		Logger.Println(err)
 		return err
 	}
 	responseBody, err := responseGetBody(response)
 	if err != nil {
+		Logger.Println(err)
 		return err
 	}
 	// Filter the HTML reponse for results
@@ -76,6 +80,7 @@ func EndpointRequest(client *http.Client, host string, url string) error {
 func HttpStatusCode(client *http.Client, url string) int {
 	response, err := requestSendGET(url, client)
 	if err != nil {
+		Logger.Println(err)
 		return -1
 	}
 	return response.StatusCode
@@ -84,10 +89,12 @@ func HttpStatusCode(client *http.Client, url string) int {
 func GetCurrentRepoVersion(client *http.Client) string {
 	response, err := requestSendGET(VersionUrl, client)
 	if err != nil {
+		Logger.Println(err)
 		return NotAvailable
 	}
 	responseBody, err := responseGetBody(response)
 	if err != nil {
+		Logger.Println(err)
 		return NotAvailable
 	}
 	return string(responseBody)
@@ -97,6 +104,7 @@ func AnalyseHttpHeader(client *http.Client, subdomain string) (string, int) {
 	url := fmt.Sprintf("http://%s", subdomain)
 	response, err := requestSendGET(url, client)
 	if err != nil {
+		Logger.Println(err)
 		return "", 0
 	}
 	results := make([]string, 0)
@@ -119,10 +127,12 @@ func ScanPortsSubdomain(subdomain string, ports string) (string, error) {
 		nmap.WithPorts(ports),
 	)
 	if err != nil {
+		Logger.Println(err)
 		return "", errors.New("nmap scanner init failed: " + err.Error())
 	}
 	result, _, err := scanner.Run()
 	if err != nil {
+		Logger.Println(err)
 		return "", errors.New("port scan failed: " + err.Error())
 	}
 	var output strings.Builder
