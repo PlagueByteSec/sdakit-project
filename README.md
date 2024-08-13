@@ -10,7 +10,8 @@ a specified host. Enumeration can be performed using either a passive method
 that leverages external resources or through direct brute-force technique. 
 For each discovered subdomain, Sentinel retrieves detailed information, 
 including HTTP header analysis (e.g., server), HTTP status codes to 
-assess reachability, and the option to conduct a port scan. The output is customizable to meet user requirements, and results are categorized into 
+assess reachability, and the option to conduct a port scan. The output is 
+customizable to meet user requirements, and results are categorized into 
 IPv4, IPv6, and subdomains, with all findings automatically saved for 
 subsequent processing.
 ```
