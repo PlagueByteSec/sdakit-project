@@ -3,6 +3,7 @@ package lib
 import (
 	"errors"
 	"flag"
+	"fmt"
 )
 
 type Args struct {
@@ -41,7 +42,8 @@ func CliParser() (Args, error) {
 	torRoute := flag.Bool("r", false, "Enable TOR routing")
 	flag.Parse()
 	if flag.NFlag() == 0 {
-		return Args{}, errors.New(Help)
+		fmt.Println(Help)
+		return Args{}, errors.New("No args given, banner printed")
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
 		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
