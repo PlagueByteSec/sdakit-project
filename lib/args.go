@@ -8,7 +8,7 @@ import (
 
 type Args struct {
 	Verbose       bool
-	Host          string
+	Domain        string
 	OutFile       string
 	OutFileIPv4   string
 	OutFileIPv6   string
@@ -27,7 +27,7 @@ type Args struct {
 
 func CliParser() (Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
-	host := flag.String("d", "", "Set the target domain name")
+	domain := flag.String("d", "", "Set the target domain name")
 	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
 	outFileIPv4 := flag.String("o4", "defaultV4", "Output file path for IPv4 addresses")
 	outFileIPv6 := flag.String("o6", "defaultV6", "Output file path for IPv6 addresses")
@@ -50,9 +50,12 @@ func CliParser() (Args, error) {
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
 		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
 	}
+	if !IsValidDomain(*domain) {
+		return Args{}, errors.New("domain verification failed: " + *domain)
+	}
 	args := Args{
 		Verbose:       *verbose,
-		Host:          *host,
+		Domain:        *domain,
 		OutFile:       *outFile,
 		OutFileIPv4:   *outFileIPv4,
 		OutFileIPv6:   *outFileIPv6,

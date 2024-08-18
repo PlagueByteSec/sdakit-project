@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -77,7 +78,7 @@ func InArgList(httpCode string, list []string) bool {
 func EditDbEntries(args *Args) ([]string, error) {
 	entries := make([]string, 0, len(Db))
 	for idx, entry := range Db {
-		endpoint := strings.Replace(entry, Placeholder, args.Host, 1)
+		endpoint := strings.Replace(entry, Placeholder, args.Domain, 1)
 		if args.Verbose {
 			fmt.Fprintf(GStdout, "\n%d. Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 		}
@@ -99,7 +100,7 @@ func EditDbEntries(args *Args) ([]string, error) {
 				fmt.Fprintln(GStdout, "[-] Invalid pattern (HOST missing): "+entry)
 				continue
 			}
-			endpoint := strings.Replace(entry, Placeholder, args.Host, 1)
+			endpoint := strings.Replace(entry, Placeholder, args.Domain, 1)
 			VerbosePrint("\n%d. X Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 			entries = append(entries, endpoint)
 			idx++
@@ -141,17 +142,17 @@ func FilePathInit(args *Args) *FilePaths {
 		filePathIPv6      string
 	)
 	if args.OutFile == "defaultSd" {
-		filePathSubdomain = filepath.Join(args.NewOutputPath, DefaultOutputName(args.Host))
+		filePathSubdomain = filepath.Join(args.NewOutputPath, DefaultOutputName(args.Domain))
 	} else {
 		filePathSubdomain = args.OutFile
 	}
 	if args.OutFileIPv4 == "defaultV4" {
-		filePathIPv4 = filepath.Join(args.NewOutputPath, "IPv4-"+DefaultOutputName(args.Host))
+		filePathIPv4 = filepath.Join(args.NewOutputPath, "IPv4-"+DefaultOutputName(args.Domain))
 	} else {
 		filePathIPv4 = args.OutFileIPv4
 	}
 	if args.OutFileIPv6 == "defaultV6" {
-		filePathIPv6 = filepath.Join(args.NewOutputPath, "IPv6-"+DefaultOutputName(args.Host))
+		filePathIPv6 = filepath.Join(args.NewOutputPath, "IPv6-"+DefaultOutputName(args.Domain))
 	} else {
 		filePathIPv6 = args.OutFileIPv6
 	}
@@ -210,4 +211,19 @@ func VerbosePrint(format string, args ...interface{}) {
 	if GVerbose {
 		fmt.Fprintf(GStdout, format, args...)
 	}
+}
+
+func IsValidDomain(domain string) bool {
+	regex := `^(?i)([a-z0-9](-?[a-z0-9])*)+(\.[a-z]{2,})+$`
+	regexCompile := regexp.MustCompile(regex)
+	if regexCompile.MatchString(domain) {
+		ipAddrs, err := net.LookupIP(domain)
+		if err != nil {
+			return false
+		}
+		if len(ipAddrs) != 0 {
+			return true
+		}
+	}
+	return false
 }

@@ -19,6 +19,8 @@ func main() {
 	)
 	args, err := lib.CliParser()
 	if err != nil {
+		fmt.Fprintln(lib.GStdout, err)
+		lib.GStdout.Flush()
 		goto exitErr
 	}
 	if args.Verbose {

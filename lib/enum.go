@@ -22,7 +22,7 @@ func PassiveEnum(args *Args, client *http.Client) {
 	VerbosePrint("[*] Sending GET request to endpoints..\n")
 	fmt.Fprintln(GStdout)
 	for idx := 0; idx < len(endpoints); idx++ {
-		if err := EndpointRequest(client, args.Host, endpoints[idx]); err != nil {
+		if err := EndpointRequest(client, args.Domain, endpoints[idx]); err != nil {
 			Logger.Println(err)
 		}
 	}
@@ -44,7 +44,7 @@ func PassiveEnum(args *Args, client *http.Client) {
 			FilePathIPv6: filePaths.FilePathIPv6,
 			FileContent:  result,
 			Result:       result,
-			Hostname:     args.Host,
+			Hostname:     args.Domain,
 		}
 		OutputHandler(&streams, client, args, params)
 	}
@@ -85,7 +85,7 @@ func DirectEnum(args *Args, client *http.Client) error {
 	defer streams.CloseOutputFileStreams()
 	for scanner.Scan() {
 		entry := scanner.Text()
-		url := fmt.Sprintf("http://%s.%s", entry, args.Host)
+		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
 		statusCode := HttpStatusCode(client, url)
 		code := strconv.Itoa(statusCode)
 		if statusCode != -1 {
@@ -95,14 +95,14 @@ func DirectEnum(args *Args, client *http.Client) error {
 			if len(codeFilterExc) != 1 && InArgList(code, codeFilterExc) {
 				continue
 			}
-			subdomain := fmt.Sprintf("%s.%s", entry, args.Host)
+			subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
 			params := Params{
 				FilePath:     filePaths.FilePathSubdomain,
 				FilePathIPv4: filePaths.FilePathIPv4,
 				FilePathIPv6: filePaths.FilePathIPv6,
 				FileContent:  subdomain,
 				Result:       subdomain,
-				Hostname:     args.Host,
+				Hostname:     args.Domain,
 			}
 			fmt.Println()
 			OutputHandler(&streams, client, args, params)
