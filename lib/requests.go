@@ -28,13 +28,13 @@ func HttpClientInit(args *Args) (*http.Client, error) {
 			},
 			Timeout: time.Duration(args.Timeout) * time.Second,
 		}
-		fmt.Println("[*] All requests will be routet through TOR")
+		fmt.Fprintln(GStdout, "[*] All requests will be routet through TOR")
 	} else {
 		client = &http.Client{
 			Timeout: time.Duration(args.Timeout) * time.Second,
 		}
+		fmt.Fprintln(GStdout)
 	}
-	fmt.Println()
 	return client, nil
 }
 
@@ -70,8 +70,8 @@ func EndpointRequest(client *http.Client, host string, url string) error {
 	matches := regex.FindAllString(body, -1)
 	for _, match := range matches {
 		// Make sure that only new entries will be added
-		if !PoolContainsEntry(PoolDomains, match) {
-			PoolDomains = append(PoolDomains, match)
+		if !PoolContainsEntry(GPool.PoolDomains, match) {
+			GPool.PoolDomains = append(GPool.PoolDomains, match)
 		}
 	}
 	return nil

@@ -9,7 +9,7 @@ This project is designed to enumerate, filter, and validate subdomains for
 a specified host. Enumeration can be performed using either a passive method 
 that leverages external resources or through direct brute-force technique. 
 For each discovered subdomain, Sentinel retrieves detailed information, 
-including HTTP header analysis (e.g., server), HTTP status codes to 
+including HTTP header analysis (e.g. server), HTTP status codes to 
 assess reachability, and the option to conduct a port scan. The output is 
 customizable to meet user requirements, and results are categorized into 
 IPv4, IPv6, and subdomains, with all findings automatically saved for 
@@ -57,15 +57,16 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | -oS | string | Specify the output file path for subdomains |
 | -o4 | string | Specify the output file path for IPv4 addresses |
 | -o6 | string | Specify the output file path for IPv6 addresses |
-| -c | - | Display the HTTP status code of each subdomain |
+| -nP | string | Specify the output directory path for all output files |
+| -c | bool | Display the HTTP status code of each subdomain |
 | -e | string | Exclude HTTP status codes from results |
 | -f | string | Filter specific HTTP status codes from results |
-| -s | - | Display only subdomains which can be resolved to IP addresses |
-| -a | - | Analyze HTTP header of each subdomain (server etc.) |
+| -s | bool | Display only subdomains which can be resolved to IP addresses |
+| -a | bool | Analyze HTTP header of each subdomain (server etc.) |
 | -p | string | Scan subdomains for open ports in range |
 | -x | string | Extend endpoint DB with custom list (.txt) |
 | -t | int | Specify the request timeout |
-| -r | - | Route all requests through TOR |
+| -r | bool | Route all requests through TOR |
 
 # License
 Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license

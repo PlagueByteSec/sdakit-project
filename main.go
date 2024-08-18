@@ -10,50 +10,57 @@ import (
 
 func main() {
 	var (
+		pool         lib.Pool
 		httpClient   *http.Client
 		err          error
 		localVersion string
 		repoVersion  string
+		sigChan      chan os.Signal
 	)
-	sigChan := make(chan os.Signal, 1)
+	args, err := lib.CliParser()
+	if err != nil {
+		goto exitErr
+	}
+	if args.Verbose {
+		lib.GVerbose = true
+	}
+	sigChan = make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt)
 	go func() {
 		for range sigChan {
-			fmt.Println("\n\nG0oDBy3!")
-			os.Exit(0)
+			fmt.Fprintln(lib.GStdout, "\n\nG0oDBy3!")
+			lib.SentinelExit(&pool)
 		}
 	}()
-	args, err := lib.CliParser()
-	if err != nil {
-		lib.Logger.Println(err)
-		goto exitErr
-	}
 	httpClient, err = lib.HttpClientInit(&args)
 	if err != nil {
-		lib.Logger.Println(err)
 		goto exitErr
 	}
 	localVersion = lib.GetCurrentLocalVersion()
 	repoVersion = lib.GetCurrentRepoVersion(httpClient)
-	fmt.Printf(" ===[ Sentinel, Version: %s ]===\n\n", localVersion)
 	lib.VersionCompare(repoVersion, localVersion)
-	if err := lib.CreateOutputDir(lib.OutputDir); err != nil {
-		lib.Logger.Println(err)
+	fmt.Fprintf(lib.GStdout, " ===[ Sentinel, Version: %s ]===\n\n", localVersion)
+	lib.DisplayCount = 0
+	if args.NewOutputPath == "defaultPath" {
+		args.NewOutputPath = lib.OutputDir
+	} else {
+		lib.VerbosePrint("[*] New output directory path set: %s\n", args.NewOutputPath)
+	}
+	if err := lib.CreateOutputDir(args.NewOutputPath); err != nil {
 		goto exitErr
 	}
-	lib.DisplayCount = 0
-	fmt.Print("[*] Method: ")
+	fmt.Fprint(lib.GStdout, "[*] Method: ")
 	if len(args.WordlistPath) == 0 {
-		fmt.Println("PASSIVE")
+		fmt.Fprintln(lib.GStdout, "PASSIVE")
 		lib.PassiveEnum(&args, httpClient)
 	} else {
-		fmt.Println("DIRECT")
+		fmt.Fprintln(lib.GStdout, "DIRECT")
 		if err := lib.DirectEnum(&args, httpClient); err != nil {
-			lib.Logger.Println(err)
 			goto exitErr
 		}
 	}
-	os.Exit(0)
+	lib.SentinelExit(&pool)
 exitErr:
+	lib.Logger.Println(err)
 	lib.Logger.Fatalf("Program execution failed")
 }

@@ -12,6 +12,7 @@ type Args struct {
 	OutFile       string
 	OutFileIPv4   string
 	OutFileIPv6   string
+	NewOutputPath string
 	HttpCode      bool
 	WordlistPath  string
 	ExcHttpCodes  string
@@ -30,6 +31,7 @@ func CliParser() (Args, error) {
 	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
 	outFileIPv4 := flag.String("o4", "defaultV4", "Output file path for IPv4 addresses")
 	outFileIPv6 := flag.String("o6", "defaultV6", "Output file path for IPv6 addresses")
+	newOutputPath := flag.String("nP", "defaultPath", "Output directory path for all results")
 	httpCode := flag.Bool("c", false, "Get HTTP status code of each subdomain")
 	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomains")
 	excHttpCodes := flag.String("e", "", "Exclude HTTP codes (comma seperated)")
@@ -43,7 +45,7 @@ func CliParser() (Args, error) {
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(Help)
-		return Args{}, errors.New("No args given, banner printed")
+		return Args{}, errors.New("no args given, banner printed")
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
 		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
@@ -54,6 +56,7 @@ func CliParser() (Args, error) {
 		OutFile:       *outFile,
 		OutFileIPv4:   *outFileIPv4,
 		OutFileIPv6:   *outFileIPv6,
+		NewOutputPath: *newOutputPath,
 		HttpCode:      *httpCode,
 		WordlistPath:  *wordlistPath,
 		ExcHttpCodes:  *excHttpCodes,

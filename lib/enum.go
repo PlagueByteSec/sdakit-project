@@ -12,27 +12,32 @@ import (
 )
 
 func PassiveEnum(args *Args, client *http.Client) {
+	GStdout.Flush()
 	startTime := time.Now()
-	if args.Verbose {
-		fmt.Println("[*] Formatting db entries..")
-	}
+	VerbosePrint("[*] Formatting db entries..\n")
 	endpoints, err := EditDbEntries(args)
 	if err != nil {
 		Logger.Println(err)
 	}
-	fmt.Println("[*] Sending GET request to endpoints..")
-	fmt.Println()
+	VerbosePrint("[*] Sending GET request to endpoints..\n")
+	fmt.Fprintln(GStdout)
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := EndpointRequest(client, args.Host, endpoints[idx]); err != nil {
 			Logger.Println(err)
 		}
 	}
-	if len(PoolDomains) == 0 {
-		fmt.Println("[-] Could not determine subdomains :(")
+	if len(GPool.PoolDomains) == 0 {
+		fmt.Fprintln(GStdout, "[-] Could not determine subdomains :(")
 		os.Exit(0)
 	}
+	var streams FileStreams
 	filePaths := FilePathInit(args)
-	for _, result := range PoolDomains {
+	err = streams.OpenOutputFileStreams(filePaths)
+	if err != nil {
+		Logger.Println(err)
+	}
+	defer streams.CloseOutputFileStreams()
+	for _, result := range GPool.PoolDomains {
 		params := Params{
 			FilePath:     filePaths.FilePathSubdomain,
 			FilePathIPv4: filePaths.FilePathIPv4,
@@ -41,10 +46,11 @@ func PassiveEnum(args *Args, client *http.Client) {
 			Result:       result,
 			Hostname:     args.Host,
 		}
-		OutputHandler(client, args, params)
+		OutputHandler(&streams, client, args, params)
 	}
-	poolSize := len(PoolDomains)
+	poolSize := len(GPool.PoolDomains)
 	Evaluation(startTime, poolSize)
+	GPool.PoolCleanup()
 }
 
 func DirectEnum(args *Args, client *http.Client) error {
@@ -70,6 +76,13 @@ func DirectEnum(args *Args, client *http.Client) error {
 	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
 	scanner := bufio.NewScanner(stream)
 	fmt.Println()
+	var streams FileStreams
+	filePaths := FilePathInit(args)
+	err = streams.OpenOutputFileStreams(filePaths)
+	if err != nil {
+		Logger.Println(err)
+	}
+	defer streams.CloseOutputFileStreams()
 	for scanner.Scan() {
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Host)
@@ -83,7 +96,6 @@ func DirectEnum(args *Args, client *http.Client) error {
 				continue
 			}
 			subdomain := fmt.Sprintf("%s.%s", entry, args.Host)
-			filePaths := FilePathInit(args)
 			params := Params{
 				FilePath:     filePaths.FilePathSubdomain,
 				FilePathIPv4: filePaths.FilePathIPv4,
@@ -93,16 +105,18 @@ func DirectEnum(args *Args, client *http.Client) error {
 				Hostname:     args.Host,
 			}
 			fmt.Println()
-			OutputHandler(client, args, params)
+			OutputHandler(&streams, client, args, params)
 			obtainedCounter++
 		}
 		allCounter++
-		fmt.Printf("\rProgress::[%d/%d]", allCounter, lineCount)
+		fmt.Fprintf(GStdout, "\rProgress::[%d/%d]", allCounter, lineCount)
+		GStdout.Flush()
 	}
 	if err := scanner.Err(); err != nil {
 		Logger.Println(err)
 		return errors.New("scanner returns an error while reading wordlist")
 	}
 	Evaluation(startTime, obtainedCounter)
+	GPool.PoolCleanup()
 	return nil
 }

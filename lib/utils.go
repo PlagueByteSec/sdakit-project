@@ -61,7 +61,7 @@ func VersionCompare(versionRepo string, versionLocal string) {
 	parseRepoVersion, _ := version.NewVersion(versionRepo)
 	parseLocalVersion, _ := version.NewVersion(versionLocal)
 	if versionRepo != versionLocal && parseLocalVersion.LessThan(parseRepoVersion) {
-		fmt.Printf("[*] An update is available! %s->%s\n", versionLocal, versionRepo)
+		fmt.Fprintf(GStdout, "[*] An update is available! %s->%s\n", versionLocal, versionRepo)
 	}
 }
 
@@ -79,12 +79,12 @@ func EditDbEntries(args *Args) ([]string, error) {
 	for idx, entry := range Db {
 		endpoint := strings.Replace(entry, Placeholder, args.Host, 1)
 		if args.Verbose {
-			fmt.Printf("\n%d. Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
+			fmt.Fprintf(GStdout, "\n%d. Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 		}
 		entries = append(entries, endpoint)
 	}
 	if args.DbExtendPath != "" {
-		fmt.Println("\n[*] Extending endpoints..")
+		VerbosePrint("\n[*] Extending endpoints..")
 		stream, err := os.Open(args.DbExtendPath)
 		if err != nil {
 			Logger.Println(err)
@@ -92,24 +92,20 @@ func EditDbEntries(args *Args) ([]string, error) {
 		}
 		defer stream.Close()
 		scanner := bufio.NewScanner(stream)
-		idx := 1
+		idx := 0
 		for scanner.Scan() {
 			entry := scanner.Text()
 			if !strings.Contains(entry, Placeholder) {
-				fmt.Println("[-] Invalid pattern (HOST missing): " + entry)
+				fmt.Fprintln(GStdout, "[-] Invalid pattern (HOST missing): "+entry)
 				continue
 			}
 			endpoint := strings.Replace(entry, Placeholder, args.Host, 1)
-			if args.Verbose {
-				fmt.Printf("\n%d. X Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
-			}
+			VerbosePrint("\n%d. X Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 			entries = append(entries, endpoint)
 			idx++
 		}
 	}
-	if args.Verbose {
-		fmt.Printf("\n[*] Using %d endpoints\n", len(entries))
-	}
+	VerbosePrint("\n[*] Using %d endpoints\n", len(entries))
 	return entries, nil
 }
 
@@ -138,6 +134,34 @@ func GetIpVersion(ipAddress string) int {
 	return ipVersion
 }
 
+func FilePathInit(args *Args) *FilePaths {
+	var (
+		filePathSubdomain string
+		filePathIPv4      string
+		filePathIPv6      string
+	)
+	if args.OutFile == "defaultSd" {
+		filePathSubdomain = filepath.Join(args.NewOutputPath, DefaultOutputName(args.Host))
+	} else {
+		filePathSubdomain = args.OutFile
+	}
+	if args.OutFileIPv4 == "defaultV4" {
+		filePathIPv4 = filepath.Join(args.NewOutputPath, "IPv4-"+DefaultOutputName(args.Host))
+	} else {
+		filePathIPv4 = args.OutFileIPv4
+	}
+	if args.OutFileIPv6 == "defaultV6" {
+		filePathIPv6 = filepath.Join(args.NewOutputPath, "IPv6-"+DefaultOutputName(args.Host))
+	} else {
+		filePathIPv6 = args.OutFileIPv6
+	}
+	return &FilePaths{
+		FilePathSubdomain: filePathSubdomain,
+		FilePathIPv4:      filePathIPv4,
+		FilePathIPv6:      filePathIPv6,
+	}
+}
+
 func FileCountLines(filePath string) (int, error) {
 	stream, err := os.Open(filePath)
 	if err != nil {
@@ -164,8 +188,7 @@ func FileCountLines(filePath string) (int, error) {
 }
 
 func Evaluation(startTime time.Time, count int) {
-	stdout := bufio.NewWriter(os.Stdout)
-	defer stdout.Flush()
+	defer GStdout.Flush()
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
 	var temp strings.Builder
@@ -173,34 +196,18 @@ func Evaluation(startTime time.Time, count int) {
 	if count != 1 {
 		temp.WriteString("s")
 	}
-	fmt.Printf("\n\n[*] %d %s obtained, %d displayed\n", count, temp.String(), DisplayCount)
-	fmt.Printf("[*] Finished in %s\n", duration)
+	fmt.Fprintf(GStdout, "\n[*] %d %s obtained, %d displayed\n", count, temp.String(), DisplayCount)
+	fmt.Fprintf(GStdout, "[*] Finished in %s\n", duration)
 }
 
-func FilePathInit(args *Args) *FilePaths {
-	var (
-		filePathSubdomain string
-		filePathIPv4      string
-		filePathIPv6      string
-	)
-	if args.OutFile == "defaultSd" {
-		filePathSubdomain = filepath.Join("output", DefaultOutputName(args.Host))
-	} else {
-		filePathSubdomain = args.OutFile
-	}
-	if args.OutFileIPv4 == "defaultV4" {
-		filePathIPv4 = filepath.Join("output", "IPv4-"+DefaultOutputName(args.Host))
-	} else {
-		filePathIPv4 = args.OutFileIPv4
-	}
-	if args.OutFileIPv6 == "defaultV6" {
-		filePathIPv6 = filepath.Join("output", "IPv6-"+DefaultOutputName(args.Host))
-	} else {
-		filePathIPv6 = args.OutFileIPv6
-	}
-	return &FilePaths{
-		FilePathSubdomain: filePathSubdomain,
-		FilePathIPv4:      filePathIPv4,
-		FilePathIPv6:      filePathIPv6,
+func SentinelExit(pool *Pool) {
+	GStdout.Flush()
+	pool.PoolCleanup() // Remove duplicates from pools
+	os.Exit(0)
+}
+
+func VerbosePrint(format string, args ...interface{}) {
+	if GVerbose {
+		fmt.Fprintf(GStdout, format, args...)
 	}
 }

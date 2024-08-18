@@ -62,42 +62,43 @@ func IpManage(params Params, ip string, fileStream *FileStreams) {
 	switch ipAddrVersion {
 	case 4:
 		params.FileContentIPv4 = ip
-		if !PoolContainsEntry(IPv4Pool, params.FileContentIPv4) {
-			IPv4Pool = append(IPv4Pool, params.FileContentIPv4)
+		if !PoolContainsEntry(GPool.IPv4Pool, params.FileContentIPv4) {
+			GPool.IPv4Pool = append(GPool.IPv4Pool, params.FileContentIPv4)
 			err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4)
 			if err != nil {
+				fileStream.CloseOutputFileStreams()
 				Logger.Println(err)
 			}
 		}
 	case 6:
 		params.FileContentIPv6 = ip
-		if !PoolContainsEntry(IPv6Pool, params.FileContentIPv6) {
-			IPv6Pool = append(IPv6Pool, params.FileContentIPv6)
+		if !PoolContainsEntry(GPool.IPv6Pool, params.FileContentIPv6) {
+			GPool.IPv6Pool = append(GPool.IPv6Pool, params.FileContentIPv6)
 			err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6)
 			if err != nil {
+				fileStream.CloseOutputFileStreams()
 				Logger.Println(err)
 			}
 		}
 	}
 }
 
-func OutputHandler(client *http.Client, args *Args, params Params) {
+func OutputHandler(streams *FileStreams, client *http.Client, args *Args, params Params) {
+	GStdout.Flush()
 	ipAddrsOut, ipAddrs := DoIpResolve(args, params)
 	if ipAddrs == nil {
 		return
 	}
-	outputFileStreams, err := OpenOutputFileStreams(params)
-	if err != nil {
-		Logger.Println(err)
-	}
-	defer outputFileStreams.Ipv4AddrStream.Close()
-	defer outputFileStreams.Ipv6AddrStream.Close()
-	defer outputFileStreams.SubdomainStream.Close()
+	var (
+		consoleOutput strings.Builder
+		err           error
+	)
 	for _, ip := range ipAddrs {
-		IpManage(params, ip, outputFileStreams)
+		IpManage(params, ip, streams)
 	}
-	var consoleOutput strings.Builder
-	WriteOutputFileStream(outputFileStreams.SubdomainStream, params.FileContent)
+	if err = WriteOutputFileStream(streams.SubdomainStream, params.FileContent); err != nil {
+		streams.CloseOutputFileStreams()
+	}
 	consoleOutput.WriteString(fmt.Sprintf(" ══[ %s", params.Result))
 	codeFilter := strings.Split(args.FilHttpCodes, ",")
 	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
@@ -126,6 +127,6 @@ func OutputHandler(client *http.Client, args *Args, params Params) {
 	if args.PortScan != "" {
 		DoPortScan(&consoleOutput, params, args)
 	}
-	fmt.Println(consoleOutput.String())
+	fmt.Fprintln(GStdout, consoleOutput.String())
 	DisplayCount++
 }

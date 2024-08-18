@@ -10,30 +10,27 @@ type FileStreams struct {
 	SubdomainStream *os.File
 }
 
-func OpenOutputFileStreams(params Params) (*FileStreams, error) {
-	ipv4AddrStream, err := os.OpenFile(params.FilePathIPv4, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+func (streams *FileStreams) OpenOutputFileStreams(paths *FilePaths) error {
+	var err error
+	streams.Ipv4AddrStream, err = os.OpenFile(paths.FilePathIPv4, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		Logger.Println(err)
-		return nil, err
+		return err
 	}
-	ipv6AddrStream, err := os.OpenFile(params.FilePathIPv6, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+	streams.Ipv6AddrStream, err = os.OpenFile(paths.FilePathIPv6, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
-		ipv4AddrStream.Close()
+		streams.Ipv4AddrStream.Close()
 		Logger.Println(err)
-		return nil, err
+		return err
 	}
-	subdomainStream, err := os.OpenFile(params.FilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+	streams.SubdomainStream, err = os.OpenFile(paths.FilePathSubdomain, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
-		ipv4AddrStream.Close()
-		ipv6AddrStream.Close()
+		streams.Ipv4AddrStream.Close()
+		streams.Ipv6AddrStream.Close()
 		Logger.Println(err)
-		return nil, err
+		return err
 	}
-	return &FileStreams{
-		Ipv4AddrStream:  ipv4AddrStream,
-		Ipv6AddrStream:  ipv6AddrStream,
-		SubdomainStream: subdomainStream,
-	}, nil
+	return nil
 }
 
 func WriteOutputFileStream(stream *os.File, content string) error {
@@ -43,4 +40,10 @@ func WriteOutputFileStream(stream *os.File, content string) error {
 		return err
 	}
 	return nil
+}
+
+func (streams *FileStreams) CloseOutputFileStreams() {
+	streams.Ipv4AddrStream.Close()
+	streams.Ipv6AddrStream.Close()
+	streams.SubdomainStream.Close()
 }

@@ -20,6 +20,7 @@ Sentinel
  -oS Specify the output (.txt) file path for subdomains
  -o4 Specify the output (.txt) file path for IPv4 addresses
  -o6 Specify the output (.txt) file path for IPv6 addresses
+ -nP Specify the output directory path for all output files
  -c  Send GET request to retrieve the HTTP status code of every passive enumeration result
  -e  Exclude HTTP response codes (comma seperated)
  -f  Filter for specific HTTP response codes (comma seperated)
