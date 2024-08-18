@@ -66,7 +66,7 @@ func IpManage(params Params, ip string, fileStream *FileStreams) {
 			GPool.IPv4Pool = append(GPool.IPv4Pool, params.FileContentIPv4)
 			err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4)
 			if err != nil {
-				fileStream.CloseOutputFileStreams()
+				fileStream.Ipv4AddrStream.Close()
 				Logger.Println(err)
 			}
 		}
@@ -76,7 +76,7 @@ func IpManage(params Params, ip string, fileStream *FileStreams) {
 			GPool.IPv6Pool = append(GPool.IPv6Pool, params.FileContentIPv6)
 			err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6)
 			if err != nil {
-				fileStream.CloseOutputFileStreams()
+				fileStream.Ipv6AddrStream.Close()
 				Logger.Println(err)
 			}
 		}
@@ -97,7 +97,7 @@ func OutputHandler(streams *FileStreams, client *http.Client, args *Args, params
 		IpManage(params, ip, streams)
 	}
 	if err = WriteOutputFileStream(streams.SubdomainStream, params.FileContent); err != nil {
-		streams.CloseOutputFileStreams()
+		streams.SubdomainStream.Close()
 	}
 	consoleOutput.WriteString(fmt.Sprintf(" ══[ %s", params.Result))
 	codeFilter := strings.Split(args.FilHttpCodes, ",")
