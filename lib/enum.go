@@ -28,6 +28,7 @@ func PassiveEnum(args *Args, client *http.Client) {
 	}
 	if len(GPool.PoolDomains) == 0 {
 		fmt.Fprintln(GStdout, "[-] Could not determine subdomains :(")
+		GStdout.Flush()
 		os.Exit(0)
 	}
 	var streams FileStreams
