@@ -1,132 +1,94 @@
 package lib
 
 import (
+	"Sentinel/lib/utils"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 )
 
-var DisplayCount int
-
-type Params struct {
-	FilePath        string
-	FilePathIPv4    string
-	FilePathIPv6    string
-	FileContent     string
-	FileContentIPv4 string
-	FileContentIPv6 string
-	Result          string
-	Hostname        string
-}
-
-func DoAnalyzeHeader(consoleOutput *strings.Builder, ipAddrsOut string, client *http.Client, params Params) {
-	headers, count := AnalyseHttpHeader(client, params.Result)
-	if ipAddrsOut != "" {
-		if count != 0 {
-			consoleOutput.WriteString(fmt.Sprintf("\n\t╠═[ %s", ipAddrsOut))
-		} else {
-			consoleOutput.WriteString(fmt.Sprintf("\n\t╚═[ %s\n", ipAddrsOut))
-		}
-	}
-	if headers != "" && count != 0 {
-		consoleOutput.WriteString(fmt.Sprintf("\n\t%s\n", headers))
-	}
-}
-
-func DoPortScan(consoleOutput *strings.Builder, params Params, args *Args) {
-	ports, err := ScanPortsSubdomain(params.Result, args.PortScan)
+func WriteJSON(jsonFileName string) error {
+	/*
+		Write the summary in JSON format to a file. The default
+		directory (output) is used if no custom path is specified with the -j flag.
+	*/
+	bytes, err := json.MarshalIndent(utils.GJsonResult.Subdomains, "", "	")
 	if err != nil {
-		Logger.Println(err)
+		utils.Glogger.Println(err)
+		return err
 	}
-	if ports != "" {
-		consoleOutput.WriteString(ports)
+	if err := os.WriteFile(jsonFileName, bytes, utils.DefaultPermission); err != nil {
+		utils.Glogger.Println(err)
+		return errors.New("failed to write JSON to: " + jsonFileName)
 	}
+	return nil
 }
 
-func DoIpResolve(args *Args, params Params) (string, []string) {
-	ipAddrs := RequestIpAddresses(params.Result)
-	if args.SubOnlyIp && ipAddrs == nil {
-		// Skip results that cannot be resolved to an IP address
-		return "", nil
-	}
-	var ipAddrsOut string
-	if ipAddrs != nil {
-		ipAddrsOut = strings.Join(ipAddrs, ", ")
-	}
-	return ipAddrsOut, ipAddrs
-}
-
-func IpManage(params Params, ip string, fileStream *FileStreams) {
-	ipAddrVersion := GetIpVersion(ip)
-	switch ipAddrVersion {
-	case 4:
-		params.FileContentIPv4 = ip
-		if !PoolContainsEntry(GPool.IPv4Pool, params.FileContentIPv4) {
-			GPool.IPv4Pool = append(GPool.IPv4Pool, params.FileContentIPv4)
-			err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4)
-			if err != nil {
-				fileStream.Ipv4AddrStream.Close()
-				Logger.Println(err)
-			}
-		}
-	case 6:
-		params.FileContentIPv6 = ip
-		if !PoolContainsEntry(GPool.IPv6Pool, params.FileContentIPv6) {
-			GPool.IPv6Pool = append(GPool.IPv6Pool, params.FileContentIPv6)
-			err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6)
-			if err != nil {
-				fileStream.Ipv6AddrStream.Close()
-				Logger.Println(err)
-			}
-		}
-	}
-}
-
-func OutputHandler(streams *FileStreams, client *http.Client, args *Args, params Params) {
-	GStdout.Flush()
-	ipAddrsOut, ipAddrs := DoIpResolve(args, params)
+func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.Args, params utils.Params) {
+	utils.GStdout.Flush()
+	/*
+		Perform a DNS lookup to determine the IP addresses (IPv4 and IPv6). The addresses will
+		be returned as a slice and separated as strings.
+	*/
+	ipAddrsOut, ipAddrs := IpResolveWrapper(args, params)
 	if ipAddrs == nil {
 		return
 	}
 	var (
+		// Use strings.Builder for better output control
 		consoleOutput strings.Builder
 		err           error
 	)
+	utils.GSubdomBase.Subdomain = append(utils.GSubdomBase.Subdomain, params.Subdomain)
 	for _, ip := range ipAddrs {
-		IpManage(params, ip, streams)
+		utils.IpManage(params, ip, streams)
 	}
-	if err = WriteOutputFileStream(streams.SubdomainStream, params.FileContent); err != nil {
+	err = utils.WriteOutputFileStream(streams.SubdomainStream, params.FileContentSubdoms)
+	if err != nil {
 		streams.SubdomainStream.Close()
 	}
-	consoleOutput.WriteString(fmt.Sprintf(" ══[ %s", params.Result))
+	consoleOutput.WriteString(fmt.Sprintf(" ══[ %s", params.Subdomain))
+	/*
+		Split the arguments specified by the -f and -e flags by comma.
+		The values within the slices will be used to filter the results.
+	*/
 	codeFilter := strings.Split(args.FilHttpCodes, ",")
 	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
 	if args.HttpCode {
-		url := fmt.Sprintf("http://%s", params.Result)
+		url := fmt.Sprintf("http://%s", params.Subdomain)
 		httpStatusCode := HttpStatusCode(client, url)
 		statusCodeConv := strconv.Itoa(httpStatusCode)
 		if httpStatusCode == -1 {
-			statusCodeConv = NotAvailable
+			statusCodeConv = utils.NotAvailable
 		}
-		if len(codeFilter) != 1 && !InArgList(statusCodeConv, codeFilter) {
+		/*
+			Ensure that the status codes are correctly filtered by comparing the
+			results with codeFilter and CodeFilterExc.
+		*/
+		if len(codeFilter) != 1 && !utils.InArgList(statusCodeConv, codeFilter) {
 			return
 		}
-		if len(codeFilterExc) != 1 && InArgList(statusCodeConv, codeFilterExc) {
+		if len(codeFilterExc) != 1 && utils.InArgList(statusCodeConv, codeFilterExc) {
 			return
 		}
 		consoleOutput.WriteString(fmt.Sprintf(", HTTP Status Code: %s", statusCodeConv))
 	}
 	if args.AnalyzeHeader {
-		DoAnalyzeHeader(&consoleOutput, ipAddrsOut, client, params)
+		AnalyzeHeaderWrapper(&consoleOutput, ipAddrsOut, client, params)
 	} else {
 		if ipAddrsOut != "" {
 			consoleOutput.WriteString(fmt.Sprintf("\n\t╚═[ %s\n", ipAddrsOut))
 		}
 	}
 	if args.PortScan != "" {
-		DoPortScan(&consoleOutput, params, args)
+		PortScanWrapper(&consoleOutput, params, args)
 	}
-	fmt.Fprintln(GStdout, consoleOutput.String())
-	DisplayCount++
+	utils.GJsonResult.Subdomains = append(utils.GJsonResult.Subdomains, utils.GSubdomBase)
+	// Display the final result block
+	fmt.Fprintln(utils.GStdout, consoleOutput.String())
+	utils.GDisplayCount++
 }

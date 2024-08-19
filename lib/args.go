@@ -1,42 +1,24 @@
 package lib
 
 import (
+	"Sentinel/lib/utils"
 	"errors"
 	"flag"
 	"fmt"
 )
 
-type Args struct {
-	Verbose       bool
-	Domain        string
-	OutFile       string
-	OutFileIPv4   string
-	OutFileIPv6   string
-	NewOutputPath string
-	HttpCode      bool
-	WordlistPath  string
-	ExcHttpCodes  string
-	FilHttpCodes  string
-	SubOnlyIp     bool
-	AnalyzeHeader bool
-	PortScan      string
-	DbExtendPath  string
-	Timeout       int
-	TorRoute      bool
-}
-
-func CliParser() (Args, error) {
+func CliParser() (utils.Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
 	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
 	outFileIPv4 := flag.String("o4", "defaultV4", "Output file path for IPv4 addresses")
 	outFileIPv6 := flag.String("o6", "defaultV6", "Output file path for IPv6 addresses")
+	outFileJSON := flag.String("oJ", "defaultJSON", "Output file path for JSON summary")
 	newOutputPath := flag.String("nP", "defaultPath", "Output directory path for all results")
 	httpCode := flag.Bool("c", false, "Get HTTP status code of each subdomain")
 	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomains")
 	excHttpCodes := flag.String("e", "", "Exclude HTTP codes (comma seperated)")
 	filtHttpCodes := flag.String("f", "", "Filter for specific HTTP response codes (comma seperated)")
-	subOnlyIp := flag.Bool("s", false, "Display only subdomains which can be resolved to IP addresses")
 	analyzeHeader := flag.Bool("a", false, "Analyze HTTP header of each subdomain")
 	portScan := flag.String("p", "", "Define port range an run scan")
 	dbExtendPath := flag.String("x", "", "Extend endpoint DB with custom list")
@@ -45,31 +27,31 @@ func CliParser() (Args, error) {
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(Help)
-		return Args{}, errors.New("no args given, banner printed")
+		return utils.Args{}, errors.New("no args given, banner printed")
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
-		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
+		return utils.Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
 	}
-	if !IsValidDomain(*domain) {
-		return Args{}, errors.New("domain verification failed: " + *domain)
+	if !utils.IsValidDomain(*domain) {
+		return utils.Args{}, errors.New("domain verification failed: " + *domain)
 	}
-	args := Args{
-		Verbose:       *verbose,
-		Domain:        *domain,
-		OutFile:       *outFile,
-		OutFileIPv4:   *outFileIPv4,
-		OutFileIPv6:   *outFileIPv6,
-		NewOutputPath: *newOutputPath,
-		HttpCode:      *httpCode,
-		WordlistPath:  *wordlistPath,
-		ExcHttpCodes:  *excHttpCodes,
-		FilHttpCodes:  *filtHttpCodes,
-		SubOnlyIp:     *subOnlyIp,
-		AnalyzeHeader: *analyzeHeader,
-		PortScan:      *portScan,
-		DbExtendPath:  *dbExtendPath,
-		Timeout:       *timeout,
-		TorRoute:      *torRoute,
+	args := utils.Args{
+		Verbose:          *verbose,
+		Domain:           *domain,
+		OutFileSubdoms:   *outFile,
+		OutFileIPv4:      *outFileIPv4,
+		OutFileIPv6:      *outFileIPv6,
+		OutFileJSON:      *outFileJSON,
+		NewOutputDirPath: *newOutputPath,
+		HttpCode:         *httpCode,
+		WordlistPath:     *wordlistPath,
+		ExcHttpCodes:     *excHttpCodes,
+		FilHttpCodes:     *filtHttpCodes,
+		AnalyzeHeader:    *analyzeHeader,
+		PortScan:         *portScan,
+		DbExtendPath:     *dbExtendPath,
+		Timeout:          *timeout,
+		TorRoute:         *torRoute,
 	}
 	return args, nil
 }

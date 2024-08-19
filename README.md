@@ -39,7 +39,7 @@ go build -o bin/sentinel
 # All results will be saved in the "output" directory.
 # Passive:
 ./bin/sentinel -d example.com -s -c -a -p 1-1000 -f 200,401,403
-# Direct:
+# Active:
 ./bin/sentinel -d example.com -s -a -p 1-1000 -w /wordlists/subdomains.txt
 ```
 #### Or simply `run` the <sentinel> `executable` without args to see the available `options`
@@ -53,7 +53,7 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | Flags | Argument Type | Description |
 | ----- | ----------- | ------------|
 | -d | string | Specify the taget domain eg. example.com (default: passive) |
-| -w | string | Use direct method by specifying the wordlist |
+| -w | string | Use active method by specifying the wordlist |
 | -oS | string | Specify the output file path for subdomains |
 | -o4 | string | Specify the output file path for IPv4 addresses |
 | -o6 | string | Specify the output file path for IPv6 addresses |
@@ -61,7 +61,6 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | -c | bool | Display the HTTP status code of each subdomain |
 | -e | string | Exclude HTTP status codes from results |
 | -f | string | Filter specific HTTP status codes from results |
-| -s | bool | Display only subdomains which can be resolved to IP addresses |
 | -a | bool | Analyze HTTP header of each subdomain (server etc.) |
 | -p | string | Scan subdomains for open ports in range |
 | -x | string | Extend endpoint DB with custom list (.txt) |

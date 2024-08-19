@@ -1,15 +1,9 @@
-package lib
+package utils
 
-type Pool struct {
-	IPv4Pool    []string
-	IPv6Pool    []string
-	PoolDomains []string
-}
-
-func (pool *Pool) PoolInit() {
-	pool.IPv4Pool = make([]string, 0)
-	pool.IPv6Pool = make([]string, 0)
-	pool.PoolDomains = make([]string, 0)
+func (pool *PoolBase) PoolInit() {
+	pool.PoolIPv4Addresses = make([]string, 0)
+	pool.PoolIPv6Addresses = make([]string, 0)
+	pool.PoolSubdomains = make([]string, 0)
 }
 
 func PoolContainsEntry(pool []string, value string) bool {
@@ -33,8 +27,8 @@ func poolRemoveDuplicates(pool []string) []string {
 	return revisedPool
 }
 
-func (pool *Pool) PoolCleanup() {
-	poolRemoveDuplicates(pool.IPv4Pool)
-	poolRemoveDuplicates(pool.IPv6Pool)
-	poolRemoveDuplicates(pool.PoolDomains)
+func (pools *PoolBase) PoolCleanup() {
+	poolRemoveDuplicates(pools.PoolIPv4Addresses)
+	poolRemoveDuplicates(pools.PoolIPv6Addresses)
+	poolRemoveDuplicates(pools.PoolSubdomains)
 }

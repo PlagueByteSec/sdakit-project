@@ -1,123 +1,155 @@
 package lib
 
 import (
+	"Sentinel/lib/utils"
 	"bufio"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
 	"time"
 )
 
-func PassiveEnum(args *Args, client *http.Client) {
-	GStdout.Flush()
+func PassiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) {
+	utils.GStdout.Flush()
 	startTime := time.Now()
-	VerbosePrint("[*] Formatting db entries..\n")
-	endpoints, err := EditDbEntries(args)
+	utils.VerbosePrint("[*] Formatting db entries..\n")
+	/*
+		Read and format the entries listed in db.go, and if specified,
+		also handle the endpoints indicated by the -x flag.
+	*/
+	endpoints, err := utils.EditDbEntries(args)
 	if err != nil {
-		Logger.Println(err)
+		utils.Glogger.Println(err)
 	}
-	VerbosePrint("[*] Sending GET request to endpoints..\n")
-	fmt.Fprintln(GStdout)
+	utils.VerbosePrint("[*] Sending GET request to endpoints..\n")
+	fmt.Fprintln(utils.GStdout)
+	/*
+		Send a GET request to each endpoint and filter the results. The results will
+		be temporarily stored in the appropriate pool. Duplicates will be removed.
+	*/
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := EndpointRequest(client, args.Domain, endpoints[idx]); err != nil {
-			Logger.Println(err)
+			utils.Glogger.Println(err)
 		}
 	}
-	if len(GPool.PoolDomains) == 0 {
-		fmt.Fprintln(GStdout, "[-] Could not determine subdomains :(")
-		GStdout.Flush()
+	if len(utils.GPool.PoolSubdomains) == 0 {
+		fmt.Fprintln(utils.GStdout, "[-] Could not determine subdomains :(")
+		utils.GStdout.Flush()
 		os.Exit(0)
 	}
-	var streams FileStreams
-	filePaths := FilePathInit(args)
+	var streams utils.FileStreams
+	/*
+		Specify the name and path for each output file. If all settings are configured, open
+		separate file streams for each category (Subdomains, IPv4 addresses, and IPv6 addresses).
+	*/
 	err = streams.OpenOutputFileStreams(filePaths)
 	if err != nil {
-		Logger.Println(err)
+		utils.Glogger.Println(err)
 	}
 	defer streams.CloseOutputFileStreams()
-	for _, result := range GPool.PoolDomains {
-		params := Params{
-			FilePath:     filePaths.FilePathSubdomain,
-			FilePathIPv4: filePaths.FilePathIPv4,
-			FilePathIPv6: filePaths.FilePathIPv6,
-			FileContent:  result,
-			Result:       result,
-			Hostname:     args.Domain,
+	/*
+		Iterate through the subdomain pool and process the current entry. The OutputHandler
+		function will ensure that all fetched data is separated and stored within the output
+		files, and it will also handle other actions specified by the command line.
+	*/
+	for _, subdomain := range utils.GPool.PoolSubdomains {
+		utils.GSubdomBase = utils.SubdomainBase{}
+		params := utils.Params{
+			Domain:             args.Domain,
+			Subdomain:          subdomain,
+			FilePathSubdomains: filePaths.FilePathSubdomain,
+			FileContentSubdoms: subdomain,
+			FilePathIPv4Addrs:  filePaths.FilePathIPv4,
+			FilePathIPv6Addrs:  filePaths.FilePathIPv6,
 		}
 		OutputHandler(&streams, client, args, params)
 	}
-	poolSize := len(GPool.PoolDomains)
-	Evaluation(startTime, poolSize)
-	GPool.PoolCleanup()
+	poolSize := len(utils.GPool.PoolSubdomains)
+	// Evaluate the summary and format it for writing to stdout.
+	utils.Evaluation(startTime, poolSize)
 }
 
-func DirectEnum(args *Args, client *http.Client) error {
+func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) {
+	startTime := time.Now()
 	obtainedCounter := 0
 	allCounter := 0
-	startTime := time.Now()
+	var streams utils.FileStreams
+	// Ensure that the wordlist specified by the -w flag exists.
 	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
-		Logger.Println(err)
-		return errors.New("could not find wordlist: " + args.WordlistPath)
+		utils.Glogger.Println(err)
+		utils.SentinelExit(utils.SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "could not find wordlist: " + args.WordlistPath,
+			ExitError:   err,
+		})
 	}
-	lineCount, err := FileCountLines(args.WordlistPath)
+	lineCount, err := utils.FileCountLines(args.WordlistPath)
 	if err != nil {
-		Logger.Println(err)
-		return errors.New("Failed to count lines of " + args.WordlistPath)
+		utils.Glogger.Println(err)
+		utils.SentinelExit(utils.SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Failed to count lines of " + args.WordlistPath,
+			ExitError:   err,
+		})
 	}
-	stream, err := os.Open(args.WordlistPath)
+	wordlistStream, err := os.Open(args.WordlistPath)
 	if err != nil {
-		Logger.Println(err)
-		return errors.New("unable to open file stream to wordlist")
+		utils.Glogger.Println(err)
+		utils.SentinelExit(utils.SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Unable to open stream (read-mode) to: " + args.WordlistPath,
+			ExitError:   err,
+		})
 	}
-	defer stream.Close()
-	codeFilter := strings.Split(args.FilHttpCodes, ",")
-	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
-	scanner := bufio.NewScanner(stream)
+	defer wordlistStream.Close()
+	scanner := bufio.NewScanner(wordlistStream)
 	fmt.Println()
-	var streams FileStreams
-	filePaths := FilePathInit(args)
+	/*
+		Specify the name and path for each output file. If all settings are configured, open
+		separate file streams for each category (Subdomains, IPv4 addresses, and IPv6 addresses).
+	*/
 	err = streams.OpenOutputFileStreams(filePaths)
 	if err != nil {
-		Logger.Println(err)
+		utils.Glogger.Println(err)
 	}
 	defer streams.CloseOutputFileStreams()
 	for scanner.Scan() {
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
 		statusCode := HttpStatusCode(client, url)
-		code := strconv.Itoa(statusCode)
+		/*
+			Skip failed GET requests and set the successful response subdomains to the
+			Params struct. The OutputHandler function will ensure that all fetched data
+			is separated and stored within the output files, and it will also handle
+			other actions specified by the command line.
+		*/
 		if statusCode != -1 {
-			if len(codeFilter) != 1 && !InArgList(code, codeFilter) {
-				continue
-			}
-			if len(codeFilterExc) != 1 && InArgList(code, codeFilterExc) {
-				continue
-			}
+			utils.GSubdomBase = utils.SubdomainBase{}
 			subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
-			params := Params{
-				FilePath:     filePaths.FilePathSubdomain,
-				FilePathIPv4: filePaths.FilePathIPv4,
-				FilePathIPv6: filePaths.FilePathIPv6,
-				FileContent:  subdomain,
-				Result:       subdomain,
-				Hostname:     args.Domain,
+			params := utils.Params{
+				Domain:             args.Domain,
+				Subdomain:          subdomain,
+				FilePathSubdomains: filePaths.FilePathSubdomain,
+				FileContentSubdoms: subdomain,
+				FilePathIPv4Addrs:  filePaths.FilePathIPv4,
+				FilePathIPv6Addrs:  filePaths.FilePathIPv6,
 			}
 			fmt.Println()
 			OutputHandler(&streams, client, args, params)
 			obtainedCounter++
 		}
 		allCounter++
-		fmt.Fprintf(GStdout, "\rProgress::[%d/%d]", allCounter, lineCount)
-		GStdout.Flush()
+		fmt.Fprintf(utils.GStdout, "\rProgress::[%d/%d]", allCounter, lineCount)
+		utils.GStdout.Flush()
 	}
 	if err := scanner.Err(); err != nil {
-		Logger.Println(err)
-		return errors.New("scanner returns an error while reading wordlist")
+		utils.Glogger.Println(err)
+		utils.SentinelExit(utils.SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Scanner failed",
+			ExitError:   err,
+		})
 	}
-	Evaluation(startTime, obtainedCounter)
-	GPool.PoolCleanup()
-	return nil
+	utils.Evaluation(startTime, obtainedCounter)
 }

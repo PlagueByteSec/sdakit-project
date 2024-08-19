@@ -1,17 +1,16 @@
 package lib
 
 import (
+	"Sentinel/lib/utils"
 	"bufio"
 	"os"
 )
 
-var (
-	GPool    Pool
-	GStdout  *bufio.Writer
-	GVerbose bool
-)
-
 func init() {
-	GPool.PoolInit()
-	GStdout = bufio.NewWriter(os.Stdout)
+	/*
+		Project initialization: make every pool at startup and open
+		a stream writer to stdout.
+	*/
+	utils.GPool.PoolInit()
+	utils.GStdout = bufio.NewWriter(os.Stdout)
 }
