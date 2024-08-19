@@ -36,7 +36,7 @@ go build -o bin/sentinel
 # Discover subdomains, display HTTP status codes, analyze 
 # the header, display only resolvable subdomains and run a
 # port scan against them.
-# All results will be saved in the "output" directory.
+# All results will be saved by default in the output directory.
 # Passive:
 ./bin/sentinel -d example.com -s -c -a -p 1-1000 -f 200,401,403
 # Active:
@@ -45,8 +45,8 @@ go build -o bin/sentinel
 #### Or simply `run` the <sentinel> `executable` without args to see the available `options`
 
 ```txt
-By default, Sentinel will create 3 output files. The output files are 
-divided into subdomains, IPv4 and IPv6 addresses. 
+By default, Sentinel will create 4 output files. The output files are 
+divided into subdomains, IPv4/IPv6 addresses and a summary in JSON format. 
 ```
 
 #### Options:
@@ -57,6 +57,7 @@ divided into subdomains, IPv4 and IPv6 addresses.
 | -oS | string | Specify the output file path for subdomains |
 | -o4 | string | Specify the output file path for IPv4 addresses |
 | -o6 | string | Specify the output file path for IPv6 addresses |
+| -oJ | string | Specify the output file path for summary |
 | -nP | string | Specify the output directory path for all output files |
 | -c | bool | Display the HTTP status code of each subdomain |
 | -e | string | Exclude HTTP status codes from results |
