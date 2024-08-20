@@ -186,7 +186,7 @@ func clearFileContent(outputFilePath string) error {
 }
 
 func cleanExistingOutputFiles(outputFiles []string) {
-	// Clear existing output files to prevent saving duplicate entries."
+	// Recreate existing output files to prevent saving duplicate entries
 	for idx := 0; idx < len(outputFiles); idx++ {
 		file := outputFiles[idx]
 		if outputFileAlreadyExist(file) {
