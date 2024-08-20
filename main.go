@@ -53,8 +53,8 @@ func main() {
 	}
 	localVersion = utils.GetCurrentLocalVersion()
 	repoVersion = lib.GetCurrentRepoVersion(httpClient)
-	utils.VersionCompare(repoVersion, localVersion)
 	fmt.Fprintf(utils.GStdout, " ===[ Sentinel, Version: %s ]===\n\n", localVersion)
+	utils.VersionCompare(repoVersion, localVersion)
 	utils.GDisplayCount = 0
 	/*
 		Initialize the output file paths and create the output

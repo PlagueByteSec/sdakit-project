@@ -167,6 +167,34 @@ func GetIpVersion(ipAddress string) int {
 	return ipVersion
 }
 
+func outputFileAlreadyExist(outputFilePath string) bool {
+	if _, err := os.Stat(outputFilePath); err == nil {
+		return true
+	} else if os.IsNotExist(err) {
+		return false
+	}
+	return false
+}
+
+func clearFileContent(outputFilePath string) error {
+	stream, err := os.OpenFile(outputFilePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, DefaultPermission)
+	if stream != nil {
+		return err
+	}
+	stream.Close()
+	return nil
+}
+
+func cleanExistingOutputFiles(outputFiles []string) {
+	// Clear existing output files to prevent saving duplicate entries."
+	for idx := 0; idx < len(outputFiles); idx++ {
+		file := outputFiles[idx]
+		if outputFileAlreadyExist(file) {
+			clearFileContent(file)
+		}
+	}
+}
+
 func FilePathInit(args *Args) (*FilePaths, error) {
 	/*
 		Build output file names for each category using default
@@ -187,28 +215,46 @@ func FilePathInit(args *Args) (*FilePaths, error) {
 		filePathIPv6      string
 		filePathJSON      string
 		extension         FileExtension = TXT
+		outputFiles       []string
 	)
 	if args.OutFileSubdoms == "defaultSd" {
-		filePathSubdomain = filepath.Join(args.NewOutputDirPath, DefaultOutputName(args.Domain, extension))
+		filePathSubdomain = filepath.Join(
+			args.NewOutputDirPath,
+			"Subdomains-"+DefaultOutputName(args.Domain, extension),
+		)
 	} else {
 		filePathSubdomain = args.OutFileSubdoms
 	}
+	outputFiles = append(outputFiles, filePathSubdomain)
 	if args.OutFileIPv4 == "defaultV4" {
-		filePathIPv4 = filepath.Join(args.NewOutputDirPath, "IPv4-"+DefaultOutputName(args.Domain, extension))
+		filePathIPv4 = filepath.Join(
+			args.NewOutputDirPath,
+			"IPv4Addresses-"+DefaultOutputName(args.Domain, extension),
+		)
 	} else {
 		filePathIPv4 = args.OutFileIPv4
 	}
+	outputFiles = append(outputFiles, filePathIPv4)
 	if args.OutFileIPv6 == "defaultV6" {
-		filePathIPv6 = filepath.Join(args.NewOutputDirPath, "IPv6-"+DefaultOutputName(args.Domain, extension))
+		filePathIPv6 = filepath.Join(
+			args.NewOutputDirPath,
+			"IPv6Addresses-"+DefaultOutputName(args.Domain, extension),
+		)
 	} else {
 		filePathIPv6 = args.OutFileIPv6
 	}
+	outputFiles = append(outputFiles, filePathIPv6)
 	if args.OutFileJSON == "defaultJSON" {
 		extension = JSON
-		filePathJSON = filepath.Join(args.NewOutputDirPath, "Summary-"+DefaultOutputName(args.Domain, extension))
+		filePathJSON = filepath.Join(
+			args.NewOutputDirPath,
+			"Summary-"+DefaultOutputName(args.Domain, extension),
+		)
 	} else {
 		filePathJSON = args.OutFileJSON
 	}
+	outputFiles = append(outputFiles, filePathJSON)
+	cleanExistingOutputFiles(outputFiles)
 	return &FilePaths{
 		FilePathSubdomain: filePathSubdomain,
 		FilePathIPv4:      filePathIPv4,

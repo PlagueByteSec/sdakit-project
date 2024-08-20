@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 )
 
 func CliParser() (utils.Args, error) {
@@ -26,8 +27,8 @@ func CliParser() (utils.Args, error) {
 	torRoute := flag.Bool("r", false, "Enable TOR routing")
 	flag.Parse()
 	if flag.NFlag() == 0 {
-		fmt.Println(Help)
-		return utils.Args{}, errors.New("no args given, banner printed")
+		fmt.Println(Help + "\nPlease specify a domain!")
+		os.Exit(0)
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
 		return utils.Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
