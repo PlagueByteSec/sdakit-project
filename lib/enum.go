@@ -3,10 +3,12 @@ package lib
 import (
 	"Sentinel/lib/utils"
 	"bufio"
-	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -23,7 +25,6 @@ func PassiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePat
 		utils.Glogger.Println(err)
 	}
 	utils.VerbosePrint("[*] Sending GET request to endpoints..\n")
-	fmt.Fprintln(utils.GStdout)
 	/*
 		Send a GET request to each endpoint and filter the results. The results will
 		be temporarily stored in the appropriate pool. Duplicates will be removed.
@@ -71,50 +72,14 @@ func PassiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePat
 }
 
 func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) {
-	startTime := time.Now()
-	obtainedCounter := 0
-	allCounter := 0
-	var streams utils.FileStreams
-	// Ensure that the wordlist specified by the -w flag exists.
-	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
-		utils.Glogger.Println(err)
-		utils.SentinelExit(utils.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "could not find wordlist: " + args.WordlistPath,
-			ExitError:   err,
-		})
-	}
-	lineCount, err := utils.FileCountLines(args.WordlistPath)
-	if err != nil {
-		utils.Glogger.Println(err)
-		utils.SentinelExit(utils.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "Failed to count lines of " + args.WordlistPath,
-			ExitError:   err,
-		})
-	}
-	wordlistStream, err := os.Open(args.WordlistPath)
-	if err != nil {
-		utils.Glogger.Println(err)
-		utils.SentinelExit(utils.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "Unable to open stream (read-mode) to: " + args.WordlistPath,
-			ExitError:   err,
-		})
-	}
+	wordlistStream, entryCount := WordlistInit(args)
 	defer wordlistStream.Close()
 	scanner := bufio.NewScanner(wordlistStream)
-	fmt.Println()
-	/*
-		Specify the name and path for each output file. If all settings are configured, open
-		separate file streams for each category (Subdomains, IPv4 addresses, and IPv6 addresses).
-	*/
-	err = streams.OpenOutputFileStreams(filePaths)
-	if err != nil {
-		utils.Glogger.Println(err)
-	}
-	defer streams.CloseOutputFileStreams()
+	fmt.Fprintln(utils.GStdout)
+	OpenOutputFileStreamsWrapper(filePaths)
+	defer utils.GStreams.CloseOutputFileStreams()
 	for scanner.Scan() {
+		utils.GSubdomBase = utils.SubdomainBase{}
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
 		statusCode := HttpStatusCode(client, url)
@@ -135,21 +100,79 @@ func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePath
 				FilePathIPv4Addrs:  filePaths.FilePathIPv4,
 				FilePathIPv6Addrs:  filePaths.FilePathIPv6,
 			}
-			fmt.Println()
-			OutputHandler(&streams, client, args, params)
-			obtainedCounter++
+			fmt.Fprintln(utils.GStdout)
+			OutputHandler(&utils.GStreams, client, args, params)
+			utils.GStdout.Flush()
+			utils.GObtainedCounter++
 		}
-		allCounter++
-		fmt.Fprintf(utils.GStdout, "\rProgress::[%d/%d]", allCounter, lineCount)
-		utils.GStdout.Flush()
+		utils.PrintProgress(entryCount)
 	}
-	if err := scanner.Err(); err != nil {
-		utils.Glogger.Println(err)
-		utils.SentinelExit(utils.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "Scanner failed",
-			ExitError:   err,
-		})
+	utils.ScannerCheckError(scanner)
+	utils.Evaluation(utils.GStartTime, utils.GObtainedCounter)
+}
+
+func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) {
+	/*
+		Ensure that the specified wordlist can be found and open
+		a read-only stream.
+	*/
+	wordlistStream, entryCount := WordlistInit(args)
+	defer wordlistStream.Close()
+	OpenOutputFileStreamsWrapper(filePaths)
+	defer utils.GStreams.CloseOutputFileStreams()
+	scanner := bufio.NewScanner(wordlistStream)
+	fmt.Fprintln(utils.GStdout)
+	/*
+		Check if a custom DNS server address is specified by the -dnsC
+		flag. If it is specified, ensure that the IP address follows the
+		correct pattern and that the specified port is within the correct range.
+	*/
+	if args.DnsLookupCustom != "" {
+		testValue := strings.Split(args.DnsLookupCustom, ":")
+		dnsServerIp := net.ParseIP(testValue[0])
+		if testValue == nil {
+			utils.SentinelExit(utils.SentinelExitParams{
+				ExitCode:    -1,
+				ExitMessage: "Please specify a valid DNS server address",
+				ExitError:   nil,
+			})
+		}
+		dnsServerPort, err := strconv.ParseInt(testValue[1], 0, 16)
+		if err != nil || dnsServerPort < 1 && dnsServerPort > 65535 {
+			utils.SentinelExit(utils.SentinelExitParams{
+				ExitCode:    -1,
+				ExitMessage: "Please specify a valid DNS server port",
+				ExitError:   nil,
+			})
+		}
+		utils.CustomDnsServer = string(dnsServerIp)
 	}
-	utils.Evaluation(startTime, obtainedCounter)
+	var queryDNS []string
+	for scanner.Scan() {
+		utils.GSubdomBase = utils.SubdomainBase{}
+		entry := scanner.Text()
+		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
+		queryDNS = utils.RequestIpAddresses(false, subdomain)
+		if utils.CustomDnsServer != "" {
+			// Use custom DNS server address
+			queryDNS = utils.RequestIpAddresses(true, subdomain)
+		}
+		if len(queryDNS) != 0 {
+			params := utils.Params{
+				Domain:             args.Domain,
+				Subdomain:          subdomain,
+				FilePathSubdomains: filePaths.FilePathSubdomain,
+				FileContentSubdoms: subdomain,
+				FilePathIPv4Addrs:  filePaths.FilePathIPv4,
+				FilePathIPv6Addrs:  filePaths.FilePathIPv6,
+			}
+			fmt.Fprintln(utils.GStdout)
+			OutputHandler(&utils.GStreams, client, args, params)
+			utils.GStdout.Flush()
+			utils.GObtainedCounter++
+		}
+		utils.PrintProgress(entryCount)
+	}
+	utils.ScannerCheckError(scanner)
+	utils.Evaluation(utils.GStartTime, utils.GObtainedCounter)
 }

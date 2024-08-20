@@ -12,7 +12,7 @@ For each discovered subdomain, Sentinel retrieves detailed information,
 including HTTP header analysis (e.g. server), HTTP status codes to 
 assess reachability, and the option to conduct a port scan. The output is 
 customizable to meet user requirements, and results are categorized into 
-IPv4, IPv6, and subdomains, with all findings automatically saved for 
+IPv4, IPv6, subdomains and summary, with all findings automatically saved for 
 subsequent processing.
 ```
 
@@ -31,16 +31,17 @@ go build -o bin/sentinel
 ```
 <sentinel> -d example.com
 ```
-- extend the default enumeration
+`Examples`:
 ```bash
 # Discover subdomains, display HTTP status codes, analyze 
-# the header, display only resolvable subdomains and run a
-# port scan against them.
+# the header and run a port scan against them.
 # All results will be saved by default in the output directory.
 # Passive:
-./bin/sentinel -d example.com -s -c -a -p 1-1000 -f 200,401,403
+./bin/sentinel -d example.com -c -a -p 1-1000 -f 200,401,403
 # Active:
-./bin/sentinel -d example.com -s -a -p 1-1000 -w /wordlists/subdomains.txt
+./bin/sentinel -d example.com -a -p 1-1000 -w /wordlists/subdomains.txt
+# DNS:
+./bin/sentinel -d example.com -dns -w /wordlists/subdomains.txt -a -c -p 1-1000
 ```
 #### Or simply `run` the <sentinel> `executable` without args to see the available `options`
 
@@ -52,7 +53,7 @@ divided into subdomains, IPv4/IPv6 addresses and a summary in JSON format.
 #### Options:
 | Flags | Argument Type | Description |
 | ----- | ----------- | ------------|
-| -d | string | Specify the taget domain eg. example.com (default: passive) |
+| -d | string | Specify the taget domain e.g. example.com (default: passive) |
 | -w | string | Use active method by specifying the wordlist |
 | -oS | string | Specify the output file path for subdomains |
 | -o4 | string | Specify the output file path for IPv4 addresses |
@@ -67,6 +68,10 @@ divided into subdomains, IPv4/IPv6 addresses and a summary in JSON format.
 | -x | string | Extend endpoint DB with custom list (.txt) |
 | -t | int | Specify the request timeout |
 | -r | bool | Route all requests through TOR |
+| -dns | string | Use wordlist (-w) and resolve subdomains by querying a DNS |
+| -dnsC | string | Specify a custom DNS server address (ip:port) |
+| -dnsT | int | Set the timeout for DNS queries in ms |
+| -rD | int | Set HTTP request delay in ms |
 
 # License
 Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license

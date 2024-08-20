@@ -25,6 +25,10 @@ func CliParser() (utils.Args, error) {
 	dbExtendPath := flag.String("x", "", "Extend endpoint DB with custom list")
 	timeout := flag.Int("t", 5, "Specify the request timeout")
 	torRoute := flag.Bool("r", false, "Enable TOR routing")
+	dnsLookup := flag.Bool("dns", false, "Use wordlist (-w) and resolve subdomains by querying a DNS")
+	dnsLookupCustom := flag.String("dnsC", "", "Specify custom DNS server")
+	dnsLookupTimeout := flag.Int("dnsT", 500, "Specify timeout for DNS queries in ms")
+	httpRequestDelay := flag.Int("rD", 500, "Specify HTTP request delay")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(Help + "\nPlease specify a domain!")
@@ -35,6 +39,12 @@ func CliParser() (utils.Args, error) {
 	}
 	if !utils.IsValidDomain(*domain) {
 		return utils.Args{}, errors.New("domain verification failed: " + *domain)
+	}
+	if !*dnsLookup && *dnsLookupCustom != "" {
+		return utils.Args{}, errors.New("custom DNS address can only be set when -dns is specified")
+	}
+	if *dnsLookup && *wordlistPath == "" {
+		return utils.Args{}, errors.New("no wordlist specified, dns method cannot be used")
 	}
 	args := utils.Args{
 		Verbose:          *verbose,
@@ -53,6 +63,10 @@ func CliParser() (utils.Args, error) {
 		DbExtendPath:     *dbExtendPath,
 		Timeout:          *timeout,
 		TorRoute:         *torRoute,
+		DnsLookup:        *dnsLookup,
+		DnsLookupCustom:  *dnsLookupCustom,
+		DnsLookupTimeout: *dnsLookupTimeout,
+		HttpRequestDelay: *httpRequestDelay,
 	}
 	return args, nil
 }

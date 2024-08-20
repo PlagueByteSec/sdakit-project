@@ -54,6 +54,7 @@ func main() {
 	localVersion = utils.GetCurrentLocalVersion()
 	repoVersion = lib.GetCurrentRepoVersion(httpClient)
 	fmt.Fprintf(utils.GStdout, " ===[ Sentinel, Version: %s ]===\n\n", localVersion)
+	utils.GStdout.Flush()
 	utils.VersionCompare(repoVersion, localVersion)
 	utils.GDisplayCount = 0
 	/*
@@ -65,14 +66,20 @@ func main() {
 		goto exitErr
 	}
 	fmt.Fprint(utils.GStdout, "[*] Method: ")
-	if len(args.WordlistPath) == 0 {
+	if args.WordlistPath == "" {
 		// Perform enumeration using external resources
 		fmt.Fprintln(utils.GStdout, "PASSIVE")
 		lib.PassiveEnum(&args, httpClient, filePaths)
 	} else {
-		// Perform enumeration using brute force
-		fmt.Fprintln(utils.GStdout, "ACTIVE")
-		lib.ActiveEnum(&args, httpClient, filePaths)
+		if args.DnsLookup {
+			// Perform enumeration using DNS
+			fmt.Fprintln(utils.GStdout, "DNS")
+			lib.DnsEnum(&args, httpClient, filePaths)
+		} else {
+			// Perform enumeration using brute force
+			fmt.Fprintln(utils.GStdout, "ACTIVE")
+			lib.ActiveEnum(&args, httpClient, filePaths)
+		}
 	}
 	/*
 		Save the summary (including IPv4, IPv6, ports if requested,

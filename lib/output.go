@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func WriteJSON(jsonFileName string) error {
@@ -29,6 +30,9 @@ func WriteJSON(jsonFileName string) error {
 }
 
 func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.Args, params utils.Params) {
+	if args.HttpCode || args.AnalyzeHeader {
+		time.Sleep(time.Duration(args.HttpRequestDelay) * time.Millisecond)
+	}
 	utils.GStdout.Flush()
 	/*
 		Perform a DNS lookup to determine the IP addresses (IPv4 and IPv6). The addresses will
@@ -42,6 +46,7 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 		// Use strings.Builder for better output control
 		consoleOutput strings.Builder
 		err           error
+		tempExclude   string
 	)
 	utils.GSubdomBase.Subdomain = append(utils.GSubdomBase.Subdomain, params.Subdomain)
 	for _, ip := range ipAddrs {
@@ -56,8 +61,12 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 		Split the arguments specified by the -f and -e flags by comma.
 		The values within the slices will be used to filter the results.
 	*/
-	codeFilter := strings.Split(args.FilHttpCodes, ",")
-	codeFilterExc := strings.Split(args.ExcHttpCodes, ",")
+	delim := ","
+	if !strings.Contains(args.ExcHttpCodes, delim) {
+		tempExclude = args.ExcHttpCodes
+	}
+	codeFilter := strings.Split(args.FilHttpCodes, delim)
+	codeFilterExc := strings.Split(args.ExcHttpCodes, delim)
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Subdomain)
 		httpStatusCode := HttpStatusCode(client, url)
@@ -73,6 +82,9 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 			return
 		}
 		if len(codeFilterExc) != 1 && utils.InArgList(statusCodeConv, codeFilterExc) {
+			return
+		}
+		if tempExclude == statusCodeConv {
 			return
 		}
 		consoleOutput.WriteString(fmt.Sprintf(", HTTP Status Code: %s", statusCodeConv))

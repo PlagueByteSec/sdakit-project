@@ -137,13 +137,24 @@ func EditDbEntries(args *Args) ([]string, error) {
 	return entries, nil
 }
 
-func RequestIpAddresses(subdomain string) []string {
+func RequestIpAddresses(useCustomDnsServer bool, subdomain string) []string {
 	/*
 		Perform a DNS lookup for the current subdomain to get the corresponding
 		IP addresses and filter out old and inactive subdomains.
 	*/
+	var resolver *net.Resolver
+	switch useCustomDnsServer {
+	case true:
+		resolver = &net.Resolver{
+			PreferGo: false,
+			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				return net.Dial("udp", CustomDnsServer)
+			},
+		}
+	case false:
+		resolver = &net.Resolver{}
+	}
 	var results []string
-	resolver := net.Resolver{}
 	retryLookup, err := resolver.LookupIPAddr(context.Background(), subdomain)
 	if err != nil {
 		Glogger.Println(err)
@@ -384,5 +395,23 @@ func IpManage(params Params, ip string, fileStream *FileStreams) {
 			GSubdomBase.IpAddresses.IPv6,
 			net.ParseIP(ip),
 		)
+	}
+}
+
+func PrintProgress(entryCount int) {
+	fmt.Fprintf(GStdout, "\rProgress::[%d/%d]", GAllCounter, entryCount)
+	GStdout.Flush()
+	GAllCounter++
+}
+
+func ScannerCheckError(scanner *bufio.Scanner) {
+	// Handle errors for wordlist scanner
+	if err := scanner.Err(); err != nil {
+		Glogger.Println(err)
+		SentinelExit(SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Scanner failed",
+			ExitError:   err,
+		})
 	}
 }

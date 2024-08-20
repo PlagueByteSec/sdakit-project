@@ -34,6 +34,10 @@ type Args struct {
 	DbExtendPath     string
 	Timeout          int
 	TorRoute         bool
+	DnsLookup        bool
+	DnsLookupCustom  string
+	DnsLookupTimeout int
+	HttpRequestDelay int
 }
 
 type PoolBase struct {
