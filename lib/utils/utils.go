@@ -157,7 +157,6 @@ func RequestIpAddresses(useCustomDnsServer bool, subdomain string) []string {
 	var results []string
 	retryLookup, err := resolver.LookupIPAddr(context.Background(), subdomain)
 	if err != nil {
-		Glogger.Println(err)
 		return nil
 	}
 	for _, ip := range retryLookup {
