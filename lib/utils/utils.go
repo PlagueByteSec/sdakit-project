@@ -414,3 +414,9 @@ func ScannerCheckError(scanner *bufio.Scanner) {
 		})
 	}
 }
+
+func ResetSlice(slice *[]string) {
+	if len(*slice) >= 1 && (*slice)[0] == "" {
+		*slice = []string{}
+	}
+}

@@ -30,6 +30,7 @@ func WriteJSON(jsonFileName string) error {
 }
 
 func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.Args, params utils.Params) {
+	utils.GSubdomBase = utils.SubdomainBase{}
 	if args.HttpCode || args.AnalyzeHeader {
 		time.Sleep(time.Duration(args.HttpRequestDelay) * time.Millisecond)
 	}
@@ -45,17 +46,10 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 	var (
 		// Use strings.Builder for better output control
 		consoleOutput strings.Builder
-		err           error
-		tempExclude   string
+		codeFilterExc []string
+		codeFilter    []string
 	)
 	utils.GSubdomBase.Subdomain = append(utils.GSubdomBase.Subdomain, params.Subdomain)
-	for _, ip := range ipAddrs {
-		utils.IpManage(params, ip, streams)
-	}
-	err = utils.WriteOutputFileStream(streams.SubdomainStream, params.FileContentSubdoms)
-	if err != nil {
-		streams.SubdomainStream.Close()
-	}
 	consoleOutput.WriteString(fmt.Sprintf(" ══[ %s", params.Subdomain))
 	/*
 		Split the arguments specified by the -f and -e flags by comma.
@@ -63,10 +57,17 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 	*/
 	delim := ","
 	if !strings.Contains(args.ExcHttpCodes, delim) {
-		tempExclude = args.ExcHttpCodes
+		codeFilterExc = []string{args.ExcHttpCodes}
+	} else {
+		codeFilterExc = strings.Split(args.ExcHttpCodes, delim)
 	}
-	codeFilter := strings.Split(args.FilHttpCodes, delim)
-	codeFilterExc := strings.Split(args.ExcHttpCodes, delim)
+	if !strings.Contains(args.FilHttpCodes, delim) {
+		codeFilter = []string{args.FilHttpCodes}
+	} else {
+		codeFilter = strings.Split(args.FilHttpCodes, delim)
+	}
+	utils.ResetSlice(&codeFilter)
+	utils.ResetSlice(&codeFilterExc)
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Subdomain)
 		httpStatusCode := HttpStatusCode(client, url)
@@ -78,16 +79,15 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 			Ensure that the status codes are correctly filtered by comparing the
 			results with codeFilter and CodeFilterExc.
 		*/
-		if len(codeFilter) != 1 && !utils.InArgList(statusCodeConv, codeFilter) {
+		if len(codeFilter) >= 1 && !utils.InArgList(statusCodeConv, codeFilter) ||
+			len(codeFilterExc) >= 1 && utils.InArgList(statusCodeConv, codeFilterExc) {
 			return
-		}
-		if len(codeFilterExc) != 1 && utils.InArgList(statusCodeConv, codeFilterExc) {
-			return
-		}
-		if tempExclude == statusCodeConv {
-			return
+		} else {
+			OutputWrapper(ipAddrs, params, streams)
 		}
 		consoleOutput.WriteString(fmt.Sprintf(", HTTP Status Code: %s", statusCodeConv))
+	} else {
+		OutputWrapper(ipAddrs, params, streams)
 	}
 	if args.AnalyzeHeader {
 		AnalyzeHeaderWrapper(&consoleOutput, ipAddrsOut, client, params)

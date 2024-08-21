@@ -87,3 +87,13 @@ func OpenOutputFileStreamsWrapper(filePaths *utils.FilePaths) {
 		utils.Glogger.Println(err)
 	}
 }
+
+func OutputWrapper(ipAddrs []string, params utils.Params, streams *utils.FileStreams) {
+	for _, ip := range ipAddrs {
+		utils.IpManage(params, ip, streams)
+	}
+	err := utils.WriteOutputFileStream(streams.SubdomainStream, params.FileContentSubdoms)
+	if err != nil {
+		streams.SubdomainStream.Close()
+	}
+}

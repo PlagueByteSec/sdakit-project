@@ -55,7 +55,6 @@ func PassiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePat
 		files, and it will also handle other actions specified by the command line.
 	*/
 	for _, subdomain := range utils.GPool.PoolSubdomains {
-		utils.GSubdomBase = utils.SubdomainBase{}
 		params := utils.Params{
 			Domain:             args.Domain,
 			Subdomain:          subdomain,
@@ -90,7 +89,6 @@ func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePath
 			other actions specified by the command line.
 		*/
 		if statusCode != -1 {
-			utils.GSubdomBase = utils.SubdomainBase{}
 			subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
 			params := utils.Params{
 				Domain:             args.Domain,
@@ -149,7 +147,6 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 	}
 	var queryDNS []string
 	for scanner.Scan() {
-		utils.GSubdomBase = utils.SubdomainBase{}
 		entry := scanner.Text()
 		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
 		queryDNS = utils.RequestIpAddresses(false, subdomain)
