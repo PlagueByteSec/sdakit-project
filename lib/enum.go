@@ -71,7 +71,7 @@ func PassiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePat
 }
 
 func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) {
-	wordlistStream, entryCount := WordlistInit(args)
+	wordlistStream, entryCount := utils.WordlistStreamInit(args)
 	defer wordlistStream.Close()
 	scanner := bufio.NewScanner(wordlistStream)
 	fmt.Fprintln(utils.GStdout)
@@ -98,7 +98,7 @@ func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePath
 				FilePathIPv4Addrs:  filePaths.FilePathIPv4,
 				FilePathIPv6Addrs:  filePaths.FilePathIPv6,
 			}
-			fmt.Fprintln(utils.GStdout)
+			fmt.Fprint(utils.GStdout, "\r")
 			OutputHandler(&utils.GStreams, client, args, params)
 			utils.GStdout.Flush()
 			utils.GObtainedCounter++
@@ -106,6 +106,7 @@ func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePath
 		utils.PrintProgress(entryCount)
 	}
 	utils.ScannerCheckError(scanner)
+	fmt.Print("\r")
 	utils.Evaluation(utils.GStartTime, utils.GObtainedCounter)
 }
 
@@ -114,7 +115,7 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 		Ensure that the specified wordlist can be found and open
 		a read-only stream.
 	*/
-	wordlistStream, entryCount := WordlistInit(args)
+	wordlistStream, entryCount := utils.WordlistStreamInit(args)
 	defer wordlistStream.Close()
 	OpenOutputFileStreamsWrapper(filePaths)
 	defer utils.GStreams.CloseOutputFileStreams()
@@ -145,16 +146,21 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 		}
 		utils.CustomDnsServer = string(dnsServerIp)
 	}
-	var queryDNS []string
 	for scanner.Scan() {
+		utils.GDnsResults = []string{}
 		entry := scanner.Text()
 		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
-		queryDNS = utils.RequestIpAddresses(false, subdomain)
+		utils.GDnsResolver = utils.DnsResolverInit(false)
 		if utils.CustomDnsServer != "" {
 			// Use custom DNS server address
-			queryDNS = utils.RequestIpAddresses(true, subdomain)
+			utils.GDnsResolver = utils.DnsResolverInit(true)
 		}
-		if len(queryDNS) != 0 {
+		// Perform DNS lookup against the current subdomain
+		utils.DnsLookups(utils.GDnsResolver, utils.DnsLookupOptions{
+			IpAddress: nil,
+			Subdomain: subdomain,
+		})
+		if len(utils.GDnsResults) != 0 {
 			params := utils.Params{
 				Domain:             args.Domain,
 				Subdomain:          subdomain,
@@ -163,7 +169,7 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 				FilePathIPv4Addrs:  filePaths.FilePathIPv4,
 				FilePathIPv6Addrs:  filePaths.FilePathIPv6,
 			}
-			fmt.Fprintln(utils.GStdout)
+			fmt.Fprint(utils.GStdout, "\r")
 			OutputHandler(&utils.GStreams, client, args, params)
 			utils.GStdout.Flush()
 			utils.GObtainedCounter++
@@ -171,5 +177,31 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 		utils.PrintProgress(entryCount)
 	}
 	utils.ScannerCheckError(scanner)
+	fmt.Print("\r")
 	utils.Evaluation(utils.GStartTime, utils.GObtainedCounter)
+}
+
+func RDnsEnum(args *utils.Args) {
+	ipFileStream := utils.IpFileStreamInit(args)
+	scanner := bufio.NewScanner(ipFileStream)
+	utils.GStdout.Flush()
+	for scanner.Scan() {
+		entry := scanner.Text()
+		utils.GDnsResolver = utils.DnsResolverInit(false)
+		if utils.CustomDnsServer != "" {
+			// Use custom DNS server address
+			utils.GDnsResolver = utils.DnsResolverInit(true)
+		}
+		// Perform DNS lookup against the current subdomain
+		utils.DnsLookups(utils.GDnsResolver, utils.DnsLookupOptions{
+			IpAddress: net.ParseIP(entry),
+			Subdomain: "",
+		})
+		fmt.Fprintf(utils.GStdout, "\n ══[ %s:\n", entry)
+		for idx := 0; idx < len(utils.GDnsResults); idx++ {
+			fmt.Fprintf(utils.GStdout, "\t[> %s\n", utils.GDnsResults[idx])
+		}
+		utils.GStdout.Flush()
+	}
+	utils.ScannerCheckError(scanner)
 }

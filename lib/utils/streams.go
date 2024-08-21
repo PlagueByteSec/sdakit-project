@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 )
 
@@ -62,4 +63,55 @@ func (streams *FileStreams) CloseOutputFileStreams() {
 	streams.Ipv4AddrStream.Close()
 	streams.Ipv6AddrStream.Close()
 	streams.SubdomainStream.Close()
+}
+
+func WordlistStreamInit(args *Args) (*os.File, int) {
+	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
+		Glogger.Println(err)
+		SentinelExit(SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "could not find wordlist: " + args.WordlistPath,
+			ExitError:   err,
+		})
+	}
+	lineCount, err := FileCountLines(args.WordlistPath)
+	if err != nil {
+		Glogger.Println(err)
+		SentinelExit(SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Failed to count lines of " + args.WordlistPath,
+			ExitError:   err,
+		})
+	}
+	wordlistStream, err := os.Open(args.WordlistPath)
+	if err != nil {
+		Glogger.Println(err)
+		SentinelExit(SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Unable to open stream (read-mode) to: " + args.WordlistPath,
+			ExitError:   err,
+		})
+	}
+	return wordlistStream, lineCount
+}
+
+func IpFileStreamInit(args *Args) *os.File {
+	if _, err := os.Stat(args.RDnsLookupFilePath); errors.Is(err, os.ErrNotExist) {
+		Glogger.Println(err)
+		SentinelExit(SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "could not find IP list: " + args.RDnsLookupFilePath,
+			ExitError:   err,
+		})
+	}
+	ipListStream, err := os.Open(args.RDnsLookupFilePath)
+	if err != nil {
+		Glogger.Println(err)
+		SentinelExit(SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Unable to open stream (read-mode) to: " + args.RDnsLookupFilePath,
+			ExitError:   err,
+		})
+	}
+	return ipListStream
 }

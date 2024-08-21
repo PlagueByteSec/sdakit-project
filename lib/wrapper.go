@@ -2,10 +2,9 @@ package lib
 
 import (
 	"Sentinel/lib/utils"
-	"errors"
 	"fmt"
+	"net"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -38,44 +37,17 @@ func PortScanWrapper(consoleOutput *strings.Builder, params utils.Params, args *
 	}
 }
 
-func IpResolveWrapper(args *utils.Args, params utils.Params) (string, []string) {
-	ipAddrs := utils.RequestIpAddresses(false, params.Subdomain) // DNS lookup
-	if ipAddrs == nil {
+func IpResolveWrapper(resolver *net.Resolver, args *utils.Args, params utils.Params) (string, []string) {
+	utils.DnsLookups(resolver, utils.DnsLookupOptions{
+		IpAddress: nil,
+		Subdomain: params.Subdomain,
+	})
+	if utils.GDnsResults == nil {
 		// Skip results that cannot be resolved to an IP address
 		return "", nil
 	}
-	ipAddrsOut := strings.Join(ipAddrs, ", ")
-	return ipAddrsOut, ipAddrs
-}
-
-func WordlistInit(args *utils.Args) (*os.File, int) {
-	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
-		utils.Glogger.Println(err)
-		utils.SentinelExit(utils.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "could not find wordlist: " + args.WordlistPath,
-			ExitError:   err,
-		})
-	}
-	lineCount, err := utils.FileCountLines(args.WordlistPath) // dup
-	if err != nil {
-		utils.Glogger.Println(err)
-		utils.SentinelExit(utils.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "Failed to count lines of " + args.WordlistPath,
-			ExitError:   err,
-		})
-	} //
-	wordlistStream, err := os.Open(args.WordlistPath) // dup
-	if err != nil {
-		utils.Glogger.Println(err)
-		utils.SentinelExit(utils.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "Unable to open stream (read-mode) to: " + args.WordlistPath,
-			ExitError:   err,
-		})
-	}
-	return wordlistStream, lineCount
+	ipAddrsOut := strings.Join(utils.GDnsResults, ", ")
+	return ipAddrsOut, utils.GDnsResults
 }
 
 func OpenOutputFileStreamsWrapper(filePaths *utils.FilePaths) {

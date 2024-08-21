@@ -39,7 +39,7 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 		Perform a DNS lookup to determine the IP addresses (IPv4 and IPv6). The addresses will
 		be returned as a slice and separated as strings.
 	*/
-	ipAddrsOut, ipAddrs := IpResolveWrapper(args, params)
+	ipAddrsOut, ipAddrs := IpResolveWrapper(utils.GDnsResolver, args, params)
 	if ipAddrs == nil {
 		return
 	}

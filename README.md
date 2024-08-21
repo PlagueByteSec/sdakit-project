@@ -50,28 +50,5 @@ By default, Sentinel will create 4 output files. The output files are
 divided into subdomains, IPv4/IPv6 addresses and a summary in JSON format. 
 ```
 
-#### Options:
-| Flags | Argument Type | Description |
-| ----- | ----------- | ------------|
-| -d | string | Specify the taget domain e.g. example.com (default: passive) |
-| -w | string | Use active method by specifying the wordlist |
-| -oS | string | Specify the output file path for subdomains |
-| -o4 | string | Specify the output file path for IPv4 addresses |
-| -o6 | string | Specify the output file path for IPv6 addresses |
-| -oJ | string | Specify the output file path for summary |
-| -nP | string | Specify the output directory path for all output files |
-| -c | bool | Display the HTTP status code of each subdomain |
-| -e | string | Exclude HTTP status codes from results |
-| -f | string | Filter specific HTTP status codes from results |
-| -a | bool | Analyze HTTP header of each subdomain (server etc.) |
-| -p | string | Scan subdomains for open ports in range |
-| -x | string | Extend endpoint DB with custom list (.txt) |
-| -t | int | Specify the request timeout |
-| -r | bool | Route all requests through TOR |
-| -dns | string | Use wordlist (-w) and resolve subdomains by querying a DNS |
-| -dnsC | string | Specify a custom DNS server address (ip:port) |
-| -dnsT | int | Set the timeout for DNS queries in ms |
-| -rD | int | Set HTTP request delay in ms |
-
 # License
 Sentinel is published under the ![MIT](https://github.com/fhAnso/Sentinel/blob/main/LICENSE) license

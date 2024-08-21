@@ -3,7 +3,6 @@ package utils
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -137,34 +136,6 @@ func EditDbEntries(args *Args) ([]string, error) {
 	return entries, nil
 }
 
-func RequestIpAddresses(useCustomDnsServer bool, subdomain string) []string {
-	/*
-		Perform a DNS lookup for the current subdomain to get the corresponding
-		IP addresses and filter out old and inactive subdomains.
-	*/
-	var resolver *net.Resolver
-	switch useCustomDnsServer {
-	case true:
-		resolver = &net.Resolver{
-			PreferGo: false,
-			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				return net.Dial("udp", CustomDnsServer)
-			},
-		}
-	case false:
-		resolver = &net.Resolver{}
-	}
-	var results []string
-	retryLookup, err := resolver.LookupIPAddr(context.Background(), subdomain)
-	if err != nil {
-		return nil
-	}
-	for _, ip := range retryLookup {
-		results = append(results, ip.String())
-	}
-	return results
-}
-
 func GetIpVersion(ipAddress string) int {
 	var ipVersion int
 	if ip := net.ParseIP(ipAddress); ip != nil {
@@ -264,7 +235,9 @@ func FilePathInit(args *Args) (*FilePaths, error) {
 		filePathJSON = args.OutFileJSON
 	}
 	outputFiles = append(outputFiles, filePathJSON)
-	cleanExistingOutputFiles(outputFiles)
+	if args.RDnsLookupFilePath == "" {
+		cleanExistingOutputFiles(outputFiles)
+	}
 	return &FilePaths{
 		FilePathSubdomain: filePathSubdomain,
 		FilePathIPv4:      filePathIPv4,
@@ -312,7 +285,7 @@ func Evaluation(startTime time.Time, count int) {
 	if count != 1 {
 		temp.WriteString("s")
 	}
-	fmt.Fprintf(GStdout, "\n[*] %d %s obtained, %d displayed\n", count, temp.String(), GDisplayCount)
+	fmt.Fprintf(GStdout, "[*] %d %s obtained, %d displayed\n", count, temp.String(), GDisplayCount)
 	fmt.Fprintf(GStdout, "[*] Finished in %s\n", duration)
 }
 

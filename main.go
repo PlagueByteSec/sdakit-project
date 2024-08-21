@@ -66,26 +66,31 @@ func main() {
 		goto exitErr
 	}
 	fmt.Fprint(utils.GStdout, "[*] Method: ")
-	if args.WordlistPath == "" {
+	if args.WordlistPath == "" && args.RDnsLookupFilePath == "" {
 		// Perform enumeration using external resources
 		fmt.Fprintln(utils.GStdout, "PASSIVE")
 		lib.PassiveEnum(&args, httpClient, filePaths)
+	}
+	if args.DnsLookup && args.WordlistPath != "" {
+		// Perform enumeration using DNS
+		fmt.Fprintln(utils.GStdout, "DNS")
+		lib.DnsEnum(&args, httpClient, filePaths)
+	}
+	if args.WordlistPath != "" && !args.DnsLookup && args.RDnsLookupFilePath == "" {
+		// Perform enumeration using brute force
+		fmt.Fprintln(utils.GStdout, "ACTIVE")
+		lib.ActiveEnum(&args, httpClient, filePaths)
+	}
+	if args.RDnsLookupFilePath != "" {
+		fmt.Fprintln(utils.GStdout, "RDNS")
+		lib.RDnsEnum(&args)
 	} else {
-		if args.DnsLookup {
-			// Perform enumeration using DNS
-			fmt.Fprintln(utils.GStdout, "DNS")
-			lib.DnsEnum(&args, httpClient, filePaths)
-		} else {
-			// Perform enumeration using brute force
-			fmt.Fprintln(utils.GStdout, "ACTIVE")
-			lib.ActiveEnum(&args, httpClient, filePaths)
-		}
+		lib.WriteJSON(filePaths.FilePathJSON)
 	}
 	/*
 		Save the summary (including IPv4, IPv6, ports if requested,
 		and subdomains) in JSON format within the output directory.
 	*/
-	lib.WriteJSON(filePaths.FilePathJSON)
 	utils.SentinelExit(utils.SentinelExitParams{
 		ExitCode:    0,
 		ExitMessage: "",

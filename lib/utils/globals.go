@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"log"
+	"net"
 	"time"
 )
 
@@ -19,6 +20,8 @@ var (
 	GAllCounter      int = 0
 	GStreams         FileStreams
 	GStartTime       time.Time = time.Now()
+	GDnsResolver     *net.Resolver
+	GDnsResults      []string
 )
 
 var (

@@ -17,33 +17,41 @@ type Params struct {
 }
 
 type Args struct {
-	Verbose          bool
-	Domain           string
-	OutFileSubdoms   string
-	OutFileIPv4      string
-	OutFileIPv6      string
-	OutFileJSON      string
-	NewOutputDirPath string
-	HttpCode         bool
-	WordlistPath     string
-	ExcHttpCodes     string
-	FilHttpCodes     string
-	SubOnlyIp        bool
-	AnalyzeHeader    bool
-	PortScan         string
-	DbExtendPath     string
-	Timeout          int
-	TorRoute         bool
-	DnsLookup        bool
-	DnsLookupCustom  string
-	DnsLookupTimeout int
-	HttpRequestDelay int
+	Verbose            bool
+	Domain             string // target domain
+	OutFileSubdoms     string // custom subdomains output path
+	OutFileIPv4        string // custom IPv4 output path
+	OutFileIPv6        string // custom IPv6 output path
+	OutFileJSON        string // custom JSON output path
+	NewOutputDirPath   string // custom output dir path
+	HttpCode           bool
+	WordlistPath       string
+	ExcHttpCodes       string // results to hide (specified by HTTP status code)
+	FilHttpCodes       string // results to display (specified by HTTP status code)
+	SubOnlyIp          bool
+	AnalyzeHeader      bool
+	PortScan           string // port range
+	DbExtendPath       string // File path containing endpoints
+	Timeout            int    // in seconds
+	TorRoute           bool
+	DnsLookup          bool
+	DnsLookupCustom    string // Custom DNS server (args)
+	DnsLookupTimeout   int
+	HttpRequestDelay   int    // in milliseconds
+	RDnsLookupFilePath string // IP address file path
+	RDnsLookup         bool
 }
 
 type PoolBase struct {
 	PoolIPv4Addresses []string
 	PoolIPv6Addresses []string
 	PoolSubdomains    []string
+}
+
+// ENUM
+type DnsLookupOptions struct {
+	Subdomain string
+	IpAddress net.IP
 }
 
 // OUTPUT

@@ -28,6 +28,7 @@ func CliParser() (utils.Args, error) {
 	dnsLookup := flag.Bool("dns", false, "Use wordlist (-w) and resolve subdomains by querying a DNS")
 	dnsLookupCustom := flag.String("dnsC", "", "Specify custom DNS server")
 	dnsLookupTimeout := flag.Int("dnsT", 500, "Specify timeout for DNS queries in ms")
+	rDnsLookupFilePath := flag.String("rF", "", "IP address list file path")
 	httpRequestDelay := flag.Int("rD", 500, "Specify HTTP request delay")
 	flag.Parse()
 	if flag.NFlag() == 0 {
@@ -47,26 +48,27 @@ func CliParser() (utils.Args, error) {
 		return utils.Args{}, errors.New("no wordlist specified, dns method cannot be used")
 	}
 	args := utils.Args{
-		Verbose:          *verbose,
-		Domain:           *domain,
-		OutFileSubdoms:   *outFile,
-		OutFileIPv4:      *outFileIPv4,
-		OutFileIPv6:      *outFileIPv6,
-		OutFileJSON:      *outFileJSON,
-		NewOutputDirPath: *newOutputPath,
-		HttpCode:         *httpCode,
-		WordlistPath:     *wordlistPath,
-		ExcHttpCodes:     *excHttpCodes,
-		FilHttpCodes:     *filtHttpCodes,
-		AnalyzeHeader:    *analyzeHeader,
-		PortScan:         *portScan,
-		DbExtendPath:     *dbExtendPath,
-		Timeout:          *timeout,
-		TorRoute:         *torRoute,
-		DnsLookup:        *dnsLookup,
-		DnsLookupCustom:  *dnsLookupCustom,
-		DnsLookupTimeout: *dnsLookupTimeout,
-		HttpRequestDelay: *httpRequestDelay,
+		Verbose:            *verbose,
+		Domain:             *domain,
+		OutFileSubdoms:     *outFile,
+		OutFileIPv4:        *outFileIPv4,
+		OutFileIPv6:        *outFileIPv6,
+		OutFileJSON:        *outFileJSON,
+		NewOutputDirPath:   *newOutputPath,
+		HttpCode:           *httpCode,
+		WordlistPath:       *wordlistPath,
+		ExcHttpCodes:       *excHttpCodes,
+		FilHttpCodes:       *filtHttpCodes,
+		AnalyzeHeader:      *analyzeHeader,
+		PortScan:           *portScan,
+		DbExtendPath:       *dbExtendPath,
+		Timeout:            *timeout,
+		TorRoute:           *torRoute,
+		DnsLookup:          *dnsLookup,
+		DnsLookupCustom:    *dnsLookupCustom,
+		DnsLookupTimeout:   *dnsLookupTimeout,
+		HttpRequestDelay:   *httpRequestDelay,
+		RDnsLookupFilePath: *rDnsLookupFilePath,
 	}
 	return args, nil
 }
