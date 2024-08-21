@@ -1,7 +1,6 @@
-package lib
+package utils
 
 import (
-	"Sentinel/lib/utils"
 	"fmt"
 	"net"
 	"net/http"
@@ -9,7 +8,7 @@ import (
 )
 
 func AnalyzeHeaderWrapper(consoleOutput *strings.Builder, ipAddrsOut string,
-	client *http.Client, params utils.Params) {
+	client *http.Client, params Params) {
 	/*
 		Analyze the HTTP header and add the results to the consoleOutput
 		string builder if it exists.
@@ -27,45 +26,47 @@ func AnalyzeHeaderWrapper(consoleOutput *strings.Builder, ipAddrsOut string,
 	}
 }
 
-func PortScanWrapper(consoleOutput *strings.Builder, params utils.Params, args *utils.Args) {
+func PortScanWrapper(consoleOutput *strings.Builder, params Params, args *Args) {
 	ports, err := ScanPortsSubdomain(params.Subdomain, args.PortScan)
 	if err != nil {
-		utils.Glogger.Println(err)
+		Glogger.Println(err)
 	}
 	if ports != "" {
 		consoleOutput.WriteString(ports)
 	}
 }
 
-func IpResolveWrapper(resolver *net.Resolver, args *utils.Args, params utils.Params) (string, []string) {
-	utils.DnsLookups(resolver, utils.DnsLookupOptions{
+func IpResolveWrapper(resolver *net.Resolver, args *Args, params Params) (string, []string) {
+	DnsLookups(resolver, DnsLookupOptions{
 		IpAddress: nil,
 		Subdomain: params.Subdomain,
 	})
-	if utils.GDnsResults == nil {
+	if GDnsResults == nil {
 		// Skip results that cannot be resolved to an IP address
 		return "", nil
 	}
-	ipAddrsOut := strings.Join(utils.GDnsResults, ", ")
-	return ipAddrsOut, utils.GDnsResults
+	ipAddrsOut := strings.Join(GDnsResults, ", ")
+	return ipAddrsOut, GDnsResults
 }
 
-func OpenOutputFileStreamsWrapper(filePaths *utils.FilePaths) {
+func OpenOutputFileStreamsWrapper(filePaths *FilePaths) {
 	/*
 		Specify the name and path for each output file. If all settings are configured, open
 		separate file streams for each category (Subdomains, IPv4 addresses, and IPv6 addresses).
 	*/
-	if err := utils.GStreams.OpenOutputFileStreams(filePaths); err != nil {
-		utils.Glogger.Println(err)
+	if err := GStreams.OpenOutputFileStreams(filePaths); err != nil {
+		Glogger.Println(err)
 	}
 }
 
-func OutputWrapper(ipAddrs []string, params utils.Params, streams *utils.FileStreams) {
+func OutputWrapper(ipAddrs []string, params Params, streams *FileStreams) {
 	for _, ip := range ipAddrs {
-		utils.IpManage(params, ip, streams)
+		IpManage(params, ip, streams)
 	}
-	err := utils.WriteOutputFileStream(streams.SubdomainStream, params.FileContentSubdoms)
-	if err != nil {
-		streams.SubdomainStream.Close()
+	if !GDisableAllOutput {
+		err := WriteOutputFileStream(streams.SubdomainStream, params.FileContentSubdoms)
+		if err != nil {
+			streams.SubdomainStream.Close()
+		}
 	}
 }

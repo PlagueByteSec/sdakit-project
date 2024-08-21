@@ -343,10 +343,12 @@ func IpManage(params Params, ip string, fileStream *FileStreams) {
 		params.FileContentIPv4Addrs = ip
 		if !PoolContainsEntry(GPool.PoolIPv4Addresses, params.FileContentIPv4Addrs) {
 			GPool.PoolIPv4Addresses = append(GPool.PoolIPv4Addresses, params.FileContentIPv4Addrs)
-			err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4Addrs)
-			if err != nil {
-				fileStream.Ipv4AddrStream.Close()
-				Glogger.Println(err)
+			if !GDisableAllOutput {
+				err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4Addrs)
+				if err != nil {
+					fileStream.Ipv4AddrStream.Close()
+					Glogger.Println(err)
+				}
 			}
 		}
 		GSubdomBase.IpAddresses.IPv4 = append(
@@ -357,16 +359,37 @@ func IpManage(params Params, ip string, fileStream *FileStreams) {
 		params.FileContentIPv6Addrs = ip
 		if !PoolContainsEntry(GPool.PoolIPv6Addresses, params.FileContentIPv6Addrs) {
 			GPool.PoolIPv6Addresses = append(GPool.PoolIPv6Addresses, params.FileContentIPv6Addrs)
-			err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6Addrs)
-			if err != nil {
-				fileStream.Ipv6AddrStream.Close()
-				Glogger.Println(err)
+			if !GDisableAllOutput {
+				err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6Addrs)
+				if err != nil {
+					fileStream.Ipv6AddrStream.Close()
+					Glogger.Println(err)
+				}
 			}
 		}
 		GSubdomBase.IpAddresses.IPv6 = append(
 			GSubdomBase.IpAddresses.IPv6,
 			net.ParseIP(ip),
 		)
+	}
+}
+
+func ParamsSetupFiles(paramsFileSetup ParamsSetupFilesBase) {
+	*paramsFileSetup.FileParams = Params{
+		Domain:             paramsFileSetup.CliArgs.Domain,
+		Subdomain:          paramsFileSetup.Subdomain,
+		FileContentSubdoms: paramsFileSetup.Subdomain,
+	}
+	if paramsFileSetup.FilePaths == nil {
+		// -dO specified, clear output file paths
+		paramsFileSetup.FileParams.FilePathSubdomains = ""
+		paramsFileSetup.FileParams.FilePathIPv4Addrs = ""
+		paramsFileSetup.FileParams.FilePathIPv6Addrs = ""
+	} else {
+		// Setup output file paths
+		paramsFileSetup.FileParams.FilePathSubdomains = paramsFileSetup.FilePaths.FilePathSubdomain
+		paramsFileSetup.FileParams.FilePathIPv4Addrs = paramsFileSetup.FilePaths.FilePathIPv4
+		paramsFileSetup.FileParams.FilePathIPv6Addrs = paramsFileSetup.FilePaths.FilePathIPv6
 	}
 }
 

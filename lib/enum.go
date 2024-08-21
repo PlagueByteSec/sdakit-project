@@ -30,7 +30,7 @@ func PassiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePat
 		be temporarily stored in the appropriate pool. Duplicates will be removed.
 	*/
 	for idx := 0; idx < len(endpoints); idx++ {
-		if err := EndpointRequest(client, args.Domain, endpoints[idx]); err != nil {
+		if err := utils.EndpointRequest(client, args.Domain, endpoints[idx]); err != nil {
 			utils.Glogger.Println(err)
 		}
 	}
@@ -44,26 +44,27 @@ func PassiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePat
 		Specify the name and path for each output file. If all settings are configured, open
 		separate file streams for each category (Subdomains, IPv4 addresses, and IPv6 addresses).
 	*/
-	err = streams.OpenOutputFileStreams(filePaths)
-	if err != nil {
-		utils.Glogger.Println(err)
+	if !args.DisableAllOutput {
+		err = streams.OpenOutputFileStreams(filePaths)
+		if err != nil {
+			utils.Glogger.Println(err)
+		}
+		defer streams.CloseOutputFileStreams()
 	}
-	defer streams.CloseOutputFileStreams()
 	/*
 		Iterate through the subdomain pool and process the current entry. The OutputHandler
 		function will ensure that all fetched data is separated and stored within the output
 		files, and it will also handle other actions specified by the command line.
 	*/
 	for _, subdomain := range utils.GPool.PoolSubdomains {
-		params := utils.Params{
-			Domain:             args.Domain,
-			Subdomain:          subdomain,
-			FilePathSubdomains: filePaths.FilePathSubdomain,
-			FileContentSubdoms: subdomain,
-			FilePathIPv4Addrs:  filePaths.FilePathIPv4,
-			FilePathIPv6Addrs:  filePaths.FilePathIPv6,
+		paramsSetupFiles := utils.ParamsSetupFilesBase{
+			FileParams: &utils.Params{},
+			CliArgs:    args,
+			FilePaths:  filePaths,
+			Subdomain:  subdomain,
 		}
-		OutputHandler(&streams, client, args, params)
+		utils.ParamsSetupFiles(paramsSetupFiles)
+		utils.OutputHandler(&streams, client, args, *paramsSetupFiles.FileParams)
 	}
 	poolSize := len(utils.GPool.PoolSubdomains)
 	// Evaluate the summary and format it for writing to stdout.
@@ -75,13 +76,15 @@ func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePath
 	defer wordlistStream.Close()
 	scanner := bufio.NewScanner(wordlistStream)
 	fmt.Fprintln(utils.GStdout)
-	OpenOutputFileStreamsWrapper(filePaths)
-	defer utils.GStreams.CloseOutputFileStreams()
+	if !utils.GDisableAllOutput {
+		utils.OpenOutputFileStreamsWrapper(filePaths)
+		defer utils.GStreams.CloseOutputFileStreams()
+	}
 	for scanner.Scan() {
 		utils.GSubdomBase = utils.SubdomainBase{}
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
-		statusCode := HttpStatusCode(client, url)
+		statusCode := utils.HttpStatusCode(client, url)
 		/*
 			Skip failed GET requests and set the successful response subdomains to the
 			Params struct. The OutputHandler function will ensure that all fetched data
@@ -90,16 +93,15 @@ func ActiveEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePath
 		*/
 		if statusCode != -1 {
 			subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
-			params := utils.Params{
-				Domain:             args.Domain,
-				Subdomain:          subdomain,
-				FilePathSubdomains: filePaths.FilePathSubdomain,
-				FileContentSubdoms: subdomain,
-				FilePathIPv4Addrs:  filePaths.FilePathIPv4,
-				FilePathIPv6Addrs:  filePaths.FilePathIPv6,
+			paramsSetupFiles := utils.ParamsSetupFilesBase{
+				FileParams: &utils.Params{},
+				CliArgs:    args,
+				FilePaths:  filePaths,
+				Subdomain:  subdomain,
 			}
+			utils.ParamsSetupFiles(paramsSetupFiles)
 			fmt.Fprint(utils.GStdout, "\r")
-			OutputHandler(&utils.GStreams, client, args, params)
+			utils.OutputHandler(&utils.GStreams, client, args, *paramsSetupFiles.FileParams)
 			utils.GStdout.Flush()
 			utils.GObtainedCounter++
 		}
@@ -117,8 +119,10 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 	*/
 	wordlistStream, entryCount := utils.WordlistStreamInit(args)
 	defer wordlistStream.Close()
-	OpenOutputFileStreamsWrapper(filePaths)
-	defer utils.GStreams.CloseOutputFileStreams()
+	if !utils.GDisableAllOutput {
+		utils.OpenOutputFileStreamsWrapper(filePaths)
+		defer utils.GStreams.CloseOutputFileStreams()
+	}
 	scanner := bufio.NewScanner(wordlistStream)
 	fmt.Fprintln(utils.GStdout)
 	/*
@@ -161,16 +165,15 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 			Subdomain: subdomain,
 		})
 		if len(utils.GDnsResults) != 0 {
-			params := utils.Params{
-				Domain:             args.Domain,
-				Subdomain:          subdomain,
-				FilePathSubdomains: filePaths.FilePathSubdomain,
-				FileContentSubdoms: subdomain,
-				FilePathIPv4Addrs:  filePaths.FilePathIPv4,
-				FilePathIPv6Addrs:  filePaths.FilePathIPv6,
+			paramsSetupFiles := utils.ParamsSetupFilesBase{
+				FileParams: &utils.Params{},
+				CliArgs:    args,
+				FilePaths:  filePaths,
+				Subdomain:  subdomain,
 			}
+			utils.ParamsSetupFiles(paramsSetupFiles)
 			fmt.Fprint(utils.GStdout, "\r")
-			OutputHandler(&utils.GStreams, client, args, params)
+			utils.OutputHandler(&utils.GStreams, client, args, *paramsSetupFiles.FileParams)
 			utils.GStdout.Flush()
 			utils.GObtainedCounter++
 		}

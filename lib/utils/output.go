@@ -1,7 +1,6 @@
-package lib
+package utils
 
 import (
-	"Sentinel/lib/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,29 +16,28 @@ func WriteJSON(jsonFileName string) error {
 		Write the summary in JSON format to a file. The default
 		directory (output) is used if no custom path is specified with the -j flag.
 	*/
-	bytes, err := json.MarshalIndent(utils.GJsonResult.Subdomains, "", "	")
+	bytes, err := json.MarshalIndent(GJsonResult.Subdomains, "", "	")
 	if err != nil {
-		utils.Glogger.Println(err)
+		Glogger.Println(err)
 		return err
 	}
-	if err := os.WriteFile(jsonFileName, bytes, utils.DefaultPermission); err != nil {
-		utils.Glogger.Println(err)
+	if err := os.WriteFile(jsonFileName, bytes, DefaultPermission); err != nil {
+		Glogger.Println(err)
 		return errors.New("failed to write JSON to: " + jsonFileName)
 	}
 	return nil
 }
 
-func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.Args, params utils.Params) {
-	utils.GSubdomBase = utils.SubdomainBase{}
+func OutputHandler(streams *FileStreams, client *http.Client, args *Args, params Params) {
 	if args.HttpCode || args.AnalyzeHeader {
 		time.Sleep(time.Duration(args.HttpRequestDelay) * time.Millisecond)
 	}
-	utils.GStdout.Flush()
+	GStdout.Flush()
 	/*
 		Perform a DNS lookup to determine the IP addresses (IPv4 and IPv6). The addresses will
 		be returned as a slice and separated as strings.
 	*/
-	ipAddrsOut, ipAddrs := IpResolveWrapper(utils.GDnsResolver, args, params)
+	ipAddrsOut, ipAddrs := IpResolveWrapper(GDnsResolver, args, params)
 	if ipAddrs == nil {
 		return
 	}
@@ -49,7 +47,10 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 		codeFilterExc []string
 		codeFilter    []string
 	)
-	utils.GSubdomBase.Subdomain = append(utils.GSubdomBase.Subdomain, params.Subdomain)
+	if !GDisableAllOutput {
+		GSubdomBase = SubdomainBase{}
+		GSubdomBase.Subdomain = append(GSubdomBase.Subdomain, params.Subdomain)
+	}
 	consoleOutput.WriteString(fmt.Sprintf(" ══[ %s", params.Subdomain))
 	/*
 		Split the arguments specified by the -f and -e flags by comma.
@@ -66,27 +67,27 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 	} else {
 		codeFilter = strings.Split(args.FilHttpCodes, delim)
 	}
-	utils.ResetSlice(&codeFilter)
-	utils.ResetSlice(&codeFilterExc)
+	ResetSlice(&codeFilter)
+	ResetSlice(&codeFilterExc)
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Subdomain)
 		httpStatusCode := HttpStatusCode(client, url)
 		statusCodeConv := strconv.Itoa(httpStatusCode)
 		if httpStatusCode == -1 {
-			statusCodeConv = utils.NotAvailable
+			statusCodeConv = NotAvailable
 		}
 		/*
 			Ensure that the status codes are correctly filtered by comparing the
 			results with codeFilter and CodeFilterExc.
 		*/
-		if len(codeFilter) >= 1 && !utils.InArgList(statusCodeConv, codeFilter) ||
-			len(codeFilterExc) >= 1 && utils.InArgList(statusCodeConv, codeFilterExc) {
+		if len(codeFilter) >= 1 && !InArgList(statusCodeConv, codeFilter) ||
+			len(codeFilterExc) >= 1 && InArgList(statusCodeConv, codeFilterExc) {
 			return
-		} else {
+		} else if !args.DisableAllOutput {
 			OutputWrapper(ipAddrs, params, streams)
 		}
 		consoleOutput.WriteString(fmt.Sprintf(", HTTP Status Code: %s", statusCodeConv))
-	} else {
+	} else if !args.DisableAllOutput {
 		OutputWrapper(ipAddrs, params, streams)
 	}
 	if args.AnalyzeHeader {
@@ -99,8 +100,10 @@ func OutputHandler(streams *utils.FileStreams, client *http.Client, args *utils.
 	if args.PortScan != "" {
 		PortScanWrapper(&consoleOutput, params, args)
 	}
-	utils.GJsonResult.Subdomains = append(utils.GJsonResult.Subdomains, utils.GSubdomBase)
+	if !args.DisableAllOutput {
+		GJsonResult.Subdomains = append(GJsonResult.Subdomains, GSubdomBase)
+	}
 	// Display the final result block
-	fmt.Fprintln(utils.GStdout, consoleOutput.String())
-	utils.GDisplayCount++
+	fmt.Fprintln(GStdout, consoleOutput.String())
+	GDisplayCount++
 }

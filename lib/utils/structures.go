@@ -40,6 +40,7 @@ type Args struct {
 	HttpRequestDelay   int    // in milliseconds
 	RDnsLookupFilePath string // IP address file path
 	RDnsLookup         bool
+	DisableAllOutput   bool
 }
 
 type PoolBase struct {
@@ -60,6 +61,13 @@ type FilePaths struct {
 	FilePathIPv4      string
 	FilePathIPv6      string
 	FilePathJSON      string
+}
+
+type ParamsSetupFilesBase struct {
+	FileParams *Params
+	CliArgs    *Args
+	FilePaths  *FilePaths
+	Subdomain  string
 }
 
 type SubdomainIpAddresses struct {

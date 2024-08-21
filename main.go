@@ -18,7 +18,7 @@ func main() {
 		sigChan      chan os.Signal
 		filePaths    *utils.FilePaths = nil
 	)
-	args, err := lib.CliParser()
+	args, err := utils.CliParser()
 	if err != nil {
 		goto exitErr
 	}
@@ -47,23 +47,27 @@ func main() {
 		is provided, the standard HTTP client will be ignored, and
 		the client will be configured to route through TOR.
 	*/
-	httpClient, err = lib.HttpClientInit(&args)
+	httpClient, err = utils.HttpClientInit(&args)
 	if err != nil {
 		goto exitErr
 	}
 	localVersion = utils.GetCurrentLocalVersion()
-	repoVersion = lib.GetCurrentRepoVersion(httpClient)
+	repoVersion = utils.GetCurrentRepoVersion(httpClient)
 	fmt.Fprintf(utils.GStdout, " ===[ Sentinel, Version: %s ]===\n\n", localVersion)
 	utils.GStdout.Flush()
 	utils.VersionCompare(repoVersion, localVersion)
 	utils.GDisplayCount = 0
-	/*
-		Initialize the output file paths and create the output
-		directory if it does not already exist.
-	*/
-	filePaths, err = utils.FilePathInit(&args)
-	if err != nil {
-		goto exitErr
+	if args.DisableAllOutput {
+		utils.GDisableAllOutput = true
+	} else {
+		/*
+			Initialize the output file paths and create the output
+			directory if it does not already exist.
+		*/
+		filePaths, err = utils.FilePathInit(&args)
+		if err != nil {
+			goto exitErr
+		}
 	}
 	fmt.Fprint(utils.GStdout, "[*] Method: ")
 	if args.WordlistPath == "" && args.RDnsLookupFilePath == "" {
@@ -84,8 +88,8 @@ func main() {
 	if args.RDnsLookupFilePath != "" {
 		fmt.Fprintln(utils.GStdout, "RDNS")
 		lib.RDnsEnum(&args)
-	} else {
-		lib.WriteJSON(filePaths.FilePathJSON)
+	} else if !utils.GDisableAllOutput {
+		utils.WriteJSON(filePaths.FilePathJSON)
 	}
 	/*
 		Save the summary (including IPv4, IPv6, ports if requested,

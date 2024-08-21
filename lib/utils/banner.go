@@ -1,4 +1,4 @@
-package lib
+package utils
 
 var Help = `
 Sentinel
@@ -34,4 +34,5 @@ Sentinel
  -dnsC  Specify a custom DNS server address (ip:port)
  -dnsT  Set the timeout for DNS queries
  -rD    Set HTTP request delay in ms
+ -dO    Disable all output file streams
 `

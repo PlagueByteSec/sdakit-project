@@ -1,14 +1,13 @@
-package lib
+package utils
 
 import (
-	"Sentinel/lib/utils"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
 )
 
-func CliParser() (utils.Args, error) {
+func CliParser() (Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
 	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
@@ -30,24 +29,25 @@ func CliParser() (utils.Args, error) {
 	dnsLookupTimeout := flag.Int("dnsT", 500, "Specify timeout for DNS queries in ms")
 	rDnsLookupFilePath := flag.String("rF", "", "IP address list file path")
 	httpRequestDelay := flag.Int("rD", 500, "Specify HTTP request delay")
+	disableAllOutput := flag.Bool("dO", false, "Disable all output file streams")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(Help + "\nPlease specify a domain!")
 		os.Exit(0)
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
-		return utils.Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
+		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
 	}
-	if !utils.IsValidDomain(*domain) {
-		return utils.Args{}, errors.New("domain verification failed: " + *domain)
+	if !IsValidDomain(*domain) {
+		return Args{}, errors.New("domain verification failed: " + *domain)
 	}
 	if !*dnsLookup && *dnsLookupCustom != "" {
-		return utils.Args{}, errors.New("custom DNS address can only be set when -dns is specified")
+		return Args{}, errors.New("custom DNS address can only be set when -dns is specified")
 	}
 	if *dnsLookup && *wordlistPath == "" {
-		return utils.Args{}, errors.New("no wordlist specified, dns method cannot be used")
+		return Args{}, errors.New("no wordlist specified, dns method cannot be used")
 	}
-	args := utils.Args{
+	args := Args{
 		Verbose:            *verbose,
 		Domain:             *domain,
 		OutFileSubdoms:     *outFile,
@@ -69,6 +69,7 @@ func CliParser() (utils.Args, error) {
 		DnsLookupTimeout:   *dnsLookupTimeout,
 		HttpRequestDelay:   *httpRequestDelay,
 		RDnsLookupFilePath: *rDnsLookupFilePath,
+		DisableAllOutput:   *disableAllOutput,
 	}
 	return args, nil
 }
