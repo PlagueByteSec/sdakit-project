@@ -88,7 +88,8 @@ func main() {
 	if args.RDnsLookupFilePath != "" {
 		fmt.Fprintln(utils.GStdout, "RDNS")
 		lib.RDnsEnum(&args)
-	} else if !utils.GDisableAllOutput {
+	}
+	if !utils.GDisableAllOutput {
 		utils.WriteJSON(filePaths.FilePathJSON)
 	}
 	/*
