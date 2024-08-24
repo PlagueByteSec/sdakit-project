@@ -38,7 +38,7 @@ func CliParser() (Args, error) {
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
 		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
 	}
-	if !IsValidDomain(*domain) {
+	if *domain != "" && !IsValidDomain(*domain) {
 		return Args{}, errors.New("domain verification failed: " + *domain)
 	}
 	if !*dnsLookup && *dnsLookupCustom != "" {

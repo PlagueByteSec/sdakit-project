@@ -1,30 +1,9 @@
 package utils
 
 import (
-	"fmt"
 	"net"
-	"net/http"
 	"strings"
 )
-
-func AnalyzeHeaderWrapper(consoleOutput *strings.Builder, ipAddrsOut string,
-	client *http.Client, params Params) {
-	/*
-		Analyze the HTTP header and add the results to the consoleOutput
-		string builder if it exists.
-	*/
-	headers, count := AnalyseHttpHeader(client, params.Subdomain)
-	if ipAddrsOut != "" {
-		if count != 0 {
-			consoleOutput.WriteString(fmt.Sprintf("\n\t╠═[ %s", ipAddrsOut))
-		} else {
-			consoleOutput.WriteString(fmt.Sprintf("\n\t╚═[ %s\n", ipAddrsOut))
-		}
-	}
-	if headers != "" && count != 0 {
-		consoleOutput.WriteString(fmt.Sprintf("\n\t%s\n", headers))
-	}
-}
 
 func PortScanWrapper(consoleOutput *strings.Builder, params Params, args *Args) {
 	ports, err := ScanPortsSubdomain(params.Subdomain, args.PortScan)

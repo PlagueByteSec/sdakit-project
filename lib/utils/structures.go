@@ -55,6 +55,13 @@ type DnsLookupOptions struct {
 	IpAddress net.IP
 }
 
+type HttpHeaders struct {
+	Server string
+	Hsts   string
+	PowBy  string
+	Csp    string
+}
+
 // OUTPUT
 type FilePaths struct {
 	FilePathSubdomain string

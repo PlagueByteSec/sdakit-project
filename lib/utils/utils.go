@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -414,5 +415,18 @@ func ScannerCheckError(scanner *bufio.Scanner) {
 func ResetSlice(slice *[]string) {
 	if len(*slice) >= 1 && (*slice)[0] == "" {
 		*slice = []string{}
+	}
+}
+
+func HttpHeaderInit(httpHeaders *HttpHeaders) {
+	httpHeaders.Server = "Server"
+	httpHeaders.Hsts = "Strict-Transport-Security"
+	httpHeaders.PowBy = "X-Powered-By"
+	httpHeaders.Csp = "Content-Security-Policy"
+}
+
+func HttpHeaderOutput(outputBuilder *strings.Builder, response *http.Response, httpHeader string) {
+	if server := response.Header.Get(httpHeader); server != "" {
+		outputBuilder.WriteString(fmt.Sprintf(" | + %s: %s\n", httpHeader, server))
 	}
 }

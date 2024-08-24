@@ -73,6 +73,7 @@ func main() {
 	if args.WordlistPath == "" && args.RDnsLookupFilePath == "" {
 		// Perform enumeration using external resources
 		fmt.Fprintln(utils.GStdout, "PASSIVE")
+		fmt.Fprintln(utils.GStdout)
 		lib.PassiveEnum(&args, httpClient, filePaths)
 	}
 	if args.DnsLookup && args.WordlistPath != "" {

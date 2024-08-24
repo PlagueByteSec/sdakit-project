@@ -187,6 +187,7 @@ func DnsEnum(args *utils.Args, client *http.Client, filePaths *utils.FilePaths) 
 func RDnsEnum(args *utils.Args) {
 	ipFileStream := utils.IpFileStreamInit(args)
 	scanner := bufio.NewScanner(ipFileStream)
+	fmt.Fprintln(utils.GStdout)
 	utils.GStdout.Flush()
 	for scanner.Scan() {
 		entry := scanner.Text()
@@ -200,9 +201,9 @@ func RDnsEnum(args *utils.Args) {
 			IpAddress: net.ParseIP(entry),
 			Subdomain: "",
 		})
-		fmt.Fprintf(utils.GStdout, "\n ══[ %s:\n", entry)
+		fmt.Fprintf(utils.GStdout, "[+] %s\n", entry)
 		for idx := 0; idx < len(utils.GDnsResults); idx++ {
-			fmt.Fprintf(utils.GStdout, "\t[> %s\n", utils.GDnsResults[idx])
+			fmt.Fprintf(utils.GStdout, " | %s\n", utils.GDnsResults[idx])
 		}
 		utils.GStdout.Flush()
 	}

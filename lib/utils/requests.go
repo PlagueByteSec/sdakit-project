@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -113,27 +114,33 @@ func GetCurrentRepoVersion(client *http.Client) string {
 	return string(responseBody)
 }
 
-func AnalyseHttpHeader(client *http.Client, subdomain string) (string, int) {
+func AnalyseHttpHeader(client *http.Client, subdomain string) string {
 	/*
 		Analyze the response of an HTTP request to determine
-		which headers are set. Currently, it only checks for the Server
-		and Strict-Transport-Security headers.
+		which headers are set.
+
+		Server
+		Strict-Transport-Security
+		X-Powered-By
+		Content-Security-Policy
 	*/
 	url := fmt.Sprintf("http://%s", subdomain)
 	response, err := requestSendGET(url, client)
 	if err != nil {
 		Glogger.Println(err)
-		return "", 0
+		return ""
 	}
-	results := make([]string, 0)
-	if server := response.Header.Get("Server"); server != "" {
-		results = append(results, server)
+	var (
+		httpHeaders   HttpHeaders
+		outputBuilder strings.Builder
+	)
+	HttpHeaderInit(&httpHeaders)
+	headers := reflect.ValueOf(httpHeaders)
+	for idx := 0; idx < headers.NumField(); idx++ {
+		value := headers.Field(idx)
+		HttpHeaderOutput(&outputBuilder, response, value.String())
 	}
-	if hsts := response.Header.Get("Strict-Transport-Security"); hsts != "" {
-		results = append(results, "HSTS")
-	}
-	result := strings.Join(results, ",")
-	return "╚═[ " + result, len(result)
+	return outputBuilder.String()
 }
 
 func ScanPortsSubdomain(subdomain string, ports string) (string, error) {
@@ -159,14 +166,22 @@ func ScanPortsSubdomain(subdomain string, ports string) (string, error) {
 		Glogger.Println(err)
 		return "", errors.New("port scan failed: " + err.Error())
 	}
-	var output strings.Builder
+	var (
+		output strings.Builder
+		mark   string
+	)
 	for _, host := range result.Hosts {
 		if len(host.Ports) == 0 || len(host.Addresses) == 0 {
 			continue
 		}
 		for _, port := range host.Ports {
-			summary := fmt.Sprintf("\t[> Port %d/%s %s %s\n",
-				port.ID, port.Protocol, port.State, port.Service.Name)
+			if port.State.String() == "open" {
+				mark = "+"
+			} else {
+				mark = "-"
+			}
+			summary := fmt.Sprintf(" | %s Port %d/%s %s %s\n",
+				mark, port.ID, port.Protocol, port.State, port.Service.Name)
 			output.WriteString(summary)
 			GSubdomBase.OpenPorts = append(
 				GSubdomBase.OpenPorts,

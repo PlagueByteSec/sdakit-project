@@ -51,7 +51,7 @@ func OutputHandler(streams *FileStreams, client *http.Client, args *Args, params
 		GSubdomBase = SubdomainBase{}
 		GSubdomBase.Subdomain = append(GSubdomBase.Subdomain, params.Subdomain)
 	}
-	consoleOutput.WriteString(fmt.Sprintf(" ══[ %s", params.Subdomain))
+	consoleOutput.WriteString(fmt.Sprintf("[+] %s\n", params.Subdomain))
 	/*
 		Split the arguments specified by the -f and -e flags by comma.
 		The values within the slices will be used to filter the results.
@@ -86,16 +86,16 @@ func OutputHandler(streams *FileStreams, client *http.Client, args *Args, params
 		} else if !args.DisableAllOutput {
 			OutputWrapper(ipAddrs, params, streams)
 		}
-		consoleOutput.WriteString(fmt.Sprintf(", HTTP Status Code: %s", statusCodeConv))
+		consoleOutput.WriteString(fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv))
 	} else if !args.DisableAllOutput {
 		OutputWrapper(ipAddrs, params, streams)
 	}
 	if args.AnalyzeHeader {
-		AnalyzeHeaderWrapper(&consoleOutput, ipAddrsOut, client, params)
-	} else {
-		if ipAddrsOut != "" {
-			consoleOutput.WriteString(fmt.Sprintf("\n\t╚═[ %s\n", ipAddrsOut))
-		}
+		headers := AnalyseHttpHeader(client, params.Subdomain)
+		consoleOutput.WriteString(headers)
+	}
+	if ipAddrsOut != "" {
+		consoleOutput.WriteString(fmt.Sprintf(" | IP Addresses: %s\n", ipAddrsOut))
 	}
 	if args.PortScan != "" {
 		PortScanWrapper(&consoleOutput, params, args)
