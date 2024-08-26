@@ -51,7 +51,7 @@ func OutputHandler(streams *FileStreams, client *http.Client, args *Args, params
 		GSubdomBase = SubdomainBase{}
 		GSubdomBase.Subdomain = append(GSubdomBase.Subdomain, params.Subdomain)
 	}
-	consoleOutput.WriteString(fmt.Sprintf("[+] %s\n", params.Subdomain))
+	consoleOutput.WriteString(fmt.Sprintf("[+] %-40s\n", params.Subdomain))
 	/*
 		Split the arguments specified by the -f and -e flags by comma.
 		The values within the slices will be used to filter the results.
