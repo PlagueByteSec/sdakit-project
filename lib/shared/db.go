@@ -1,4 +1,4 @@
-package utils
+package shared
 
 // This is the database file for the Sentinel project.
 // More URLs can be added here. Replace the

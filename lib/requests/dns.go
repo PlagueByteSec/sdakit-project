@@ -1,6 +1,7 @@
-package utils
+package requests
 
 import (
+	"Sentinel/lib/shared"
 	"context"
 	"net"
 )
@@ -12,7 +13,7 @@ func DnsResolverInit(useCustomDnsServer bool) *net.Resolver {
 		resolver = &net.Resolver{
 			PreferGo: false,
 			Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-				return net.Dial("udp", CustomDnsServer)
+				return net.Dial("udp", shared.CustomDnsServer)
 			},
 		}
 	case false:
@@ -21,7 +22,7 @@ func DnsResolverInit(useCustomDnsServer bool) *net.Resolver {
 	return resolver
 }
 
-func DnsLookups(resolver *net.Resolver, dnsLookupOptions DnsLookupOptions) {
+func DnsLookups(resolver *net.Resolver, dnsLookupOptions shared.DnsLookupOptions) {
 	var (
 		dnsLookup []string
 		temp      []net.IPAddr
@@ -32,7 +33,7 @@ func DnsLookups(resolver *net.Resolver, dnsLookupOptions DnsLookupOptions) {
 			Perform a DNS lookup for the current subdomain to get the corresponding
 			IP addresses and filter out old and inactive subdomains.
 		*/
-		GDnsResults, err = resolver.LookupAddr(context.Background(), dnsLookupOptions.IpAddress.String())
+		shared.GDnsResults, err = resolver.LookupAddr(context.Background(), dnsLookupOptions.IpAddress.String())
 		if err != nil {
 			return
 		}
@@ -47,7 +48,7 @@ func DnsLookups(resolver *net.Resolver, dnsLookupOptions DnsLookupOptions) {
 		}
 		// Convert []net.IPAddr to []string
 		for idx := 0; idx < len(temp); idx++ {
-			GDnsResults = append(dnsLookup, temp[idx].String())
+			shared.GDnsResults = append(dnsLookup, temp[idx].String())
 		}
 	}
 }

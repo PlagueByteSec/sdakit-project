@@ -1,7 +1,9 @@
-package utils
+package shared
 
 import (
 	"net"
+	"net/http"
+	"os"
 )
 
 // CORE
@@ -39,7 +41,6 @@ type Args struct {
 	DnsLookupTimeout   int
 	HttpRequestDelay   int    // in milliseconds
 	RDnsLookupFilePath string // IP address file path
-	RDnsLookup         bool
 	DisableAllOutput   bool
 }
 
@@ -47,6 +48,11 @@ type PoolBase struct {
 	PoolIPv4Addresses []string
 	PoolIPv6Addresses []string
 	PoolSubdomains    []string
+}
+
+type EnumerationMethod struct {
+	MethodKey string
+	Action    func(*Args, *http.Client, *FilePaths)
 }
 
 // ENUM
@@ -68,6 +74,12 @@ type FilePaths struct {
 	FilePathIPv4      string
 	FilePathIPv6      string
 	FilePathJSON      string
+}
+
+type FileStreams struct {
+	Ipv4AddrStream  *os.File
+	Ipv6AddrStream  *os.File
+	SubdomainStream *os.File
 }
 
 type ParamsSetupFilesBase struct {

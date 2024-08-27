@@ -1,6 +1,6 @@
-package utils
+package cli
 
-var Help = `
+var HelpBanner = `
 Sentinel
 ********
  ===[ Description

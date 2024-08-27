@@ -1,13 +1,15 @@
-package utils
+package cli
 
 import (
+	"Sentinel/lib/shared"
+	"Sentinel/lib/utils"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
 )
 
-func CliParser() (Args, error) {
+func CliParser() (shared.Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
 	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
@@ -32,22 +34,22 @@ func CliParser() (Args, error) {
 	disableAllOutput := flag.Bool("dO", false, "Disable all output file streams")
 	flag.Parse()
 	if flag.NFlag() == 0 {
-		fmt.Println(Help + "\nPlease specify a domain!")
+		fmt.Println(HelpBanner + "\nPlease specify a domain!")
 		os.Exit(0)
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
-		return Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
+		return shared.Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
 	}
-	if *domain != "" && !IsValidDomain(*domain) {
-		return Args{}, errors.New("domain verification failed: " + *domain)
+	if *domain != "" && !utils.IsValidDomain(*domain) {
+		return shared.Args{}, errors.New("domain verification failed: " + *domain)
 	}
 	if !*dnsLookup && *dnsLookupCustom != "" {
-		return Args{}, errors.New("custom DNS address can only be set when -dns is specified")
+		return shared.Args{}, errors.New("custom DNS address can only be set when -dns is specified")
 	}
 	if *dnsLookup && *wordlistPath == "" {
-		return Args{}, errors.New("no wordlist specified, dns method cannot be used")
+		return shared.Args{}, errors.New("no wordlist specified, dns method cannot be used")
 	}
-	args := Args{
+	args := shared.Args{
 		Verbose:            *verbose,
 		Domain:             *domain,
 		OutFileSubdoms:     *outFile,

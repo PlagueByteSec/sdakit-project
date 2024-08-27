@@ -1,9 +1,16 @@
-package utils
+package shared
 
 // MARKS
 const (
 	Placeholder  = "HOST"
 	NotAvailable = "n/a"
+)
+
+const (
+	Passive = "PASSIVE"
+	Active  = "ACTIVE"
+	Dns     = "DNS"
+	RDns    = "RDNS"
 )
 
 // REQUEST

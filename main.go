@@ -2,63 +2,43 @@ package main
 
 import (
 	"Sentinel/lib"
+	"Sentinel/lib/cli"
+	"Sentinel/lib/requests"
+	"Sentinel/lib/shared"
+	"Sentinel/lib/streams"
 	"Sentinel/lib/utils"
+	"errors"
 	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
 )
 
 func main() {
-	var (
-		httpClient   *http.Client
-		err          error
-		localVersion string
-		repoVersion  string
-		sigChan      chan os.Signal
-		filePaths    *utils.FilePaths = nil
-	)
-	args, err := utils.CliParser()
+	args, err := cli.CliParser()
 	if err != nil {
-		goto exitErr
+		utils.SentinelPanic(err)
 	}
 	if args.Verbose {
-		utils.GVerbose = true
+		shared.GVerbose = true
 	}
-	/*
-		Create a channel to receive interrupt signals from the OS.
-		The goroutine continuously listens for an interrupt signal
-		(Ctrl+C) and handles the interruption.
-	*/
-	sigChan = make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt)
-	go func() {
-		for range sigChan {
-			utils.SentinelExit(utils.SentinelExitParams{
-				ExitCode:    0,
-				ExitMessage: "\n\nG0oDBy3!",
-				ExitError:   nil,
-			})
-		}
-	}()
+	var (
+		filePaths *shared.FilePaths = nil
+		isExec    int
+	)
+	utils.InterruptListenerInit()
 	/*
 		Set up the HTTP client with a default timeout of 5 seconds
 		or a custom timeout specified with the -t flag. If the -r flag
 		is provided, the standard HTTP client will be ignored, and
 		the client will be configured to route through TOR.
 	*/
-	httpClient, err = utils.HttpClientInit(&args)
+	httpClient, err := requests.HttpClientInit(&args)
 	if err != nil {
-		goto exitErr
+		utils.SentinelPanic(err)
 	}
-	localVersion = utils.GetCurrentLocalVersion()
-	repoVersion = utils.GetCurrentRepoVersion(httpClient)
-	fmt.Fprintf(utils.GStdout, " ===[ Sentinel, Version: %s ]===\n\n", localVersion)
-	utils.GStdout.Flush()
-	utils.VersionCompare(repoVersion, localVersion)
-	utils.GDisplayCount = 0
+	// Print banner and compare local with repo version
+	utils.SentinelPrintBanner(httpClient)
+	shared.GDisplayCount = 0
 	if args.DisableAllOutput {
-		utils.GDisableAllOutput = true
+		shared.GDisableAllOutput = true
 	} else {
 		/*
 			Initialize the output file paths and create the output
@@ -66,45 +46,55 @@ func main() {
 		*/
 		filePaths, err = utils.FilePathInit(&args)
 		if err != nil {
-			goto exitErr
+			utils.SentinelPanic(err)
 		}
 	}
-	fmt.Fprint(utils.GStdout, "[*] Method: ")
-	if args.WordlistPath == "" && args.RDnsLookupFilePath == "" {
-		// Perform enumeration using external resources
-		fmt.Fprintln(utils.GStdout, "PASSIVE")
-		fmt.Fprintln(utils.GStdout)
-		lib.PassiveEnum(&args, httpClient, filePaths)
+	methods := lib.MethodManagerInit()
+	fmt.Fprint(shared.GStdout, "[*] Method: ")
+	for key, method := range methods {
+		switch key {
+		case shared.Passive:
+			if utils.IsPassiveEnumeration(&args) {
+				fmt.Fprintln(shared.GStdout, method.MethodKey)
+				fmt.Fprintln(shared.GStdout)
+				method.Action(&args, httpClient, filePaths)
+				isExec++
+			}
+		case shared.Active:
+			if utils.IsActiveEnumeration(&args) {
+				fmt.Fprintln(shared.GStdout, method.MethodKey)
+				method.Action(&args, httpClient, filePaths)
+				isExec++
+			}
+		case shared.Dns:
+			if utils.IsDnsEnumeration(&args) {
+				fmt.Fprintln(shared.GStdout, method.MethodKey)
+				method.Action(&args, httpClient, filePaths)
+				isExec++
+			}
+		}
 	}
-	if args.DnsLookup && args.WordlistPath != "" {
-		// Perform enumeration using DNS
-		fmt.Fprintln(utils.GStdout, "DNS")
-		lib.DnsEnum(&args, httpClient, filePaths)
-	}
-	if args.WordlistPath != "" && !args.DnsLookup && args.RDnsLookupFilePath == "" {
-		// Perform enumeration using brute force
-		fmt.Fprintln(utils.GStdout, "ACTIVE")
-		lib.ActiveEnum(&args, httpClient, filePaths)
-	}
-	if args.RDnsLookupFilePath != "" {
-		fmt.Fprintln(utils.GStdout, "RDNS")
+	if utils.IsRDnsEnumeration(&args) {
+		fmt.Fprintln(shared.GStdout, shared.RDns)
 		lib.RDnsEnum(&args)
 	}
-	if !utils.GDisableAllOutput {
-		utils.WriteJSON(filePaths.FilePathJSON)
+	if isExec == 0 {
+		utils.SentinelExit(shared.SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: cli.HelpBanner,
+			ExitError:   errors.New("failed to start enum: syntax error"),
+		})
+	}
+	if !shared.GDisableAllOutput {
+		streams.WriteJSON(filePaths.FilePathJSON)
 	}
 	/*
 		Save the summary (including IPv4, IPv6, ports if requested,
 		and subdomains) in JSON format within the output directory.
 	*/
-	utils.SentinelExit(utils.SentinelExitParams{
+	utils.SentinelExit(shared.SentinelExitParams{
 		ExitCode:    0,
 		ExitMessage: "",
 		ExitError:   nil,
 	})
-exitErr:
-	fmt.Fprintln(utils.GStdout, err)
-	utils.GStdout.Flush()
-	utils.Glogger.Println(err)
-	utils.Glogger.Fatalf("Program execution failed")
 }
