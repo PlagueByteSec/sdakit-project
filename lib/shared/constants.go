@@ -6,11 +6,17 @@ const (
 	NotAvailable = "n/a"
 )
 
+// STANDARD
 const (
 	Passive = "PASSIVE"
 	Active  = "ACTIVE"
 	Dns     = "DNS"
-	RDns    = "RDNS"
+)
+
+// EXTERNS
+const (
+	RDns = "RDNS"
+	Ping = "PING"
 )
 
 // REQUEST

@@ -7,8 +7,18 @@ import (
 	"strings"
 )
 
-func PortScanWrapper(consoleOutput *strings.Builder, params shared.Params, args *shared.Args) {
-	ports, err := requests.ScanPortsSubdomain(params.Subdomain, args.PortScan)
+func PingWrapper(consoleOutput *strings.Builder, subdomain string, pingCount int) {
+	consoleOutput.WriteString(" | Ping: ")
+	err := requests.PingSubdomain(subdomain, pingCount)
+	if err != nil {
+		consoleOutput.WriteString("FAILED\n")
+		return
+	}
+	consoleOutput.WriteString("SUCCESS\n")
+}
+
+func PortScanWrapper(consoleOutput *strings.Builder, subdomain string, portRange string) {
+	ports, err := requests.ScanPortsSubdomain(subdomain, portRange)
 	if err != nil {
 		shared.Glogger.Println(err)
 	}
@@ -17,10 +27,10 @@ func PortScanWrapper(consoleOutput *strings.Builder, params shared.Params, args 
 	}
 }
 
-func IpResolveWrapper(resolver *net.Resolver, args *shared.Args, params shared.Params) (string, []string) {
+func IpResolveWrapper(resolver *net.Resolver, subdomain string) (string, []string) {
 	requests.DnsLookups(resolver, shared.DnsLookupOptions{
 		IpAddress: nil,
-		Subdomain: params.Subdomain,
+		Subdomain: subdomain,
 	})
 	if shared.GDnsResults == nil {
 		// Skip results that cannot be resolved to an IP address

@@ -42,6 +42,9 @@ type Args struct {
 	HttpRequestDelay   int    // in milliseconds
 	RDnsLookupFilePath string // IP address file path
 	DisableAllOutput   bool
+	PingSubdomain      bool
+	PingCount          int
+	PingSubdomainsFile string // read subdomains from file and ping
 }
 
 type PoolBase struct {
@@ -53,6 +56,11 @@ type PoolBase struct {
 type EnumerationMethod struct {
 	MethodKey string
 	Action    func(*Args, *http.Client, *FilePaths)
+}
+
+type ExternsMethod struct {
+	MethodKey string
+	Action    func(*Args)
 }
 
 // ENUM

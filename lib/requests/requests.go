@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/Ullaakut/nmap/v3"
+	probing "github.com/prometheus-community/pro-bing"
 )
 
 func HttpClientInit(args *shared.Args) (*http.Client, error) {
@@ -193,4 +194,20 @@ func ScanPortsSubdomain(subdomain string, ports string) (string, error) {
 	}
 	portResults := output.String()
 	return portResults, nil
+}
+
+func PingSubdomain(subdomain string, pingCount int) error {
+	pinger, err := probing.NewPinger(subdomain)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return err
+	}
+	pinger.Count = 3
+	pinger.SetPrivileged(true)
+	err = pinger.Run()
+	if err != nil {
+		shared.Glogger.Print(err)
+		return err
+	}
+	return nil
 }

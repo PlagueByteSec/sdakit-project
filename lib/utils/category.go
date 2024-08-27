@@ -5,7 +5,7 @@ import (
 )
 
 func IsPassiveEnumeration(args *shared.Args) bool {
-	return args.WordlistPath == "" && args.RDnsLookupFilePath == ""
+	return args.WordlistPath == "" && args.RDnsLookupFilePath == "" && args.Domain != ""
 }
 
 func IsActiveEnumeration(args *shared.Args) bool {
@@ -18,4 +18,8 @@ func IsDnsEnumeration(args *shared.Args) bool {
 
 func IsRDnsEnumeration(args *shared.Args) bool {
 	return args.RDnsLookupFilePath != "" && args.WordlistPath == "" && args.Domain == ""
+}
+
+func IsPingFromFile(args *shared.Args) bool {
+	return args.PingSubdomainsFile != "" && args.Domain == "" && args.WordlistPath == ""
 }

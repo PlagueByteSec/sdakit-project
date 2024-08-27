@@ -61,15 +61,32 @@ func CloseOutputFileStreams(streams *shared.FileStreams) {
 	streams.SubdomainStream.Close()
 }
 
-func WordlistStreamInit(args *shared.Args) (*os.File, int) {
-	if _, err := os.Stat(args.WordlistPath); errors.Is(err, os.ErrNotExist) {
+func fileValidate(filePath string) {
+	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
 		shared.Glogger.Println(err)
 		utils.SentinelExit(shared.SentinelExitParams{
 			ExitCode:    -1,
-			ExitMessage: "could not find wordlist: " + args.WordlistPath,
+			ExitMessage: "could not find: " + filePath,
 			ExitError:   err,
 		})
 	}
+}
+
+func openFileStreamSingle(filePath string) *os.File {
+	fileStream, err := os.Open(filePath)
+	if err != nil {
+		shared.Glogger.Println(err)
+		utils.SentinelExit(shared.SentinelExitParams{
+			ExitCode:    -1,
+			ExitMessage: "Unable to open stream (read-mode) to: " + filePath,
+			ExitError:   err,
+		})
+	}
+	return fileStream
+}
+
+func WordlistStreamInit(args *shared.Args) (*os.File, int) {
+	fileValidate(args.WordlistPath)
 	lineCount, err := utils.FileCountLines(args.WordlistPath)
 	if err != nil {
 		shared.Glogger.Println(err)
@@ -79,44 +96,21 @@ func WordlistStreamInit(args *shared.Args) (*os.File, int) {
 			ExitError:   err,
 		})
 	}
-	wordlistStream, err := os.Open(args.WordlistPath)
-	if err != nil {
-		shared.Glogger.Println(err)
-		utils.SentinelExit(shared.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "Unable to open stream (read-mode) to: " + args.WordlistPath,
-			ExitError:   err,
-		})
-	}
+	wordlistStream := openFileStreamSingle(args.WordlistPath)
 	return wordlistStream, lineCount
 }
 
-func IpFileStreamInit(args *shared.Args) *os.File {
-	if _, err := os.Stat(args.RDnsLookupFilePath); errors.Is(err, os.ErrNotExist) {
-		shared.Glogger.Println(err)
-		utils.SentinelExit(shared.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "could not find IP list: " + args.RDnsLookupFilePath,
-			ExitError:   err,
-		})
-	}
-	n, err := utils.FileCountLines(args.RDnsLookupFilePath)
+func RoFileStreamInit(filePath string) *os.File {
+	fileValidate(filePath)
+	n, err := utils.FileCountLines(filePath)
 	if n == 0 {
 		shared.Glogger.Println(err)
 		utils.SentinelExit(shared.SentinelExitParams{
 			ExitCode:    -1,
-			ExitMessage: "Could not process an empty file: " + args.RDnsLookupFilePath,
+			ExitMessage: "Could not process an empty file: " + filePath,
 			ExitError:   nil,
 		})
 	}
-	ipListStream, err := os.Open(args.RDnsLookupFilePath)
-	if err != nil {
-		shared.Glogger.Println(err)
-		utils.SentinelExit(shared.SentinelExitParams{
-			ExitCode:    -1,
-			ExitMessage: "Unable to open stream (read-mode) to: " + args.RDnsLookupFilePath,
-			ExitError:   err,
-		})
-	}
+	ipListStream := openFileStreamSingle(filePath)
 	return ipListStream
 }

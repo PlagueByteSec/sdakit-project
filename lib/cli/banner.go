@@ -1,15 +1,27 @@
 package cli
 
-var HelpBanner = `
-Sentinel
-********
- ===[ Description
-	This program is designed to fetch, filter and validate subdomains from a specific host.
-	Subdomains can be enumerated by requesting external resources or via brute 
-	force. 
+var HelpBanner = ` 													
+===[ The Sentinel Project	
 
-	Sentinel is published under the MIT license: 
-		https://github.com/fhAnso/Sentinel/blob/main/LICENSE
+	Author: fhAnso 														
+	Contact: plaguebyte.sec@keemail.me									
+	License: MIT (https://github.com/fhAnso/Sentinel/blob/main/LICENSE)	
+																		 
+ ===[ Description
+
+	This program is designed to fetch, filter and validate subdomains from a target domain.
+
+ ===[ Overview
+
+	- Use external resources for passive enum 
+	- Use wordlist for active enum (direct or DNS)
+	- Analyse HTTP response headers
+	- Filter results by HTTP response code
+	- Perform RDNS lookup from IP list
+	- Ping subdomains directly or from file
+	- Scan port range on detected subdomain
+	- Route all traffic through TOR
+	- Automated output file generation
 
  ===[ Options ]===
 
@@ -25,6 +37,9 @@ Sentinel
  -c     Send GET request to retrieve the HTTP status 
  -a     Analyze HTTP headers of each subdomain (server etc.)
  -p     Scan subdomains for open ports in range
+ -pS	Ping subdomains (privileged execution required)
+ -pC	Ping subdomains from file (privileged execution required)
+ -rF	Read IP addresses from file and perform RDNS lookup
 
  ===[ FILTERS
 
@@ -39,6 +54,7 @@ Sentinel
  -dnsC  Specify a custom DNS server address (ip:port)
  -dnsT  Set the timeout for DNS queries
  -rD    Set HTTP request delay in ms
+ -pC	Specify Ping count (default=2)
 
  ===[ OUTPUT
 

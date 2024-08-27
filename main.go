@@ -39,7 +39,7 @@ func main() {
 	shared.GDisplayCount = 0
 	if args.DisableAllOutput {
 		shared.GDisableAllOutput = true
-	} else {
+	} else if args.Domain != "" {
 		/*
 			Initialize the output file paths and create the output
 			directory if it does not already exist.
@@ -49,8 +49,8 @@ func main() {
 			utils.SentinelPanic(err)
 		}
 	}
-	methods := lib.MethodManagerInit()
 	fmt.Fprint(shared.GStdout, "[*] Method: ")
+	methods := lib.MethodManagerInit()
 	for key, method := range methods {
 		switch key {
 		case shared.Passive:
@@ -74,9 +74,22 @@ func main() {
 			}
 		}
 	}
-	if utils.IsRDnsEnumeration(&args) {
-		fmt.Fprintln(shared.GStdout, shared.RDns)
-		lib.RDnsEnum(&args)
+	extern := lib.ExternsManagerInit()
+	for key, method := range extern {
+		switch key {
+		case shared.RDns:
+			if utils.IsRDnsEnumeration(&args) {
+				fmt.Fprintln(shared.GStdout, shared.RDns)
+				method.Action(&args)
+				isExec++
+			}
+		case shared.Ping:
+			if utils.IsPingFromFile(&args) {
+				fmt.Fprintln(shared.GStdout, shared.Ping)
+				method.Action(&args)
+				isExec++
+			}
+		}
 	}
 	if isExec == 0 {
 		utils.SentinelExit(shared.SentinelExitParams{

@@ -6,7 +6,7 @@
 ### Description:
 ```txt
 This project is designed to enumerate, filter, and validate subdomains for 
-a specified host. Enumeration can be performed using either a passive method 
+a target domain. Enumeration can be performed using either a passive method 
 that leverages external resources or through direct brute-force technique. 
 For each discovered subdomain, Sentinel retrieves detailed information, 
 including HTTP header analysis (e.g. server), HTTP status codes to 
@@ -15,6 +15,11 @@ customizable to meet user requirements, and results are categorized into
 IPv4, IPv6, subdomains and summary, with all findings automatically saved for 
 subsequent processing.
 ```
+
+### External Libraries 
+- For port scanning: [nmap](https://github.com/Ullaakut/nmap)
+- For ping: [pro-bing](https://github.com/prometheus-community/pro-bing)
+- For version handling: [go-version](https://github.com/hashicorp/go-version)
 
 ### Build:
 `Windows`

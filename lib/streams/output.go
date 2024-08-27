@@ -84,7 +84,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		Perform a DNS lookup to determine the IP addresses (IPv4 and IPv6). The addresses will
 		be returned as a slice and separated as strings.
 	*/
-	ipAddrsOut, ipAddrs := utils.IpResolveWrapper(shared.GDnsResolver, args, params)
+	ipAddrsOut, ipAddrs := utils.IpResolveWrapper(shared.GDnsResolver, params.Subdomain)
 	if ipAddrs == nil {
 		return
 	}
@@ -145,7 +145,10 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		consoleOutput.WriteString(fmt.Sprintf(" | IP Addresses: %s\n", ipAddrsOut))
 	}
 	if args.PortScan != "" {
-		utils.PortScanWrapper(&consoleOutput, params, args)
+		utils.PortScanWrapper(&consoleOutput, params.Subdomain, args.PortScan)
+	}
+	if args.PingSubdomain {
+		utils.PingWrapper(&consoleOutput, params.Subdomain, args.PingCount)
 	}
 	if !args.DisableAllOutput {
 		shared.GJsonResult.Subdomains = append(shared.GJsonResult.Subdomains, shared.GSubdomBase)

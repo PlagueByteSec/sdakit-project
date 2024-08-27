@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"Sentinel/lib/externs"
 	"Sentinel/lib/shared"
 	"Sentinel/lib/utils"
 	"bufio"
@@ -48,6 +49,19 @@ func MethodManagerInit() map[string]shared.EnumerationMethod {
 		shared.Dns: {
 			MethodKey: shared.Dns,
 			Action:    DnsEnum,
+		},
+	}
+}
+
+func ExternsManagerInit() map[string]shared.ExternsMethod {
+	return map[string]shared.ExternsMethod{
+		shared.RDns: {
+			MethodKey: shared.RDns,
+			Action:    externs.RDnsFromFile,
+		},
+		shared.Ping: {
+			MethodKey: shared.Ping,
+			Action:    externs.PingFromFile,
 		},
 	}
 }

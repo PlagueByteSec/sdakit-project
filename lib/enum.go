@@ -182,30 +182,3 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 	fmt.Print("\r")
 	utils.Evaluation(shared.GStartTime, shared.GObtainedCounter)
 }
-
-func RDnsEnum(args *shared.Args) {
-	ipFileStream := streams.IpFileStreamInit(args)
-	scanner := bufio.NewScanner(ipFileStream)
-	fmt.Fprintln(shared.GStdout)
-	shared.GStdout.Flush()
-	for scanner.Scan() {
-		entry := scanner.Text()
-		shared.GDnsResolver = requests.DnsResolverInit(false)
-		if shared.CustomDnsServer != "" {
-			// Use custom DNS server address
-			shared.GDnsResolver = requests.DnsResolverInit(true)
-		}
-		// Perform DNS lookup against the current subdomain
-		requests.DnsLookups(shared.GDnsResolver, shared.DnsLookupOptions{
-			IpAddress: net.ParseIP(entry),
-			Subdomain: "",
-		})
-		fmt.Fprintf(shared.GStdout, "[+] %s\n", entry)
-		for idx := 0; idx < len(shared.GDnsResults); idx++ {
-			fmt.Fprintf(shared.GStdout, " | %s\n", shared.GDnsResults[idx])
-		}
-		shared.GStdout.Flush()
-	}
-	utils.ScannerCheckError(scanner)
-	os.Exit(0)
-}

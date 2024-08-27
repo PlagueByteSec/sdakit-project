@@ -32,6 +32,9 @@ func CliParser() (shared.Args, error) {
 	rDnsLookupFilePath := flag.String("rF", "", "IP address list file path")
 	httpRequestDelay := flag.Int("rD", 500, "Specify HTTP request delay")
 	disableAllOutput := flag.Bool("dO", false, "Disable all output file streams")
+	pingSubdomain := flag.Bool("pS", false, "Ping subdomains (privileged execution required)")
+	pingCount := flag.Int("pC", 2, "Specify Ping count (default=2)")
+	pingFromFile := flag.String("pF", "", "Ping subdomains from file")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(HelpBanner + "\nPlease specify a domain!")
@@ -72,6 +75,9 @@ func CliParser() (shared.Args, error) {
 		HttpRequestDelay:   *httpRequestDelay,
 		RDnsLookupFilePath: *rDnsLookupFilePath,
 		DisableAllOutput:   *disableAllOutput,
+		PingSubdomain:      *pingSubdomain,
+		PingCount:          *pingCount,
+		PingSubdomainsFile: *pingFromFile,
 	}
 	return args, nil
 }
