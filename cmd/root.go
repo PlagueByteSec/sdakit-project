@@ -13,23 +13,24 @@ import (
 )
 
 func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.FilePaths) {
+	// Manager for subdomain enumeration methods that require and HTTP client
 	methods := MethodManagerInit()
 	for key, method := range methods {
 		switch key {
-		case shared.Passive:
+		case shared.Passive: // Request endpoints (certificate transparency logs etc.)
 			if utils.IsPassiveEnumeration(&args) {
 				fmt.Fprintln(shared.GStdout, method.MethodKey)
 				fmt.Fprintln(shared.GStdout)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
-		case shared.Active:
+		case shared.Active: // Brute-force by evaluating HTTP codes
 			if utils.IsActiveEnumeration(&args) {
 				fmt.Fprintln(shared.GStdout, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
-		case shared.Dns:
+		case shared.Dns: // Try to resolve a list of subdomains to IP addresses
 			if utils.IsDnsEnumeration(&args) {
 				fmt.Fprintln(shared.GStdout, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
@@ -37,16 +38,17 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 			}
 		}
 	}
+	// Manager for commands that require (.txt) lists containing addresses
 	extern := ValidsManagerInit()
 	for key, method := range extern {
 		switch key {
-		case shared.RDns:
+		case shared.RDns: // Resolving addresses from IP list
 			if utils.IsRDnsEnumeration(&args) {
 				fmt.Fprintln(shared.GStdout, shared.RDns)
 				method.Action(&args)
 				shared.GIsExec++
 			}
-		case shared.Ping:
+		case shared.Ping: // Ping subdomains from subdomain list
 			if utils.IsPingFromFile(&args) {
 				fmt.Fprintln(shared.GStdout, shared.Ping)
 				method.Action(&args)
