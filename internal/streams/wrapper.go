@@ -1,6 +1,6 @@
 package streams
 
-import "Sentinel/lib/shared"
+import "github.com/fhAnso/Sentinel/v1/internal/shared"
 
 func OpenOutputFileStreamsWrapper(filePaths *shared.FilePaths) {
 	/*

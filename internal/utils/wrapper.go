@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"Sentinel/lib/requests"
-	"Sentinel/lib/shared"
 	"net"
 	"strings"
+
+	"github.com/fhAnso/Sentinel/v1/internal/requests"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
 )
 
 func PingWrapper(consoleOutput *strings.Builder, subdomain string, pingCount int) {

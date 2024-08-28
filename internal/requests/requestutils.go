@@ -1,10 +1,11 @@
 package requests
 
 import (
-	"Sentinel/lib/shared"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
 )
 
 func HttpHeaderInit(httpHeaders *shared.HttpHeaders) {

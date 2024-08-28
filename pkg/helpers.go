@@ -1,21 +1,18 @@
-package utils
+package pkg
 
 import (
-	"Sentinel/lib/shared"
 	"net"
-	"os"
-	"os/signal"
 	"regexp"
 )
 
-func InArgList(httpCode string, list []string) bool {
+func IsInSlice(value string, slice []string) bool {
 	/*
 		An HTTP status code will be compared against those
 		specified by the -e or -f flag. This function is used
 		to filter the output for customization.
 	*/
-	for _, code := range list {
-		if httpCode == code {
+	for _, entry := range slice {
+		if value == entry {
 			return true
 		}
 	}
@@ -52,25 +49,6 @@ func IsValidDomain(domain string) bool {
 		}
 	}
 	return false
-}
-
-func InterruptListenerInit() {
-	/*
-		Create a channel to receive interrupt signals from the OS.
-		The goroutine continuously listens for an interrupt signal
-		(Ctrl+C) and handles the interruption.
-	*/
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt)
-	go func() {
-		for range sigChan {
-			SentinelExit(shared.SentinelExitParams{
-				ExitCode:    0,
-				ExitMessage: "\n\nG0oDBy3!",
-				ExitError:   nil,
-			})
-		}
-	}()
 }
 
 func ResetSlice(slice *[]string) {

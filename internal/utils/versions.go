@@ -1,13 +1,34 @@
 package utils
 
 import (
-	"Sentinel/lib/shared"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 
+	"github.com/fhAnso/Sentinel/v1/internal/requests"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
+
 	"github.com/hashicorp/go-version"
 )
+
+func GetCurrentRepoVersion(client *http.Client) string {
+	/*
+		Request the version.txt file from GitHub and return
+		the value as a string.
+	*/
+	response, err := requests.RequestSendGET(shared.VersionUrl, client)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return shared.NotAvailable
+	}
+	responseBody, err := requests.ResponseGetBody(response)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return shared.NotAvailable
+	}
+	return string(responseBody)
+}
 
 func GetCurrentLocalVersion() string {
 	/*

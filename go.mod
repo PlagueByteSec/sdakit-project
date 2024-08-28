@@ -1,4 +1,4 @@
-module Sentinel
+module github.com/fhAnso/Sentinel/v1
 
 go 1.23.0
 

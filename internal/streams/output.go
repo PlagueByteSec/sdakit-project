@@ -1,9 +1,6 @@
 package streams
 
 import (
-	"Sentinel/lib/requests"
-	"Sentinel/lib/shared"
-	"Sentinel/lib/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,6 +10,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/fhAnso/Sentinel/v1/internal/requests"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/fhAnso/Sentinel/v1/internal/utils"
+	"github.com/fhAnso/Sentinel/v1/pkg"
 )
 
 func WriteJSON(jsonFileName string) error {
@@ -38,11 +40,11 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 		is performed to verify that the address written to the output file is not
 		duplicated. If successful, the address will be written to the appropriate output file.
 	*/
-	ipAddrVersion := utils.GetIpVersion(ip)
+	ipAddrVersion := pkg.GetIpVersion(ip)
 	switch ipAddrVersion {
 	case 4:
 		params.FileContentIPv4Addrs = ip
-		if !shared.PoolContainsEntry(shared.GPoolBase.PoolIPv4Addresses, params.FileContentIPv4Addrs) {
+		if !pkg.IsInSlice(params.FileContentIPv4Addrs, shared.GPoolBase.PoolIPv4Addresses) {
 			shared.GPoolBase.PoolIPv4Addresses = append(shared.GPoolBase.PoolIPv4Addresses, params.FileContentIPv4Addrs)
 			if !shared.GDisableAllOutput {
 				err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4Addrs)
@@ -58,7 +60,7 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 		)
 	case 6:
 		params.FileContentIPv6Addrs = ip
-		if !shared.PoolContainsEntry(shared.GPoolBase.PoolIPv6Addresses, params.FileContentIPv6Addrs) {
+		if !pkg.IsInSlice(params.FileContentIPv6Addrs, shared.GPoolBase.PoolIPv6Addresses) {
 			shared.GPoolBase.PoolIPv6Addresses = append(shared.GPoolBase.PoolIPv6Addresses, params.FileContentIPv6Addrs)
 			if !shared.GDisableAllOutput {
 				err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6Addrs)
@@ -114,8 +116,8 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	} else {
 		codeFilter = strings.Split(args.FilHttpCodes, delim)
 	}
-	utils.ResetSlice(&codeFilter)
-	utils.ResetSlice(&codeFilterExc)
+	pkg.ResetSlice(&codeFilter)
+	pkg.ResetSlice(&codeFilterExc)
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Subdomain)
 		httpStatusCode := requests.HttpStatusCode(client, url)
@@ -127,8 +129,8 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 			Ensure that the status codes are correctly filtered by comparing the
 			results with codeFilter and CodeFilterExc.
 		*/
-		if len(codeFilter) >= 1 && !utils.InArgList(statusCodeConv, codeFilter) ||
-			len(codeFilterExc) >= 1 && utils.InArgList(statusCodeConv, codeFilterExc) {
+		if len(codeFilter) >= 1 && !pkg.IsInSlice(statusCodeConv, codeFilter) ||
+			len(codeFilterExc) >= 1 && pkg.IsInSlice(statusCodeConv, codeFilterExc) {
 			return
 		} else if !args.DisableAllOutput {
 			OutputWrapper(ipAddrs, params, streams)

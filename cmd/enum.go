@@ -1,10 +1,6 @@
-package lib
+package cmd
 
 import (
-	"Sentinel/lib/requests"
-	"Sentinel/lib/shared"
-	"Sentinel/lib/streams"
-	"Sentinel/lib/utils"
 	"bufio"
 	"fmt"
 	"net"
@@ -13,12 +9,17 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/fhAnso/Sentinel/v1/internal/requests"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/fhAnso/Sentinel/v1/internal/streams"
+	"github.com/fhAnso/Sentinel/v1/internal/utils"
 )
 
 func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
 	shared.GStdout.Flush()
 	startTime := time.Now()
-	utils.VerbosePrint("[*] Formatting db entries..\n")
+	utils.PrintVerbose("[*] Formatting db entries..\n")
 	/*
 		Read and format the entries listed in db.go, and if specified,
 		also handle the endpoints indicated by the -x flag.
@@ -27,7 +28,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 	if err != nil {
 		shared.Glogger.Println(err)
 	}
-	utils.VerbosePrint("[*] Sending GET request to endpoints..\n")
+	utils.PrintVerbose("[*] Sending GET request to endpoints..\n")
 	/*
 		Send a GET request to each endpoint and filter the results. The results will
 		be temporarily stored in the appropriate pool. Duplicates will be removed.
@@ -62,12 +63,12 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 			FilePaths:  filePaths,
 			Subdomain:  subdomain,
 		}
-		utils.ParamsSetupFiles(paramsSetupFiles)
+		streams.ParamsSetupFiles(paramsSetupFiles)
 		streams.OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
 	}
 	poolSize := len(shared.GPoolBase.PoolSubdomains)
 	// Evaluate the summary and format it for writing to stdout.
-	utils.Evaluation(startTime, poolSize)
+	utils.PrintEvaluation(startTime, poolSize)
 }
 
 func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -98,7 +99,7 @@ func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 				FilePaths:  filePaths,
 				Subdomain:  subdomain,
 			}
-			utils.ParamsSetupFiles(paramsSetupFiles)
+			streams.ParamsSetupFiles(paramsSetupFiles)
 			fmt.Fprint(shared.GStdout, "\r")
 			streams.OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
 			shared.GStdout.Flush()
@@ -106,9 +107,9 @@ func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 		}
 		utils.PrintProgress(entryCount)
 	}
-	utils.ScannerCheckError(scanner)
+	streams.ScannerCheckError(scanner)
 	fmt.Print("\r")
-	utils.Evaluation(shared.GStartTime, shared.GObtainedCounter)
+	utils.PrintEvaluation(shared.GStartTime, shared.GObtainedCounter)
 }
 
 func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -170,7 +171,7 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 				FilePaths:  filePaths,
 				Subdomain:  subdomain,
 			}
-			utils.ParamsSetupFiles(paramsSetupFiles)
+			streams.ParamsSetupFiles(paramsSetupFiles)
 			fmt.Fprint(shared.GStdout, "\r")
 			streams.OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
 			shared.GStdout.Flush()
@@ -178,7 +179,7 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 		}
 		utils.PrintProgress(entryCount)
 	}
-	utils.ScannerCheckError(scanner)
+	streams.ScannerCheckError(scanner)
 	fmt.Print("\r")
-	utils.Evaluation(shared.GStartTime, shared.GObtainedCounter)
+	utils.PrintEvaluation(shared.GStartTime, shared.GObtainedCounter)
 }

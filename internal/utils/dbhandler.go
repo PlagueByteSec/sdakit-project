@@ -1,12 +1,13 @@
 package utils
 
 import (
-	"Sentinel/lib/shared"
 	"bufio"
 	"errors"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
 )
 
 func EditDbEntries(args *shared.Args) ([]string, error) {
@@ -25,7 +26,7 @@ func EditDbEntries(args *shared.Args) ([]string, error) {
 		entries = append(entries, endpoint)
 	}
 	if args.DbExtendPath != "" {
-		VerbosePrint("\n[*] Extending endpoints..")
+		PrintVerbose("\n[*] Extending endpoints..")
 		stream, err := os.Open(args.DbExtendPath)
 		if err != nil {
 			shared.Glogger.Println(err)
@@ -41,11 +42,11 @@ func EditDbEntries(args *shared.Args) ([]string, error) {
 				continue
 			}
 			endpoint := strings.Replace(entry, shared.Placeholder, args.Domain, 1)
-			VerbosePrint("\n%d. X Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
+			PrintVerbose("\n%d. X Entry: %s\n ===[ %s\n", idx+1, entry, endpoint)
 			entries = append(entries, endpoint)
 			idx++
 		}
 	}
-	VerbosePrint("\n[*] Using %d endpoints\n", len(entries))
+	PrintVerbose("\n[*] Using %d endpoints\n", len(entries))
 	return entries, nil
 }

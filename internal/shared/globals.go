@@ -39,3 +39,5 @@ var (
 	CustomDnsServer string // IP address
 	RequestDelay    int
 )
+
+var GIsExec int

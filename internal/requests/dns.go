@@ -1,9 +1,10 @@
 package requests
 
 import (
-	"Sentinel/lib/shared"
 	"context"
 	"net"
+
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
 )
 
 func DnsResolverInit(useCustomDnsServer bool) *net.Resolver {

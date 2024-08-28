@@ -6,19 +6,17 @@ func PoolInit(pools *PoolBase) {
 	pools.PoolSubdomains = make([]string, 0)
 }
 
-func PoolContainsEntry(pool []string, value string) bool {
-	for _, entry := range pool {
-		if value == entry {
-			return true
-		}
-	}
-	return false
-}
-
-func poolRemoveDuplicates(pool []string) []string {
+func PoolRemoveDuplicates(pool []string) []string {
 	temp := make(map[string]bool)
 	revisedPool := make([]string, 0, len(pool))
-	for _, value := range pool {
+	/*for _, value := range pool {
+		if !temp[value] {
+			revisedPool = append(revisedPool, value)
+			temp[value] = true
+		}
+	}*/
+	for idx := 0; idx < len(pool); idx++ {
+		value := pool[idx]
 		if !temp[value] {
 			revisedPool = append(revisedPool, value)
 			temp[value] = true
@@ -28,7 +26,7 @@ func poolRemoveDuplicates(pool []string) []string {
 }
 
 func PoolCleanup(pools *PoolBase) {
-	poolRemoveDuplicates(pools.PoolIPv4Addresses)
-	poolRemoveDuplicates(pools.PoolIPv6Addresses)
-	poolRemoveDuplicates(pools.PoolSubdomains)
+	PoolRemoveDuplicates(pools.PoolIPv4Addresses)
+	PoolRemoveDuplicates(pools.PoolIPv6Addresses)
+	PoolRemoveDuplicates(pools.PoolSubdomains)
 }

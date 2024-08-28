@@ -1,15 +1,17 @@
-package lib
+package cmd
 
 import (
-	"Sentinel/lib/externs"
-	"Sentinel/lib/shared"
-	"Sentinel/lib/utils"
 	"bufio"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"time"
+
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/fhAnso/Sentinel/v1/internal/utils"
+	"github.com/fhAnso/Sentinel/v1/pkg"
 )
 
 func init() {
@@ -20,7 +22,7 @@ func init() {
 		Create the log directory if it does not exist, and use the log file name with
 		the pattern <date>-sentinel.log to log all messages.
 	*/
-	if err := utils.CreateOutputDir(shared.LoggerOutputDir); err != nil {
+	if err := pkg.CreateOutputDir(shared.LoggerOutputDir); err != nil {
 		fmt.Println("[-] Failed to create output directory for global logger. No logs will be available!")
 		return
 	}
@@ -53,15 +55,34 @@ func MethodManagerInit() map[string]shared.EnumerationMethod {
 	}
 }
 
-func ExternsManagerInit() map[string]shared.ExternsMethod {
+func ValidsManagerInit() map[string]shared.ExternsMethod {
 	return map[string]shared.ExternsMethod{
 		shared.RDns: {
 			MethodKey: shared.RDns,
-			Action:    externs.RDnsFromFile,
+			Action:    RDnsFromFile,
 		},
 		shared.Ping: {
 			MethodKey: shared.Ping,
-			Action:    externs.PingFromFile,
+			Action:    PingFromFile,
 		},
 	}
+}
+
+func InterruptListenerInit() {
+	/*
+		Create a channel to receive interrupt signals from the OS.
+		The goroutine continuously listens for an interrupt signal
+		(Ctrl+C) and handles the interruption.
+	*/
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt)
+	go func() {
+		for range sigChan {
+			utils.SentinelExit(shared.SentinelExitParams{
+				ExitCode:    0,
+				ExitMessage: "\n\nG0oDBy3!",
+				ExitError:   nil,
+			})
+		}
+	}()
 }

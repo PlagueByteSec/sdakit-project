@@ -1,12 +1,14 @@
-package cli
+package cmd
 
 import (
-	"Sentinel/lib/shared"
-	"Sentinel/lib/utils"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/fhAnso/Sentinel/v1/internal/cli"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/fhAnso/Sentinel/v1/pkg"
 )
 
 func CliParser() (shared.Args, error) {
@@ -37,13 +39,13 @@ func CliParser() (shared.Args, error) {
 	pingFromFile := flag.String("pF", "", "Ping subdomains from file")
 	flag.Parse()
 	if flag.NFlag() == 0 {
-		fmt.Println(HelpBanner + "\nPlease specify a domain!")
+		fmt.Println(cli.HelpBanner + "\nPlease specify a domain!")
 		os.Exit(0)
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {
 		return shared.Args{}, errors.New("HTTP code filter enabled, but status codes not requested")
 	}
-	if *domain != "" && !utils.IsValidDomain(*domain) {
+	if *domain != "" && !pkg.IsValidDomain(*domain) {
 		return shared.Args{}, errors.New("domain verification failed: " + *domain)
 	}
 	if !*dnsLookup && *dnsLookupCustom != "" {

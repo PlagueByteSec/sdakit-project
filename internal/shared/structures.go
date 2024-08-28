@@ -112,8 +112,6 @@ type JsonResult struct {
 	Subdomains []SubdomainBase `json:"subdomains"`
 }
 
-type FileExtension int
-
 // EXIT
 type SentinelExitParams struct {
 	ExitCode    int

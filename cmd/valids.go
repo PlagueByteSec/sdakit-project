@@ -1,14 +1,14 @@
-package externs
+package cmd
 
 import (
-	"Sentinel/lib/requests"
-	"Sentinel/lib/shared"
-	"Sentinel/lib/streams"
-	"Sentinel/lib/utils"
 	"bufio"
 	"fmt"
 	"net"
 	"os"
+
+	"github.com/fhAnso/Sentinel/v1/internal/requests"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/fhAnso/Sentinel/v1/internal/streams"
 )
 
 func RDnsFromFile(args *shared.Args) {
@@ -34,7 +34,7 @@ func RDnsFromFile(args *shared.Args) {
 		}
 		shared.GStdout.Flush()
 	}
-	utils.ScannerCheckError(scanner)
+	streams.ScannerCheckError(scanner)
 	os.Exit(0)
 }
 
@@ -58,7 +58,7 @@ func PingFromFile(args *shared.Args) {
 		fmt.Printf("[+] %s: PING SUCCEED\n", entry)
 		pingSuccess++
 	}
-	utils.ScannerCheckError(scanner)
+	streams.ScannerCheckError(scanner)
 	fmt.Printf("\n[*] Summary: %d succeed, %d failed\n", pingSuccess, pingFailed)
 	os.Exit(0)
 }

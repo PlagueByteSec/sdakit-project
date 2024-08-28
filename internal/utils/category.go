@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"Sentinel/lib/shared"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
 )
 
 func IsPassiveEnumeration(args *shared.Args) bool {
@@ -13,7 +13,7 @@ func IsActiveEnumeration(args *shared.Args) bool {
 }
 
 func IsDnsEnumeration(args *shared.Args) bool {
-	return args.DnsLookup && args.WordlistPath != "" && args.RDnsLookupFilePath == ""
+	return args.DnsLookup && args.WordlistPath != "" && args.RDnsLookupFilePath == "" && args.Domain != ""
 }
 
 func IsRDnsEnumeration(args *shared.Args) bool {

@@ -1,7 +1,8 @@
 package requests
 
 import (
-	"Sentinel/lib/shared"
+	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/fhAnso/Sentinel/v1/pkg"
 
 	"context"
 	"errors"
@@ -47,12 +48,12 @@ func HttpClientInit(args *shared.Args) (*http.Client, error) {
 	return client, nil
 }
 
-func responseGetBody(response *http.Response) ([]byte, error) {
+func ResponseGetBody(response *http.Response) ([]byte, error) {
 	defer response.Body.Close()
 	return io.ReadAll(response.Body)
 }
 
-func requestSendGET(url string, client *http.Client) (*http.Response, error) {
+func RequestSendGET(url string, client *http.Client) (*http.Response, error) {
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		shared.Glogger.Println(err)
@@ -67,12 +68,12 @@ func EndpointRequest(client *http.Client, host string, url string) error {
 		Send an HTTP GET request, read the body, and filter each subdomain
 		using regex. Duplicates will be removed.
 	*/
-	response, err := requestSendGET(url, client)
+	response, err := RequestSendGET(url, client)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return err
 	}
-	responseBody, err := responseGetBody(response)
+	responseBody, err := ResponseGetBody(response)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return err
@@ -82,7 +83,7 @@ func EndpointRequest(client *http.Client, host string, url string) error {
 	matches := regex.FindAllString(body, -1)
 	for _, match := range matches {
 		// Make sure that only new entries will be added
-		if !shared.PoolContainsEntry(shared.GPoolBase.PoolSubdomains, match) {
+		if !pkg.IsInSlice(match, shared.GPoolBase.PoolSubdomains) {
 			shared.GPoolBase.PoolSubdomains = append(shared.GPoolBase.PoolSubdomains, match)
 		}
 	}
@@ -91,30 +92,12 @@ func EndpointRequest(client *http.Client, host string, url string) error {
 }
 
 func HttpStatusCode(client *http.Client, url string) int {
-	response, err := requestSendGET(url, client)
+	response, err := RequestSendGET(url, client)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return -1
 	}
 	return response.StatusCode
-}
-
-func GetCurrentRepoVersion(client *http.Client) string {
-	/*
-		Request the version.txt file from GitHub and return
-		the value as a string.
-	*/
-	response, err := requestSendGET(shared.VersionUrl, client)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return shared.NotAvailable
-	}
-	responseBody, err := responseGetBody(response)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return shared.NotAvailable
-	}
-	return string(responseBody)
 }
 
 func AnalyseHttpHeader(client *http.Client, subdomain string) string {
@@ -128,7 +111,7 @@ func AnalyseHttpHeader(client *http.Client, subdomain string) string {
 		Content-Security-Policy
 	*/
 	url := fmt.Sprintf("http://%s", subdomain)
-	response, err := requestSendGET(url, client)
+	response, err := RequestSendGET(url, client)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return ""

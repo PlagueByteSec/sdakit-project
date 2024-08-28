@@ -34,9 +34,4 @@ const (
 	OutputDir       = "output"
 )
 
-const (
-	TXT FileExtension = iota
-	JSON
-)
-
 const DefaultPermission = 0755
