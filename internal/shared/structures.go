@@ -19,32 +19,34 @@ type Params struct {
 }
 
 type Args struct {
-	Verbose            bool
-	Domain             string // target domain
-	OutFileSubdoms     string // custom subdomains output path
-	OutFileIPv4        string // custom IPv4 output path
-	OutFileIPv6        string // custom IPv6 output path
-	OutFileJSON        string // custom JSON output path
-	NewOutputDirPath   string // custom output dir path
-	HttpCode           bool
-	WordlistPath       string
-	ExcHttpCodes       string // results to hide (specified by HTTP status code)
-	FilHttpCodes       string // results to display (specified by HTTP status code)
-	SubOnlyIp          bool
-	AnalyzeHeader      bool
-	PortScan           string // port range
-	DbExtendPath       string // File path containing endpoints
-	Timeout            int    // in seconds
-	TorRoute           bool
-	DnsLookup          bool
-	DnsLookupCustom    string // Custom DNS server (args)
-	DnsLookupTimeout   int
-	HttpRequestDelay   int    // in milliseconds
-	RDnsLookupFilePath string // IP address file path
-	DisableAllOutput   bool
-	PingSubdomain      bool
-	PingCount          int
-	PingSubdomainsFile string // read subdomains from file and ping
+	Verbose             bool
+	Domain              string // target domain
+	OutFileSubdoms      string // custom subdomains output path
+	OutFileIPv4         string // custom IPv4 output path
+	OutFileIPv6         string // custom IPv6 output path
+	OutFileJSON         string // custom JSON output path
+	NewOutputDirPath    string // custom output dir path
+	HttpCode            bool
+	WordlistPath        string
+	ExcHttpCodes        string // results to hide (specified by HTTP status code)
+	FilHttpCodes        string // results to display (specified by HTTP status code)
+	SubOnlyIp           bool
+	AnalyzeHeader       bool
+	PortScan            string // port range
+	DbExtendPath        string // File path containing endpoints
+	Timeout             int    // in seconds
+	TorRoute            bool
+	DnsLookup           bool
+	DnsLookupCustom     string // Custom DNS server (args)
+	DnsLookupTimeout    int
+	HttpRequestDelay    int    // in milliseconds
+	RDnsLookupFilePath  string // IP address file path
+	DisableAllOutput    bool
+	PingSubdomain       bool
+	PingCount           int
+	PingSubdomainsFile  string // read subdomains from file and ping
+	AnalyseHeaderSingle bool   // HTTP
+	Subdomain           string
 }
 
 type PoolBase struct {

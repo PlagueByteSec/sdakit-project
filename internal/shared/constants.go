@@ -8,9 +8,10 @@ const (
 
 // STANDARD
 const (
-	Passive = "PASSIVE"
-	Active  = "ACTIVE"
-	Dns     = "DNS"
+	Passive        = "PASSIVE"
+	Active         = "ACTIVE"
+	Dns            = "DNS"
+	HeaderAnalysis = "HTTP-HEADER-ANALYSIS"
 )
 
 // EXTERNS

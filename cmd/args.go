@@ -14,6 +14,7 @@ import (
 func CliParser() (shared.Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
+	subdomain := flag.String("s", "", "Set the target subdomain")
 	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
 	outFileIPv4 := flag.String("o4", "defaultV4", "Output file path for IPv4 addresses")
 	outFileIPv6 := flag.String("o6", "defaultV6", "Output file path for IPv6 addresses")
@@ -37,6 +38,7 @@ func CliParser() (shared.Args, error) {
 	pingSubdomain := flag.Bool("pS", false, "Ping subdomains (privileged execution required)")
 	pingCount := flag.Int("pC", 2, "Specify Ping count (default=2)")
 	pingFromFile := flag.String("pF", "", "Ping subdomains from file")
+	analyseHeaderSingle := flag.Bool("aS", false, "Analyse HTTP header of single subdomain (specified with -s)")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(cli.HelpBanner + "\nPlease specify a domain!")
@@ -55,31 +57,33 @@ func CliParser() (shared.Args, error) {
 		return shared.Args{}, errors.New("no wordlist specified, dns method cannot be used")
 	}
 	args := shared.Args{
-		Verbose:            *verbose,
-		Domain:             *domain,
-		OutFileSubdoms:     *outFile,
-		OutFileIPv4:        *outFileIPv4,
-		OutFileIPv6:        *outFileIPv6,
-		OutFileJSON:        *outFileJSON,
-		NewOutputDirPath:   *newOutputPath,
-		HttpCode:           *httpCode,
-		WordlistPath:       *wordlistPath,
-		ExcHttpCodes:       *excHttpCodes,
-		FilHttpCodes:       *filtHttpCodes,
-		AnalyzeHeader:      *analyzeHeader,
-		PortScan:           *portScan,
-		DbExtendPath:       *dbExtendPath,
-		Timeout:            *timeout,
-		TorRoute:           *torRoute,
-		DnsLookup:          *dnsLookup,
-		DnsLookupCustom:    *dnsLookupCustom,
-		DnsLookupTimeout:   *dnsLookupTimeout,
-		HttpRequestDelay:   *httpRequestDelay,
-		RDnsLookupFilePath: *rDnsLookupFilePath,
-		DisableAllOutput:   *disableAllOutput,
-		PingSubdomain:      *pingSubdomain,
-		PingCount:          *pingCount,
-		PingSubdomainsFile: *pingFromFile,
+		Verbose:             *verbose,
+		Domain:              *domain,
+		Subdomain:           *subdomain,
+		OutFileSubdoms:      *outFile,
+		OutFileIPv4:         *outFileIPv4,
+		OutFileIPv6:         *outFileIPv6,
+		OutFileJSON:         *outFileJSON,
+		NewOutputDirPath:    *newOutputPath,
+		HttpCode:            *httpCode,
+		WordlistPath:        *wordlistPath,
+		ExcHttpCodes:        *excHttpCodes,
+		FilHttpCodes:        *filtHttpCodes,
+		AnalyzeHeader:       *analyzeHeader,
+		PortScan:            *portScan,
+		DbExtendPath:        *dbExtendPath,
+		Timeout:             *timeout,
+		TorRoute:            *torRoute,
+		DnsLookup:           *dnsLookup,
+		DnsLookupCustom:     *dnsLookupCustom,
+		DnsLookupTimeout:    *dnsLookupTimeout,
+		HttpRequestDelay:    *httpRequestDelay,
+		RDnsLookupFilePath:  *rDnsLookupFilePath,
+		DisableAllOutput:    *disableAllOutput,
+		PingSubdomain:       *pingSubdomain,
+		PingCount:           *pingCount,
+		PingSubdomainsFile:  *pingFromFile,
+		AnalyseHeaderSingle: *analyseHeaderSingle,
 	}
 	return args, nil
 }

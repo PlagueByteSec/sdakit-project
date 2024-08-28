@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/fhAnso/Sentinel/v1/internal/requests"
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
 	"github.com/fhAnso/Sentinel/v1/internal/streams"
+	"github.com/fhAnso/Sentinel/v1/internal/utils"
 )
 
 func RDnsFromFile(args *shared.Args) {
@@ -60,5 +62,25 @@ func PingFromFile(args *shared.Args) {
 	}
 	streams.ScannerCheckError(scanner)
 	fmt.Printf("\n[*] Summary: %d succeed, %d failed\n", pingSuccess, pingFailed)
+	os.Exit(0)
+}
+
+func AnalyseHttpHeaderSingle(args *shared.Args) {
+	httpClient, err := requests.HttpClientInit(args)
+	if err != nil {
+		utils.SentinelPanic(err)
+	}
+	if strings.HasPrefix(args.Subdomain, "http://") {
+		args.Subdomain = strings.TrimPrefix(args.Subdomain, "http://")
+	} else if strings.HasPrefix(args.Subdomain, "https://") {
+		args.Subdomain = strings.TrimPrefix(args.Subdomain, "https://")
+	}
+	results := requests.AnalyseHttpHeader(httpClient, args.Subdomain)
+	fmt.Printf("[*] Header Analysis Results For: %s\n", args.Subdomain)
+	if results == "" {
+		fmt.Printf("[-] Nothing to see here..\n\n")
+	} else {
+		fmt.Println(results)
+	}
 	os.Exit(0)
 }

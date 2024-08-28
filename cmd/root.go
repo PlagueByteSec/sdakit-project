@@ -54,6 +54,12 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 				method.Action(&args)
 				shared.GIsExec++
 			}
+		case shared.HeaderAnalysis:
+			if utils.IsHttpHeaderAnalysis(&args) {
+				fmt.Fprintln(shared.GStdout, shared.HeaderAnalysis)
+				method.Action(&args)
+				shared.GIsExec++
+			}
 		}
 	}
 }

@@ -65,6 +65,10 @@ func ValidsManagerInit() map[string]shared.ExternsMethod {
 			MethodKey: shared.Ping,
 			Action:    PingFromFile,
 		},
+		shared.HeaderAnalysis: {
+			MethodKey: shared.HeaderAnalysis,
+			Action:    AnalyseHttpHeaderSingle,
+		},
 	}
 }
 

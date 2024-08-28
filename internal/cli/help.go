@@ -29,6 +29,8 @@ var HelpBanner = `
  -d     Set the target domain name
 	    [passive] (Without -w) request subdomains from external endpoints
 	    Example: targetdomain.xyz 
+ -s		Set the target subdomain 
+		Example: sub.targetdomain.xyz 
  -w     [active] Use wordlist to bruteforce subdomains of the target
  -dns   Use wordlist (-w) and resolve subdomains by querying a DNS
 
@@ -40,6 +42,7 @@ var HelpBanner = `
  -pS	Ping subdomains (privileged execution required)
  -pC	Ping subdomains from file (privileged execution required)
  -rF	Read IP addresses from file and perform RDNS lookup
+ -aS	Analyse the HTTP response from a subdomain (specified by -s)
 
  ===[ FILTERS
 
