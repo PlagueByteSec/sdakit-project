@@ -26,9 +26,9 @@ var HelpBanner = `
  ===[ Options ]===
 
  -v     Verbose output
- -d     Set the target domain name
-	    [passive] (Without -w) request subdomains from external endpoints
-	    Example: targetdomain.xyz 
+ -d		Set the target domain name
+		[passive] (Without -w) request subdomains from external endpoints
+		Example: targetdomain.xyz 
  -s		Set the target subdomain 
 		Example: sub.targetdomain.xyz 
  -w     [active] Use wordlist to bruteforce subdomains of the target
@@ -36,13 +36,14 @@ var HelpBanner = `
 
  ===[ ANALYSIS
 
- -c     Send GET request to retrieve the HTTP status 
+ -c     Send HTTP request to retrieve the status code 
  -a     Analyze HTTP headers of each subdomain (server etc.)
+ -aS	Analyse the HTTP response from a subdomain (specified by -s)
+ -aH	Display all headers of HTTP response from -a and -aS
  -p     Scan subdomains for open ports in range
  -pS	Ping subdomains (privileged execution required)
  -pC	Ping subdomains from file (privileged execution required)
  -rF	Read IP addresses from file and perform RDNS lookup
- -aS	Analyse the HTTP response from a subdomain (specified by -s)
 
  ===[ FILTERS
 
@@ -52,19 +53,20 @@ var HelpBanner = `
  ===[ SETTINGS
 
  -x     Extend endpoint DB with custom list (.txt)
- -t     Specify the request timeout
  -r     Route all requests through TOR
- -dnsC  Specify a custom DNS server address (ip:port)
- -dnsT  Set the timeout for DNS queries
+ -m		Set HTTP request method (default: GET)
  -rD    Set HTTP request delay in ms
+ -t     Specify the request timeout
+ -dnsT  Set the timeout for DNS queries
+ -dnsC  Specify a custom DNS server address (ip:port)
  -pC	Specify Ping count (default=2)
 
  ===[ OUTPUT
 
  -dO    Disable all output file streams
+ -nP    Specify the output directory path for all output files
  -oS    Specify the output (.txt) file path for subdomains
  -o4    Specify the output (.txt) file path for IPv4 addresses
  -o6    Specify the output (.txt) file path for IPv6 addresses
- -nP    Specify the output directory path for all output files
  -oJ    Specify the output (.json) file path for summary
 `

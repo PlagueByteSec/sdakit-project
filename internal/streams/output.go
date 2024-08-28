@@ -120,7 +120,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	pkg.ResetSlice(&codeFilterExc)
 	if args.HttpCode {
 		url := fmt.Sprintf("http://%s", params.Subdomain)
-		httpStatusCode := requests.HttpStatusCode(client, url)
+		httpStatusCode := requests.HttpStatusCode(client, url, args.HttpRequestMethod)
 		statusCodeConv := strconv.Itoa(httpStatusCode)
 		if httpStatusCode == -1 {
 			statusCodeConv = shared.NotAvailable
@@ -140,7 +140,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		OutputWrapper(ipAddrs, params, streams)
 	}
 	if args.AnalyzeHeader {
-		headers := requests.AnalyseHttpHeader(client, params.Subdomain)
+		headers := requests.AnalyseHttpHeader(client, params.Subdomain, args.HttpRequestMethod)
 		consoleOutput.WriteString(headers)
 	}
 	if ipAddrsOut != "" {

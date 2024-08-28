@@ -47,6 +47,8 @@ type Args struct {
 	PingSubdomainsFile  string // read subdomains from file and ping
 	AnalyseHeaderSingle bool   // HTTP
 	Subdomain           string
+	HttpRequestMethod   string
+	ShowAllHeaders      bool
 }
 
 type PoolBase struct {

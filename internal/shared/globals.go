@@ -28,6 +28,7 @@ var GStreams FileStreams
 
 var (
 	GDisplayCount     int
+	GShowAllHeaders   bool
 	GVerbose          bool
 	GDisableAllOutput bool
 	GObtainedCounter  int       = 0

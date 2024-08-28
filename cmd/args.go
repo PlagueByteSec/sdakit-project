@@ -39,6 +39,8 @@ func CliParser() (shared.Args, error) {
 	pingCount := flag.Int("pC", 2, "Specify Ping count (default=2)")
 	pingFromFile := flag.String("pF", "", "Ping subdomains from file")
 	analyseHeaderSingle := flag.Bool("aS", false, "Analyse HTTP header of single subdomain (specified with -s)")
+	httpRequestMethod := flag.String("m", "GET", "Method for sending requests (default: GET)")
+	showAllHeaders := flag.Bool("aH", false, "Display all headers of HTTP response")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(cli.HelpBanner + "\nPlease specify a domain!")
@@ -84,6 +86,8 @@ func CliParser() (shared.Args, error) {
 		PingCount:           *pingCount,
 		PingSubdomainsFile:  *pingFromFile,
 		AnalyseHeaderSingle: *analyseHeaderSingle,
+		HttpRequestMethod:   *httpRequestMethod,
+		ShowAllHeaders:      *showAllHeaders,
 	}
 	return args, nil
 }

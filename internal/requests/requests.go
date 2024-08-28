@@ -53,8 +53,12 @@ func ResponseGetBody(response *http.Response) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
-func RequestSendGET(url string, client *http.Client) (*http.Response, error) {
-	request, err := http.NewRequest("GET", url, nil)
+func RequestSendHTTP(method string, url string, client *http.Client) (*http.Response, error) {
+	acceptedMethods := []string{"GET", "POST", "OPTIONS"}
+	if !pkg.IsInSlice(method, acceptedMethods) {
+		return nil, errors.New("not in allowd methods: " + method)
+	}
+	request, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return nil, err
@@ -63,12 +67,12 @@ func RequestSendGET(url string, client *http.Client) (*http.Response, error) {
 	return client.Do(request)
 }
 
-func EndpointRequest(client *http.Client, host string, url string) error {
+func EndpointRequest(method string, host string, url string, client *http.Client) error {
 	/*
-		Send an HTTP GET request, read the body, and filter each subdomain
+		Send an HTTP [method] request, read the body, and filter each subdomain
 		using regex. Duplicates will be removed.
 	*/
-	response, err := RequestSendGET(url, client)
+	response, err := RequestSendHTTP(method, url, client)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return err
@@ -81,18 +85,18 @@ func EndpointRequest(client *http.Client, host string, url string) error {
 	body := string(responseBody)
 	regex := regexp.MustCompile(`[\.a-zA-Z0-9-]+\.` + host)
 	matches := regex.FindAllString(body, -1)
-	for _, match := range matches {
+	for idx := 0; idx < len(matches); idx++ {
 		// Make sure that only new entries will be added
-		if !pkg.IsInSlice(match, shared.GPoolBase.PoolSubdomains) {
-			shared.GPoolBase.PoolSubdomains = append(shared.GPoolBase.PoolSubdomains, match)
+		if !pkg.IsInSlice(matches[idx], shared.GPoolBase.PoolSubdomains) {
+			shared.GPoolBase.PoolSubdomains = append(shared.GPoolBase.PoolSubdomains, matches[idx])
 		}
 	}
 	shared.PoolCleanup(&shared.GPoolBase)
 	return nil
 }
 
-func HttpStatusCode(client *http.Client, url string) int {
-	response, err := RequestSendGET(url, client)
+func HttpStatusCode(client *http.Client, url string, method string) int {
+	response, err := RequestSendHTTP(method, url, client)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return -1
@@ -100,7 +104,7 @@ func HttpStatusCode(client *http.Client, url string) int {
 	return response.StatusCode
 }
 
-func AnalyseHttpHeader(client *http.Client, subdomain string) string {
+func AnalyseHttpHeader(client *http.Client, subdomain string, method string) string {
 	/*
 		Analyze the response of an HTTP request to determine
 		which headers are set.
@@ -111,7 +115,7 @@ func AnalyseHttpHeader(client *http.Client, subdomain string) string {
 		Content-Security-Policy
 	*/
 	url := fmt.Sprintf("http://%s", subdomain)
-	response, err := RequestSendGET(url, client)
+	response, err := RequestSendHTTP(method, url, client)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return ""
@@ -125,6 +129,13 @@ func AnalyseHttpHeader(client *http.Client, subdomain string) string {
 	for idx := 0; idx < headers.NumField(); idx++ {
 		value := headers.Field(idx)
 		HttpHeaderOutput(&outputBuilder, response, value.String())
+	}
+	if shared.GShowAllHeaders {
+		outputBuilder.WriteString("[*] Full Response:\n")
+		for header, headerValue := range response.Header {
+			outputBuilder.WriteString(fmt.Sprintf(" | %s: %s\n", header,
+				strings.Join(headerValue, " ")))
+		}
 	}
 	return outputBuilder.String()
 }

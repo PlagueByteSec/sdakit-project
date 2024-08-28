@@ -46,19 +46,16 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 			if utils.IsRDnsEnumeration(&args) {
 				fmt.Fprintln(shared.GStdout, shared.RDns)
 				method.Action(&args)
-				shared.GIsExec++
 			}
 		case shared.Ping: // Ping subdomains from subdomain list
 			if utils.IsPingFromFile(&args) {
 				fmt.Fprintln(shared.GStdout, shared.Ping)
 				method.Action(&args)
-				shared.GIsExec++
 			}
 		case shared.HeaderAnalysis:
 			if utils.IsHttpHeaderAnalysis(&args) {
 				fmt.Fprintln(shared.GStdout, shared.HeaderAnalysis)
 				method.Action(&args)
-				shared.GIsExec++
 			}
 		}
 	}
@@ -83,6 +80,9 @@ func Run(args shared.Args) {
 	// Print banner and compare local with repo version
 	utils.PrintBanner(httpClient)
 	shared.GDisplayCount = 0
+	if args.ShowAllHeaders {
+		shared.GShowAllHeaders = true
+	}
 	if args.DisableAllOutput {
 		shared.GDisableAllOutput = true
 	} else if args.Domain != "" {
@@ -95,6 +95,7 @@ func Run(args shared.Args) {
 			utils.SentinelPanic(err)
 		}
 	}
+	utils.PrintVerbose("[*] HTTP request method: %s\n", args.HttpRequestMethod)
 	fmt.Fprint(shared.GStdout, "[*] Method: ")
 	methodManager(args, httpClient, filePaths)
 	if shared.GIsExec == 0 {
@@ -104,13 +105,13 @@ func Run(args shared.Args) {
 			ExitError:   errors.New("failed to start enum: syntax error"),
 		})
 	}
-	if !shared.GDisableAllOutput {
-		streams.WriteJSON(filePaths.FilePathJSON)
-	}
 	/*
 		Save the summary (including IPv4, IPv6, ports if requested,
 		and subdomains) in JSON format within the output directory.
 	*/
+	if !shared.GDisableAllOutput {
+		streams.WriteJSON(filePaths.FilePathJSON)
+	}
 	utils.SentinelExit(shared.SentinelExitParams{
 		ExitCode:    0,
 		ExitMessage: "",

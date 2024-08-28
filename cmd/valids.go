@@ -75,7 +75,7 @@ func AnalyseHttpHeaderSingle(args *shared.Args) {
 	} else if strings.HasPrefix(args.Subdomain, "https://") {
 		args.Subdomain = strings.TrimPrefix(args.Subdomain, "https://")
 	}
-	results := requests.AnalyseHttpHeader(httpClient, args.Subdomain)
+	results := requests.AnalyseHttpHeader(httpClient, args.Subdomain, args.HttpRequestMethod)
 	fmt.Printf("[*] Header Analysis Results For: %s\n", args.Subdomain)
 	if results == "" {
 		fmt.Printf("[-] Nothing to see here..\n\n")

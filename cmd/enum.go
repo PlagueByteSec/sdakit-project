@@ -34,7 +34,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 		be temporarily stored in the appropriate pool. Duplicates will be removed.
 	*/
 	for idx := 0; idx < len(endpoints); idx++ {
-		if err := requests.EndpointRequest(client, args.Domain, endpoints[idx]); err != nil {
+		if err := requests.EndpointRequest(args.HttpRequestMethod, args.Domain, endpoints[idx], client); err != nil {
 			shared.Glogger.Println(err)
 		}
 	}
@@ -84,7 +84,7 @@ func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 		shared.GSubdomBase = shared.SubdomainBase{}
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
-		statusCode := requests.HttpStatusCode(client, url)
+		statusCode := requests.HttpStatusCode(client, url, args.HttpRequestMethod)
 		/*
 			Skip failed GET requests and set the successful response subdomains to the
 			Params struct. The OutputHandler function will ensure that all fetched data
