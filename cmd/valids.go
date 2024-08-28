@@ -20,12 +20,8 @@ func RDnsFromFile(args *shared.Args) {
 	shared.GStdout.Flush()
 	for scanner.Scan() {
 		entry := scanner.Text()
-		shared.GDnsResolver = requests.DnsResolverInit(false)
-		if shared.CustomDnsServer != "" {
-			// Use custom DNS server address
-			shared.GDnsResolver = requests.DnsResolverInit(true)
-		}
-		// Perform DNS lookup against the current subdomain
+		requests.SetDnsEnumType()
+		// Perform RDNS lookup against the current IP address
 		requests.DnsLookups(shared.GDnsResolver, shared.DnsLookupOptions{
 			IpAddress: net.ParseIP(entry),
 			Subdomain: "",

@@ -23,6 +23,19 @@ func DnsResolverInit(useCustomDnsServer bool) *net.Resolver {
 	return resolver
 }
 
+func SetDnsEnumType() {
+	shared.GDnsResolver = DnsResolverInit(false)
+	if shared.CustomDnsServer != "" {
+		// Use custom DNS server address
+		shared.GDnsResolver = DnsResolverInit(true)
+	}
+}
+
+func DnsIsMX(resolver *net.Resolver, subdomain string) bool {
+	mxRecords, err := resolver.LookupMX(context.Background(), subdomain)
+	return err == nil && len(mxRecords) > 0
+}
+
 func DnsLookups(resolver *net.Resolver, dnsLookupOptions shared.DnsLookupOptions) {
 	var (
 		dnsLookup []string
@@ -31,8 +44,8 @@ func DnsLookups(resolver *net.Resolver, dnsLookupOptions shared.DnsLookupOptions
 	)
 	if dnsLookupOptions.IpAddress != nil {
 		/*
-			Perform a DNS lookup for the current subdomain to get the corresponding
-			IP addresses and filter out old and inactive subdomains.
+			Perform a RDNS lookup for the current IP address to get
+			the corresponding domain name.
 		*/
 		shared.GDnsResults, err = resolver.LookupAddr(context.Background(), dnsLookupOptions.IpAddress.String())
 		if err != nil {
@@ -40,8 +53,8 @@ func DnsLookups(resolver *net.Resolver, dnsLookupOptions shared.DnsLookupOptions
 		}
 	} else if dnsLookupOptions.Subdomain != "" {
 		/*
-			Perform a RDNS lookup for the current IP address to get
-			the corresponding domain name.
+			Perform a DNS lookup for the current subdomain to get the corresponding
+			IP addresses and filter out old and inactive subdomains.
 		*/
 		temp, err = resolver.LookupIPAddr(context.Background(), dnsLookupOptions.Subdomain)
 		if err != nil {

@@ -152,6 +152,14 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	if args.PingSubdomain {
 		utils.PingWrapper(&consoleOutput, params.Subdomain, args.PingCount)
 	}
+	requests.SetDnsEnumType() // Handle type by global switch
+	if args.DetectPurpose {
+		if requests.DnsIsMX(shared.GDnsResolver, params.Subdomain) {
+			consoleOutput.WriteString(" | + [MX:OK]: Mail Server\n")
+		}
+		// TODO: Try lot of stuff here to determine subdomains purpose
+		// ...
+	}
 	if !args.DisableAllOutput {
 		shared.GJsonResult.Subdomains = append(shared.GJsonResult.Subdomains, shared.GSubdomBase)
 	}

@@ -49,6 +49,7 @@ type Args struct {
 	Subdomain           string
 	HttpRequestMethod   string
 	ShowAllHeaders      bool
+	DetectPurpose       bool // DNS lookups, HTTP header analysis (is mail server or API)
 }
 
 type PoolBase struct {

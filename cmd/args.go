@@ -41,6 +41,7 @@ func CliParser() (shared.Args, error) {
 	analyseHeaderSingle := flag.Bool("aS", false, "Analyse HTTP header of single subdomain (specified with -s)")
 	httpRequestMethod := flag.String("m", "GET", "Method for sending requests (default: GET)")
 	showAllHeaders := flag.Bool("aH", false, "Display all headers of HTTP response")
+	detectpurpose := flag.Bool("dP", false, "Detect server purpose (Mail, API...)")
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		fmt.Println(cli.HelpBanner + "\nPlease specify a domain!")
@@ -88,6 +89,7 @@ func CliParser() (shared.Args, error) {
 		AnalyseHeaderSingle: *analyseHeaderSingle,
 		HttpRequestMethod:   *httpRequestMethod,
 		ShowAllHeaders:      *showAllHeaders,
+		DetectPurpose:       *detectpurpose,
 	}
 	return args, nil
 }

@@ -154,12 +154,11 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 		shared.GDnsResults = []string{}
 		entry := scanner.Text()
 		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
-		shared.GDnsResolver = requests.DnsResolverInit(false)
-		if shared.CustomDnsServer != "" {
-			// Use custom DNS server address
-			shared.GDnsResolver = requests.DnsResolverInit(true)
-		}
-		// Perform DNS lookup against the current subdomain
+		requests.SetDnsEnumType()
+		/*
+			Perform DNS lookup against the current subdomain. The results
+			will be stored in GDnsResults.
+		*/
 		requests.DnsLookups(shared.GDnsResolver, shared.DnsLookupOptions{
 			IpAddress: nil,
 			Subdomain: subdomain,
