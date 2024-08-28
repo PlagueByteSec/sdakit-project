@@ -9,12 +9,6 @@ func PoolInit(pools *PoolBase) {
 func PoolRemoveDuplicates(pool []string) []string {
 	temp := make(map[string]bool)
 	revisedPool := make([]string, 0, len(pool))
-	/*for _, value := range pool {
-		if !temp[value] {
-			revisedPool = append(revisedPool, value)
-			temp[value] = true
-		}
-	}*/
 	for idx := 0; idx < len(pool); idx++ {
 		value := pool[idx]
 		if !temp[value] {
