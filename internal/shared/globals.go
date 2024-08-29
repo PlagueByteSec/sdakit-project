@@ -42,3 +42,12 @@ var (
 )
 
 var GIsExec int
+
+// SUMMARY
+var (
+	GOpenPortsCount int
+	GApiCount       int
+	GMxCount        int
+	GLoginCount     int
+	GCorsCount      int
+)

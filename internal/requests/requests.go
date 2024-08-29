@@ -38,6 +38,13 @@ func HttpClientInit(args *shared.Args) (*http.Client, error) {
 			Timeout: time.Duration(args.Timeout) * time.Second,
 		}
 		fmt.Fprintln(shared.GStdout, "[*] All requests will be routet through TOR")
+	} else if args.AllowRedirects {
+		client = &http.Client{
+			Timeout: time.Duration(args.Timeout) * time.Second,
+			CheckRedirect: func(request *http.Request, via []*http.Request) error {
+				return nil
+			},
+		}
 	} else {
 		// -r flag not set, use the standard HTTP client with the specified timeout
 		client = &http.Client{
@@ -53,7 +60,7 @@ func ResponseGetBody(response *http.Response) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
-func RequestSendHTTP(method string, url string, client *http.Client) (*http.Response, error) {
+func RequestSetupHTTP(method string, url string, client *http.Client) (*http.Request, error) {
 	acceptedMethods := []string{"GET", "POST", "OPTIONS"}
 	if !pkg.IsInSlice(method, acceptedMethods) {
 		return nil, errors.New("not in allowd methods: " + method)
@@ -64,7 +71,8 @@ func RequestSendHTTP(method string, url string, client *http.Client) (*http.Resp
 		return nil, err
 	}
 	request.Header.Set("User-Agent", shared.DefaultUserAgent)
-	return client.Do(request)
+	return request, nil
+	//return client.Do(request)
 }
 
 func EndpointRequest(method string, host string, url string, client *http.Client) error {
@@ -72,7 +80,12 @@ func EndpointRequest(method string, host string, url string, client *http.Client
 		Send an HTTP [method] request, read the body, and filter each subdomain
 		using regex. Duplicates will be removed.
 	*/
-	response, err := RequestSendHTTP(method, url, client)
+	request, err := RequestSetupHTTP(method, url, client)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return err
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return err
@@ -91,12 +104,17 @@ func EndpointRequest(method string, host string, url string, client *http.Client
 			shared.GPoolBase.PoolSubdomains = append(shared.GPoolBase.PoolSubdomains, matches[idx])
 		}
 	}
-	shared.PoolCleanup(&shared.GPoolBase)
+	shared.PoolsCleanupCore(&shared.GPoolBase)
 	return nil
 }
 
 func HttpStatusCode(client *http.Client, url string, method string) int {
-	response, err := RequestSendHTTP(method, url, client)
+	request, err := RequestSetupHTTP(method, url, client)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return -1
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return -1
@@ -115,7 +133,12 @@ func AnalyseHttpHeader(client *http.Client, subdomain string, method string) str
 		Content-Security-Policy
 	*/
 	url := fmt.Sprintf("http://%s", subdomain)
-	response, err := RequestSendHTTP(method, url, client)
+	request, err := RequestSetupHTTP(method, url, client)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return ""
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return ""

@@ -17,7 +17,12 @@ func GetCurrentRepoVersion(client *http.Client) string {
 		Request the version.txt file from GitHub and return
 		the value as a string.
 	*/
-	response, err := requests.RequestSendHTTP("GET", shared.VersionUrl, client)
+	request, err := requests.RequestSetupHTTP("GET", shared.VersionUrl, client)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return shared.NotAvailable
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		shared.Glogger.Println(err)
 		return shared.NotAvailable

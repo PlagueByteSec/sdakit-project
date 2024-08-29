@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/fhAnso/Sentinel/v1/cmd"
-	"github.com/fhAnso/Sentinel/v1/internal/utils"
+	utils "github.com/fhAnso/Sentinel/v1/internal/coreutils"
 )
 
 func main() {

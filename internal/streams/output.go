@@ -11,9 +11,10 @@ import (
 	"strings"
 	"time"
 
+	utils "github.com/fhAnso/Sentinel/v1/internal/coreutils"
+	"github.com/fhAnso/Sentinel/v1/internal/coreutils/analysis"
 	"github.com/fhAnso/Sentinel/v1/internal/requests"
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
-	"github.com/fhAnso/Sentinel/v1/internal/utils"
 	"github.com/fhAnso/Sentinel/v1/pkg"
 )
 
@@ -77,6 +78,74 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 	}
 }
 
+func optionsSettingsHandler(settings shared.SettingsHandler) {
+	url := fmt.Sprintf("http://%s", settings.Params.Subdomain)
+	if settings.Args.HttpCode {
+		httpStatusCode := requests.HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod)
+		statusCodeConv := strconv.Itoa(httpStatusCode)
+		if httpStatusCode == -1 {
+			statusCodeConv = shared.NotAvailable
+		} else {
+			shared.PoolAppendValue(settings.Params.Subdomain, &shared.GPoolBase.PoolHttpSuccessSubdomains)
+		}
+		/*
+			Ensure that the status codes are correctly filtered by comparing the
+			results with codeFilter and CodeFilterExc.
+		*/
+		if len(settings.CodeFilter) >= 1 && !pkg.IsInSlice(statusCodeConv, settings.CodeFilter) ||
+			len(settings.CodeFilterExc) >= 1 && pkg.IsInSlice(statusCodeConv, settings.CodeFilterExc) {
+			return
+		} else if !settings.Args.DisableAllOutput {
+			OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
+		}
+		settings.ConsoleOutput.WriteString(fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv))
+	} else if !settings.Args.DisableAllOutput {
+		OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
+	}
+	if settings.Args.AnalyzeHeader {
+		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
+		settings.ConsoleOutput.WriteString(headers)
+	}
+	if settings.IpAddrsOut != "" {
+		settings.ConsoleOutput.WriteString(fmt.Sprintf(" | IP Addresses: %s\n", settings.IpAddrsOut))
+	}
+	if settings.Args.PortScan != "" {
+		utils.PortScanWrapper(settings.ConsoleOutput, settings.Params.Subdomain, settings.Args.PortScan)
+	}
+	if settings.Args.PingSubdomain {
+		utils.PingWrapper(settings.ConsoleOutput, settings.Params.Subdomain, settings.Args.PingCount)
+	}
+	requests.SetDnsEnumType() // Handle type by global switch
+	// httpCodeCheck: do not perform analysis if the HTTP request fails (-1)
+	if settings.Args.DetectPurpose && requests.HttpCodeCheck(settings, url) {
+		settings.ConsoleOutput.WriteString(" | Trying To Identify The Subdomain Purpose...\n")
+		shared.GShowAllHeaders = true
+		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
+		check := analysis.SubdomainCheck{
+			Subdomain:     settings.Params.Subdomain,
+			ConsoleOutput: settings.ConsoleOutput,
+			HttpHeaders:   headers,
+			HttpClient:    settings.HttpClient,
+		}
+		check.MailServer()
+		check.API()
+		check.Login()
+	}
+	if settings.Args.MisconfTest && requests.HttpCodeCheck(settings, url) {
+		settings.ConsoleOutput.WriteString(" | Testing for weaknesses...\n")
+		check := analysis.SubdomainCheck{
+			Subdomain:     settings.Params.Subdomain,
+			ConsoleOutput: settings.ConsoleOutput,
+			HttpClient:    settings.HttpClient,
+		}
+		check.CORS()
+		// ...
+	}
+	if !settings.Args.DisableAllOutput {
+		shared.GJsonResult.Subdomains = append(shared.GJsonResult.Subdomains, shared.GSubdomBase)
+	}
+}
+
 func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args, params shared.Params) {
 	if args.HttpCode || args.AnalyzeHeader {
 		time.Sleep(time.Duration(args.HttpRequestDelay) * time.Millisecond)
@@ -118,51 +187,17 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	}
 	pkg.ResetSlice(&codeFilter)
 	pkg.ResetSlice(&codeFilterExc)
-	if args.HttpCode {
-		url := fmt.Sprintf("http://%s", params.Subdomain)
-		httpStatusCode := requests.HttpStatusCode(client, url, args.HttpRequestMethod)
-		statusCodeConv := strconv.Itoa(httpStatusCode)
-		if httpStatusCode == -1 {
-			statusCodeConv = shared.NotAvailable
-		}
-		/*
-			Ensure that the status codes are correctly filtered by comparing the
-			results with codeFilter and CodeFilterExc.
-		*/
-		if len(codeFilter) >= 1 && !pkg.IsInSlice(statusCodeConv, codeFilter) ||
-			len(codeFilterExc) >= 1 && pkg.IsInSlice(statusCodeConv, codeFilterExc) {
-			return
-		} else if !args.DisableAllOutput {
-			OutputWrapper(ipAddrs, params, streams)
-		}
-		consoleOutput.WriteString(fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv))
-	} else if !args.DisableAllOutput {
-		OutputWrapper(ipAddrs, params, streams)
-	}
-	if args.AnalyzeHeader {
-		headers := requests.AnalyseHttpHeader(client, params.Subdomain, args.HttpRequestMethod)
-		consoleOutput.WriteString(headers)
-	}
-	if ipAddrsOut != "" {
-		consoleOutput.WriteString(fmt.Sprintf(" | IP Addresses: %s\n", ipAddrsOut))
-	}
-	if args.PortScan != "" {
-		utils.PortScanWrapper(&consoleOutput, params.Subdomain, args.PortScan)
-	}
-	if args.PingSubdomain {
-		utils.PingWrapper(&consoleOutput, params.Subdomain, args.PingCount)
-	}
-	requests.SetDnsEnumType() // Handle type by global switch
-	if args.DetectPurpose {
-		if requests.DnsIsMX(shared.GDnsResolver, params.Subdomain) {
-			consoleOutput.WriteString(" | + [MX:OK]: Mail Server\n")
-		}
-		// TODO: Try lot of stuff here to determine subdomains purpose
-		// ...
-	}
-	if !args.DisableAllOutput {
-		shared.GJsonResult.Subdomains = append(shared.GJsonResult.Subdomains, shared.GSubdomBase)
-	}
+	optionsSettingsHandler(shared.SettingsHandler{
+		Streams:       streams,
+		Args:          args,
+		Params:        params,
+		HttpClient:    client,
+		ConsoleOutput: &consoleOutput,
+		CodeFilterExc: codeFilterExc,
+		CodeFilter:    codeFilter,
+		IpAddrs:       ipAddrs,
+		IpAddrsOut:    ipAddrsOut,
+	})
 	// Display the final result block
 	fmt.Fprintln(shared.GStdout, consoleOutput.String())
 	shared.GDisplayCount++

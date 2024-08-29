@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
+	utils "github.com/fhAnso/Sentinel/v1/internal/coreutils"
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
-	"github.com/fhAnso/Sentinel/v1/internal/utils"
 	"github.com/fhAnso/Sentinel/v1/pkg"
 )
 
@@ -35,6 +35,7 @@ func init() {
 		fmt.Println(err)
 		return
 	}
+	utils.PrintVerbose("[*] log file created: %s\n", logFilePath)
 	shared.Glogger = log.New(logFile, "", log.LstdFlags|log.Lshortfile)
 }
 

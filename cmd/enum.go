@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
+	utils "github.com/fhAnso/Sentinel/v1/internal/coreutils"
 	"github.com/fhAnso/Sentinel/v1/internal/requests"
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
 	"github.com/fhAnso/Sentinel/v1/internal/streams"
-	"github.com/fhAnso/Sentinel/v1/internal/utils"
 )
 
 func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -68,7 +68,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 	}
 	poolSize := len(shared.GPoolBase.PoolSubdomains)
 	// Evaluate the summary and format it for writing to stdout.
-	utils.PrintEvaluation(startTime, poolSize)
+	utils.PrintSummary(startTime, poolSize)
 }
 
 func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -109,7 +109,7 @@ func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 	}
 	streams.ScannerCheckError(scanner)
 	fmt.Print("\r")
-	utils.PrintEvaluation(shared.GStartTime, shared.GObtainedCounter)
+	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
 }
 
 func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -180,5 +180,5 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 	}
 	streams.ScannerCheckError(scanner)
 	fmt.Print("\r")
-	utils.PrintEvaluation(shared.GStartTime, shared.GObtainedCounter)
+	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
 }

@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/fhAnso/Sentinel/v1/internal/cli"
+	utils "github.com/fhAnso/Sentinel/v1/internal/coreutils"
 	"github.com/fhAnso/Sentinel/v1/internal/requests"
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
 	"github.com/fhAnso/Sentinel/v1/internal/streams"
-	"github.com/fhAnso/Sentinel/v1/internal/utils"
 )
 
 func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.FilePaths) {

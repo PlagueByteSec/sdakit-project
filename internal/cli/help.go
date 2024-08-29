@@ -38,12 +38,14 @@ var HelpBanner = `
 
  -c     Send HTTP request to retrieve the status code 
  -a     Analyze HTTP headers of each subdomain (server etc.)
- -aS	Analyse the HTTP response from a subdomain (specified by -s)
  -aH	Display all headers of HTTP response from -a and -aS
+ -aS	Analyse the HTTP response from a subdomain (specified by -s)
  -p     Scan subdomains for open ports in range
  -pS	Ping subdomains (privileged execution required)
  -pC	Ping subdomains from file (privileged execution required)
  -rF	Read IP addresses from file and perform RDNS lookup
+ -dP	Analyse subdomain to determine its purpose (mail, API etc.)
+ -mT	Test subdomain for common weaknesses (CORS, header injection etc.)
 
  ===[ FILTERS
 
@@ -60,6 +62,7 @@ var HelpBanner = `
  -dnsT  Set the timeout for DNS queries
  -dnsC  Specify a custom DNS server address (ip:port)
  -pC	Specify Ping count (default=2)
+- aR	Allow redirects
 
  ===[ OUTPUT
 

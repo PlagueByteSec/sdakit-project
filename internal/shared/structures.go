@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 )
 
 // CORE
@@ -49,13 +50,22 @@ type Args struct {
 	Subdomain           string
 	HttpRequestMethod   string
 	ShowAllHeaders      bool
-	DetectPurpose       bool // DNS lookups, HTTP header analysis (is mail server or API)
+	DetectPurpose       bool // DNS lookups, HTTP header analysis (mail server, API etc.)
+	MisconfTest         bool // CORS, header injection, request smuggling etc.
+	AllowRedirects      bool
 }
 
 type PoolBase struct {
+	// CORE
 	PoolIPv4Addresses []string
 	PoolIPv6Addresses []string
 	PoolSubdomains    []string
+	// SUMMARY
+	PoolMailSubdomains        []string
+	PoolApiSubdomains         []string
+	PoolLoginSubdomains       []string
+	PoolCorsSubdomains        []string
+	PoolHttpSuccessSubdomains []string
 }
 
 type EnumerationMethod struct {
@@ -66,6 +76,19 @@ type EnumerationMethod struct {
 type ExternsMethod struct {
 	MethodKey string
 	Action    func(*Args)
+}
+
+// OPTION-MANAGER
+type SettingsHandler struct {
+	Streams       *FileStreams
+	Args          *Args
+	Params        Params
+	HttpClient    *http.Client
+	ConsoleOutput *strings.Builder
+	CodeFilterExc []string
+	CodeFilter    []string
+	IpAddrs       []string
+	IpAddrsOut    string
 }
 
 // ENUM
