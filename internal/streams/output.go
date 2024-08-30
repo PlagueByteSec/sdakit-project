@@ -78,7 +78,7 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 	}
 }
 
-func optionsSettingsHandler(settings shared.SettingsHandler) {
+func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 	url := fmt.Sprintf("http://%s", settings.Params.Subdomain)
 	if settings.Args.HttpCode {
 		httpStatusCode := requests.HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod)
@@ -94,7 +94,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler) {
 		*/
 		if len(settings.CodeFilter) >= 1 && !pkg.IsInSlice(statusCodeConv, settings.CodeFilter) ||
 			len(settings.CodeFilterExc) >= 1 && pkg.IsInSlice(statusCodeConv, settings.CodeFilterExc) {
-			return
+			return false
 		} else if !settings.Args.DisableAllOutput {
 			OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 		}
@@ -141,9 +141,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler) {
 		check.CORS()
 		// ...
 	}
-	if !settings.Args.DisableAllOutput {
-		shared.GJsonResult.Subdomains = append(shared.GJsonResult.Subdomains, shared.GSubdomBase)
-	}
+	return true
 }
 
 func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args, params shared.Params) {
@@ -187,7 +185,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	}
 	pkg.ResetSlice(&codeFilter)
 	pkg.ResetSlice(&codeFilterExc)
-	optionsSettingsHandler(shared.SettingsHandler{
+	succeed := optionsSettingsHandler(shared.SettingsHandler{
 		Streams:       streams,
 		Args:          args,
 		Params:        params,
@@ -198,6 +196,12 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		IpAddrs:       ipAddrs,
 		IpAddrsOut:    ipAddrsOut,
 	})
+	if !succeed {
+		return
+	}
+	if !args.DisableAllOutput {
+		shared.GJsonResult.Subdomains = append(shared.GJsonResult.Subdomains, shared.GSubdomBase)
+	}
 	// Display the final result block
 	fmt.Fprintln(shared.GStdout, consoleOutput.String())
 	shared.GDisplayCount++
