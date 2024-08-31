@@ -12,6 +12,7 @@ import (
 )
 
 func CliParser() (shared.Args, error) {
+	help := flag.Bool("h", false, "Display this help banner")
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
 	subdomain := flag.String("s", "", "Set the target subdomain")
@@ -46,7 +47,10 @@ func CliParser() (shared.Args, error) {
 	allowRedirects := flag.Bool("aR", false, "Allow redirects")
 	flag.Parse()
 	if flag.NFlag() == 0 {
-		fmt.Println(cli.HelpBanner + "\nPlease specify a domain!")
+		return shared.Args{}, errors.New(cli.HelpBanner + "\nPlease specify a domain!")
+	}
+	if *help {
+		fmt.Println(cli.HelpBanner)
 		os.Exit(0)
 	}
 	if *excHttpCodes != "" && !*httpCode || *filtHttpCodes != "" && !*httpCode {

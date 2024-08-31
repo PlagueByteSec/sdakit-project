@@ -11,18 +11,6 @@ var HelpBanner = `
 
 	This program is designed to fetch, filter and validate subdomains from a target domain.
 
- ===[ Overview
-
-	- Use external resources for passive enum 
-	- Use wordlist for active enum (direct or DNS)
-	- Analyse HTTP response headers
-	- Filter results by HTTP response code
-	- Perform RDNS lookup from IP list
-	- Ping subdomains directly or from file
-	- Scan port range on detected subdomain
-	- Route all traffic through TOR
-	- Automated output file generation
-
  ===[ Options ]===
 
  -v     Verbose output
