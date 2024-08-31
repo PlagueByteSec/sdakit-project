@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="" alt="logoTransparent" width="500" height="250" />
+  <img src="" alt="https://github.com/PlagueByteSec/Sentinel/blob/main/assets/logoTransparent.png" width="500" height="250" />
   <br>
   <img src="https://img.shields.io/github/stars/PlagueByteSec/Sentinel?style=social" alt="stars" />
   <img src="https://img.shields.io/github/v/release/PlagueByteSec/Sentinel" alt="version" />
