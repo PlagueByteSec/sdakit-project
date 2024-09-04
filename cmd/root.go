@@ -80,12 +80,10 @@ func Run(args shared.Args) {
 	// Print banner and compare local with repo version
 	utils.PrintBanner(httpClient)
 	shared.GDisplayCount = 0
-	if args.ShowAllHeaders {
-		shared.GShowAllHeaders = true
-	}
-	if args.DisableAllOutput {
-		shared.GDisableAllOutput = true
-	} else if args.Domain != "" {
+	// assign settings to global output switches directly
+	shared.GShowAllHeaders = args.ShowAllHeaders
+	shared.GDisableAllOutput = args.DisableAllOutput
+	if !args.DisableAllOutput && args.Domain != "" {
 		/*
 			Initialize the output file paths and create the output
 			directory if it does not already exist.
