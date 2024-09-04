@@ -53,15 +53,14 @@ go build -o ./bin/sentinel
 ```txt
 fhanso@plaguebytesec: ~/Tools/InfoGa/Subdomains/Sentinel $ ./bin/sentinel -h
 
-===[ The Sentinel Project
-
-        Author: fhAnso 
-        Contact: plaguebyte.sec@keemail.me
-        License: MIT (https://github.com/fhAnso/Sentinel/blob/main/LICENSE)
+===[ The Sentinel Project, By PlagueByteSec
+        
+       Contact: plaguebyte.sec@keemail.me
+       License: MIT (https://github.com/PlagueByteSec/Sentinel/blob/main/LICENSE)
                                                                                                                                                  
  ===[ Description
 
-        This program is designed to fetch, filter and validate subdomains from a target domain.
+       This program is designed to fetch, filter and validate subdomains from a target domain.
 
  ===[ Options ]===
 

@@ -1,11 +1,10 @@
 package cli
 
 var HelpBanner = ` 													
-===[ The Sentinel Project	
-
-	Author: fhAnso 														
-	Contact: plaguebyte.sec@keemail.me									
-	License: MIT (https://github.com/fhAnso/Sentinel/blob/main/LICENSE)	
+===[ The Sentinel Project, By PlagueByteSec
+        
+    Contact: plaguebyte.sec@keemail.me
+    License: MIT (https://github.com/PlagueByteSec/Sentinel/blob/main/LICENSE)
 																		 
  ===[ Description
 
