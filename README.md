@@ -17,8 +17,7 @@ availability by requesting HTTP status codes and ping probes.
 
 The CLI is designed for clarity and ease of use, providing a structured overview of the
 results. Output is customizable and is organized into categories: IPv4, IPv6, subdomains,
-and summaries. All findings are automatically saved for further processing, with results
-neatly organized into files for further processing.
+and summaries. All findings are automatically saved for further processing.
 ```
 
 ## :paperclip: Overview
