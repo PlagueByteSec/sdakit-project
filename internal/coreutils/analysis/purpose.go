@@ -16,9 +16,7 @@ func (check *SubdomainCheck) MailServer() {
 			check.ConsoleOutput.WriteString("\n")
 		}
 		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolMailSubdomains)
-		return
 	}
-	check.ConsoleOutput.WriteString(" | - [MX:NA] No MX entry found\n")
 }
 
 func (check *SubdomainCheck) API() {
@@ -40,10 +38,8 @@ func (check *SubdomainCheck) API() {
 				check.ConsoleOutput.WriteString(fmt.Sprintf(" seems to be a API.. (%s: %s)\n", methods[idx], info))
 			}
 			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolApiSubdomains)
-			return
 		}
 	}
-	check.ConsoleOutput.WriteString(" | - [API:NA] No API indicators found\n")
 }
 
 func (check *SubdomainCheck) Login() {
@@ -53,8 +49,6 @@ func (check *SubdomainCheck) Login() {
 		if indicatorsFound = check.isLoginPage(methods[idx], url); indicatorsFound {
 			check.ConsoleOutput.WriteString(" | + [LOGIN:OK] Login page found\n")
 			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
-			return
 		}
 	}
-	check.ConsoleOutput.WriteString(" | - [LOGIN:NA] No login found\n")
 }

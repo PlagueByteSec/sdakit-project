@@ -139,6 +139,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 			HttpClient:    settings.HttpClient,
 		}
 		check.CORS()
+		check.HeaderInjection()
 		// ...
 	}
 	return true

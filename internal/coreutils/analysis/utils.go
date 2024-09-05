@@ -12,7 +12,7 @@ import (
 	"github.com/fhAnso/Sentinel/v1/pkg"
 )
 
-const testUrl = "http://example.com" // Origin
+const testDomain = "example.com"
 
 type SubdomainCheck struct {
 	Subdomain     string
@@ -49,11 +49,16 @@ var (
 	}
 )
 
+func makeUrl(subdomain string) string {
+	return fmt.Sprintf("https://%s", subdomain)
+}
+
 func (check *SubdomainCheck) isExchange() bool {
 	// Basic check for Microsoft Exchange server
 	return strings.Contains(check.HttpHeaders, "X-Feproxyinfo") ||
 		strings.Contains(check.Subdomain, "autodiscover")
 }
+
 func (check *SubdomainCheck) checkResponseValues(responseHeaderKey string, responseHeaderValues string) bool {
 	acceptedResponseValues := []string{
 		"application/json",
@@ -125,12 +130,12 @@ func headerAccepted(testHeaderKey string, testHeaderValue string, responseHeader
 		strings.Contains(strings.Join(responseHeaderValue, ", "), testHeaderValue)
 }
 
-func (check *SubdomainCheck) investigateHeaders(response *http.Response) bool {
+func (check *SubdomainCheck) investigateAcaoHeaders(response *http.Response) bool {
 	var success bool
 	for responseHeaderKey, responseHeaderValue := range response.Header {
 		switch {
-		case headerAccepted("Access-Control-Allow-Origin", testUrl, responseHeaderKey, responseHeaderValue):
-			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CORS:OK]: %s accepts %s as origin\n", check.Subdomain, testUrl))
+		case headerAccepted("Access-Control-Allow-Origin", testDomain, responseHeaderKey, responseHeaderValue):
+			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CORS:OK]: %s accepts %s as origin\n", check.Subdomain, testDomain))
 			success = true
 		case headerAccepted("Access-Control-Allow-Origin", "null", responseHeaderKey, responseHeaderValue):
 			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CORS:OK]: %s accepts null as origin\n", check.Subdomain))
@@ -143,22 +148,51 @@ func (check *SubdomainCheck) investigateHeaders(response *http.Response) bool {
 	return success
 }
 
-func (check *SubdomainCheck) testCORS(method string, url string) bool {
+func (check *SubdomainCheck) investigateHostHeaders(header string, response *http.Response) bool {
+	defer response.Body.Close()
+	for responseHeaderKey, responseHeaderValue := range response.Header {
+		// check if test domain in response headers
+		if headerAccepted(header, testDomain, responseHeaderKey, responseHeaderValue) {
+			return true
+		}
+		// check if test domain in response body
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			shared.Glogger.Println(err)
+			return false
+		}
+
+		if strings.Contains(string(body), testDomain) {
+			return true
+		}
+	}
+	return false
+}
+
+func (check *SubdomainCheck) testCustomHeader(method string, url string, header string, value string) *http.Response {
 	request, err := requests.RequestSetupHTTP(method, url, check.HttpClient)
 	if err != nil {
 		shared.Glogger.Println(err)
 	}
-	request.Header.Set("Origin", testUrl)
+	request.Header.Set(header, value)
 	response, err := check.HttpClient.Do(request)
 	if err != nil {
 		shared.Glogger.Println(err)
-		return false
+		return nil
 	}
 	if pkg.IsInSlice(string(response.StatusCode), errorCodes) {
-		shared.Glogger.Println("[CORS:ERR] Server responds with error code: " + string(response.StatusCode))
+		shared.Glogger.Println("[TCH:ERR] Server responds with error code: " + string(response.StatusCode))
+		return nil
+	}
+	return response
+}
+
+func (check SubdomainCheck) testCors(method string, url string, header string, value string) bool {
+	response := check.testCustomHeader(method, url, header, value)
+	if response == nil {
 		return false
 	}
-	return check.investigateHeaders(response)
+	return check.investigateAcaoHeaders(response)
 }
 
 func (check *SubdomainCheck) sendRequest(method string, url string) *http.Response {
@@ -186,4 +220,24 @@ func (check *SubdomainCheck) isLoginPage(method string, url string) bool {
 		return false
 	}
 	return checkPageLogin(string(responseBody))
+}
+
+func (check *SubdomainCheck) testHostHeader(header string) bool {
+	url := makeUrl(check.Subdomain)
+	response := check.testCustomHeader("GET", url, header, testDomain)
+	if response != nil {
+		// ensure the response include test domain
+		return check.investigateHostHeaders(header, response)
+	}
+	return false
+}
+
+func (check *SubdomainCheck) HostHeaders() { // allow redirect = true
+	headers := []string{"Host", "X-Forwarded-Host", "X-Host"}
+	for idx := 0; idx < len(headers); idx++ {
+		if check.testHostHeader(headers[idx]) {
+			check.ConsoleOutput.WriteString(" | + [HT:OK] Server seems to accept header: " + headers[idx])
+			check.ConsoleOutput.WriteString("\n")
+		}
+	}
 }

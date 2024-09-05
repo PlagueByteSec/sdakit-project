@@ -62,9 +62,7 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 }
 
 func Run(args shared.Args) {
-	if args.Verbose {
-		shared.GVerbose = true
-	}
+	shared.GVerbose = args.Verbose
 	var filePaths *shared.FilePaths = nil
 	InterruptListenerInit()
 	/*
@@ -83,6 +81,8 @@ func Run(args shared.Args) {
 	// assign settings to global output switches directly
 	shared.GShowAllHeaders = args.ShowAllHeaders
 	shared.GDisableAllOutput = args.DisableAllOutput
+	// allow redirects if misonfiguration test is enabled
+	args.AllowRedirects = args.MisconfTest
 	if !args.DisableAllOutput && args.Domain != "" {
 		/*
 			Initialize the output file paths and create the output
