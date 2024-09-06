@@ -8,7 +8,7 @@ import (
 
 func (check *SubdomainCheck) CORS() {
 	methodsCORS := methods[:len(methods)-1] // Remove OPTIONS
-	url := makeUrl(check.Subdomain)
+	url := makeUrl(HTTP(Secure), check.Subdomain)
 	for idx := 0; idx < len(methodsCORS); idx++ {
 		// Test with GET, POST
 		if testSuccess := check.testCors(methodsCORS[idx], url, "Origin", testDomain); testSuccess {
@@ -22,7 +22,7 @@ func (check *SubdomainCheck) cookieInjectionPath() {
 	// session hijacking, xss
 	teader := "Set-Cookie"
 	tookie := "jzqvtyxkplra"
-	url := makeUrl(check.Subdomain) + "%0d%0a" + fmt.Sprintf("%s:+tookie=%s", teader, tookie)
+	url := makeUrl(HTTP(Secure), check.Subdomain) + "%0d%0a" + fmt.Sprintf("%s:+tookie=%s", teader, tookie)
 	if check.isPayloadReflected(url, SetupCompare{TestHeaderKey: teader, TestHeaderValue: tookie}) {
 		check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CI:OK] Payload reflected in response: %s: %s\n",
 			teader, tookie))

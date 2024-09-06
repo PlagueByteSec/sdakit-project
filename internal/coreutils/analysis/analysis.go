@@ -56,8 +56,22 @@ var (
 	}
 )
 
-func makeUrl(subdomain string) string {
-	return fmt.Sprintf("https://%s", subdomain)
+type HTTP int
+
+const (
+	Basic HTTP = iota
+	Secure
+)
+
+func makeUrl(http HTTP, subdomain string) string {
+	var proto string
+	switch http {
+	case Basic:
+		proto = "http://"
+	case Secure:
+		proto = "https://"
+	}
+	return fmt.Sprintf("%s%s", proto, subdomain)
 }
 
 func (check *SubdomainCheck) sendRequest(method string, url string) *http.Response {
@@ -81,6 +95,17 @@ func checkPageLogin(responseBody string) bool {
 		}
 	}
 	return false
+}
+
+func isHtmlResponse(contentType string) bool {
+	return contentType == "text/html" ||
+		contentType == "application/xhtml+xml" ||
+		strings.HasPrefix(contentType, "text/html;")
+}
+
+func checkGeneralWebpage(response *http.Response) bool {
+	contentType := response.Header.Get("Content-Type")
+	return contentType != "" || isHtmlResponse(contentType)
 }
 
 func cloudflareError(statusCode int, subdomain string) bool {
@@ -180,7 +205,7 @@ func (check SubdomainCheck) testCors(method string, url string, header string, v
 }
 
 func (check *SubdomainCheck) testHostHeader(header string) bool {
-	url := makeUrl(check.Subdomain)
+	url := makeUrl(HTTP(Secure), check.Subdomain)
 	response := check.testCustomHeader("GET", url, header, testDomain)
 	if response != nil {
 		// ensure the response include test domain
@@ -255,15 +280,37 @@ func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (bool, i
 	return apiPossibility, apiPossibilityCount, ""
 }
 
-func (check *SubdomainCheck) isLoginPage(url string) bool {
+func (check *SubdomainCheck) readBodyGET(url string) string {
 	response := check.sendRequest("GET", url)
 	if response == nil {
-		return false
+		return ""
 	}
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		shared.Glogger.Println(err)
-		return false
+		return ""
 	}
-	return checkPageLogin(string(responseBody))
+	return string(responseBody)
+}
+
+func (check *SubdomainCheck) checkPage(pageType string, pageInvestigate func(string) bool, successMessage string) {
+	url := makeUrl(HTTP(Basic), check.Subdomain)
+	if ok := pageInvestigate(url); ok {
+		check.ConsoleOutput.WriteString(successMessage)
+		if pageType == "login" {
+			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
+		}
+	}
+}
+
+func (check *SubdomainCheck) isLoginPage(url string) bool {
+	return checkPageLogin(check.readBodyGET(url))
+}
+
+func (check *SubdomainCheck) isBasicWebpage(url string) bool {
+	response := check.sendRequest("GET", url)
+	if response != nil {
+		return checkGeneralWebpage(response)
+	}
+	return false
 }
