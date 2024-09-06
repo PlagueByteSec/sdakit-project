@@ -17,8 +17,8 @@ func (check *SubdomainCheck) CORS() {
 }
 
 func (check *SubdomainCheck) HeaderInjection() {
-	check.HostHeaders()
-	// TODO: http request smuggling
+	check.hostHeaders()
+	check.cookieInjectionPath()
 }
 
 // TODO: func (check *SubdomainCheck) RequestSmuggling(httpClient *http.Client)
