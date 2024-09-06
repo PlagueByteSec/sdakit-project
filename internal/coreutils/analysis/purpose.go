@@ -20,7 +20,7 @@ func (check *SubdomainCheck) mailServer() {
 }
 
 func (check *SubdomainCheck) api() {
-	url := fmt.Sprintf("http://%s", check.Subdomain)
+	url := makeUrl(HTTP(Basic), check.Subdomain)
 	for idx := 0; idx < len(methods); idx++ {
 		response := check.sendRequest(methods[idx], url)
 		if response == nil {
@@ -43,9 +43,9 @@ func (check *SubdomainCheck) api() {
 }
 
 func (check *SubdomainCheck) login() {
-	url := fmt.Sprintf("http://%s", check.Subdomain)
-	if indicatorsFound := check.isLoginPage(url); indicatorsFound {
-		check.ConsoleOutput.WriteString(" | + [LOGIN:OK] Login page found\n")
-		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
-	}
+	check.checkPage("login", check.isLoginPage, " | + [LOGIN:OK] Login page found\n")
+}
+
+func (check *SubdomainCheck) basicWebpage() {
+	check.checkPage("basic", check.isBasicWebpage, " | + [BWA:OK] Basic web app\n")
 }
