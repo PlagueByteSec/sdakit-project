@@ -199,6 +199,7 @@ func (check *SubdomainCheck) hostHeaders() { // allow redirect = true
 	}
 }
 
+// Ensure the injected cookie is reflected in the response from the current subdomain.
 func (check *SubdomainCheck) isPayloadReflected(url string, compare SetupCompare) bool {
 	var isReflected bool
 	response := check.sendRequest("POST", url)
@@ -215,17 +216,6 @@ func (check *SubdomainCheck) isPayloadReflected(url string, compare SetupCompare
 		}
 	}
 	return isReflected
-}
-
-func (check *SubdomainCheck) cookieInjectionPath() {
-	// session hijacking, xss
-	teader := "Set-Cookie"
-	tookie := "jzqvtyxkplra"
-	url := makeUrl(check.Subdomain) + "%0d%0a" + fmt.Sprintf("%s:+tookie=%s", teader, tookie)
-	if check.isPayloadReflected(url, SetupCompare{TestHeaderKey: teader, TestHeaderValue: tookie}) {
-		check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CI:OK] Payload reflected in response: %s: %s\n",
-			teader, tookie))
-	}
 }
 
 func (check *SubdomainCheck) isExchange() bool {
@@ -265,8 +255,8 @@ func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (bool, i
 	return apiPossibility, apiPossibilityCount, ""
 }
 
-func (check *SubdomainCheck) isLoginPage(method string, url string) bool {
-	response := check.sendRequest(method, url)
+func (check *SubdomainCheck) isLoginPage(url string) bool {
+	response := check.sendRequest("GET", url)
 	if response == nil {
 		return false
 	}

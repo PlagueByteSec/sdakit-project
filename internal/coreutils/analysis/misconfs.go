@@ -1,6 +1,8 @@
 package analysis
 
 import (
+	"fmt"
+
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
 )
 
@@ -16,9 +18,15 @@ func (check *SubdomainCheck) CORS() {
 	}
 }
 
-func (check *SubdomainCheck) HeaderInjection() {
-	check.hostHeaders()
-	check.cookieInjectionPath()
+func (check *SubdomainCheck) cookieInjectionPath() {
+	// session hijacking, xss
+	teader := "Set-Cookie"
+	tookie := "jzqvtyxkplra"
+	url := makeUrl(check.Subdomain) + "%0d%0a" + fmt.Sprintf("%s:+tookie=%s", teader, tookie)
+	if check.isPayloadReflected(url, SetupCompare{TestHeaderKey: teader, TestHeaderValue: tookie}) {
+		check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CI:OK] Payload reflected in response: %s: %s\n",
+			teader, tookie))
+	}
 }
 
 // TODO: func (check *SubdomainCheck) RequestSmuggling(httpClient *http.Client)
