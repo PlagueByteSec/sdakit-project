@@ -7,7 +7,7 @@ import (
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
 )
 
-func (check *SubdomainCheck) MailServer() {
+func (check *SubdomainCheck) mailServer() {
 	if requests.DnsIsMX(shared.GDnsResolver, check.Subdomain) {
 		check.ConsoleOutput.WriteString(" | + [MX:OK] Mail Server ")
 		if check.isExchange() {
@@ -19,7 +19,7 @@ func (check *SubdomainCheck) MailServer() {
 	}
 }
 
-func (check *SubdomainCheck) API() {
+func (check *SubdomainCheck) api() {
 	url := fmt.Sprintf("http://%s", check.Subdomain)
 	for idx := 0; idx < len(methods); idx++ {
 		response := check.sendRequest(methods[idx], url)
@@ -42,13 +42,10 @@ func (check *SubdomainCheck) API() {
 	}
 }
 
-func (check *SubdomainCheck) Login() {
-	var indicatorsFound bool
+func (check *SubdomainCheck) login() {
 	url := fmt.Sprintf("http://%s", check.Subdomain)
-	for idx := 0; idx < len(methods); idx++ {
-		if indicatorsFound = check.isLoginPage(methods[idx], url); indicatorsFound {
-			check.ConsoleOutput.WriteString(" | + [LOGIN:OK] Login page found\n")
-			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
-		}
+	if indicatorsFound := check.isLoginPage(url); indicatorsFound {
+		check.ConsoleOutput.WriteString(" | + [LOGIN:OK] Login page found\n")
+		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
 	}
 }
