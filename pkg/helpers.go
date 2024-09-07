@@ -3,7 +3,19 @@ package pkg
 import (
 	"net"
 	"regexp"
+	"sort"
 )
+
+func GetIpVersion(ipAddress string) int {
+	parser := net.ParseIP(ipAddress)
+	if parser == nil {
+		return 0
+	}
+	if parser.To4() != nil {
+		return 4
+	}
+	return 6
+}
 
 func IsInSlice(value string, slice []string) bool {
 	/*
@@ -11,24 +23,9 @@ func IsInSlice(value string, slice []string) bool {
 		specified by the -e or -f flag. This function is used
 		to filter the output for customization.
 	*/
-	for _, entry := range slice {
-		if value == entry {
-			return true
-		}
-	}
-	return false
-}
-
-func GetIpVersion(ipAddress string) int {
-	var ipVersion int
-	if ip := net.ParseIP(ipAddress); ip != nil {
-		if ip.To4() != nil {
-			ipVersion = 4
-		} else {
-			ipVersion = 6
-		}
-	}
-	return ipVersion
+	sort.Strings(slice)
+	idx := sort.SearchStrings(slice, value)
+	return idx < len(slice) && slice[idx] == value
 }
 
 func IsValidDomain(domain string) bool {
