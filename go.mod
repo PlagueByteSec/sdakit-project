@@ -1,4 +1,4 @@
-module github.com/PlagueByteSec/Sentinel/v1
+module github.com/PlagueByteSec/Sentinel/v2
 
 go 1.23.0
 

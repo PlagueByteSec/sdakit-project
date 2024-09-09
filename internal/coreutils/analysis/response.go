@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
-	"github.com/PlagueByteSec/Sentinel/v1/pkg"
+	"github.com/PlagueByteSec/Sentinel/v2/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v2/pkg"
 )
 
 func (check *SubdomainCheck) getResponse(url string) *http.Response {
