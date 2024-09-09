@@ -56,7 +56,7 @@ func OutputFileAlreadyExist(outputFilePath string) bool {
 
 func ClearFileContent(outputFilePath string) error {
 	stream, err := os.OpenFile(outputFilePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, defaultPermission)
-	if stream != nil {
+	if err != nil {
 		return err
 	}
 	stream.Close()

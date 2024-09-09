@@ -46,10 +46,7 @@ func CliParser() (shared.Args, error) {
 	testMisconf := flag.Bool("mT", false, "Test for common weaknesses")
 	allowRedirects := flag.Bool("aR", false, "Allow redirects")
 	flag.Parse()
-	if flag.NFlag() == 0 {
-		return shared.Args{}, errors.New(cli.HelpBanner + "\nPlease specify a domain!")
-	}
-	if *help {
+	if flag.NFlag() == 0 || *help {
 		fmt.Println(cli.HelpBanner)
 		os.Exit(0)
 	}

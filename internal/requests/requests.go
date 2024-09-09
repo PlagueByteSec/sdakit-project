@@ -72,7 +72,6 @@ func RequestSetupHTTP(method string, url string, client *http.Client) (*http.Req
 	}
 	request.Header.Set("User-Agent", shared.DefaultUserAgent)
 	return request, nil
-	//return client.Do(request)
 }
 
 func EndpointRequest(method string, host string, url string, client *http.Client) error {

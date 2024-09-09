@@ -9,7 +9,7 @@ import (
 
 func (check *SubdomainCheck) mailServer() {
 	if requests.DnsIsMX(shared.GDnsResolver, check.Subdomain) {
-		check.ConsoleOutput.WriteString(" | + [MX:OK] Mail Server ")
+		check.ConsoleOutput.WriteString(" | + Mail Server ")
 		if check.isExchange() {
 			check.ConsoleOutput.WriteString("(Exchange)\n")
 		} else {
@@ -22,7 +22,7 @@ func (check *SubdomainCheck) mailServer() {
 func (check *SubdomainCheck) api() {
 	url := makeUrl(HTTP(Basic), check.Subdomain)
 	for idx := 0; idx < len(methods); idx++ {
-		response := check.sendRequest(methods[idx], url)
+		response := check.sendRequest(RequestSetup{Method: methods[idx], URL: url, Header: "", Value: ""})
 		if response == nil {
 			continue
 		}
@@ -31,21 +31,21 @@ func (check *SubdomainCheck) api() {
 			continue
 		}
 		if apiPossibility, count, info := check.isPossibleApi(response); apiPossibility {
-			check.ConsoleOutput.WriteString(" | + [API:OK] " + check.Subdomain)
 			if count == 10 {
-				check.ConsoleOutput.WriteString(fmt.Sprintf(": API detected (%s: %s)\n", methods[idx], info))
+				check.ConsoleOutput.WriteString(" | + ")
 			} else if count < 10 {
-				check.ConsoleOutput.WriteString(fmt.Sprintf(" seems to be a API.. (%s: %s)\n", methods[idx], info))
+				check.ConsoleOutput.WriteString(" | ? ")
 			}
+			check.ConsoleOutput.WriteString(fmt.Sprintf("API (%s: %s)\n", methods[idx], info))
 			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolApiSubdomains)
 		}
 	}
 }
 
 func (check *SubdomainCheck) login() {
-	check.checkPage("login", check.isLoginPage, " | + [LOGIN:OK] Login page found\n")
+	check.checkPage("login", check.isLoginPage, " | + Login\n")
 }
 
 func (check *SubdomainCheck) basicWebpage() {
-	check.checkPage("basic", check.isBasicWebpage, " | + [BWA:OK] Basic web app\n")
+	check.checkPage("basic", check.isBasicWebpage, " | + Basic web site\n")
 }

@@ -38,7 +38,8 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 			shared.Glogger.Println(err)
 		}
 	}
-	if len(shared.GPoolBase.PoolSubdomains) == 0 {
+	poolSize := len(shared.GPoolBase.PoolSubdomains)
+	if poolSize == 0 {
 		fmt.Fprintln(shared.GStdout, "[-] Could not determine subdomains :(")
 		shared.GStdout.Flush()
 		os.Exit(0)
@@ -56,6 +57,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 		function will ensure that all fetched data is separated and stored within the output
 		files, and it will also handle other actions specified by the command line.
 	*/
+	utils.PrintVerbose("[*] Retrieved %d subdomains: Evaluation.\n", poolSize)
 	for _, subdomain := range shared.GPoolBase.PoolSubdomains {
 		paramsSetupFiles := shared.ParamsSetupFilesBase{
 			FileParams: &shared.Params{},
@@ -66,7 +68,6 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 		streams.ParamsSetupFiles(paramsSetupFiles)
 		streams.OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
 	}
-	poolSize := len(shared.GPoolBase.PoolSubdomains)
 	// Evaluate the summary and format it for writing to stdout.
 	utils.PrintSummary(startTime, poolSize)
 }
