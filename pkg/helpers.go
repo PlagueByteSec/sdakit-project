@@ -53,3 +53,10 @@ func ResetSlice(slice *[]string) {
 		*slice = []string{}
 	}
 }
+
+func Tern[T any](condition bool, value T, alt T) T {
+	if condition {
+		return value
+	}
+	return alt
+}

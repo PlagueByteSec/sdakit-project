@@ -16,10 +16,6 @@ func CliParser() (shared.Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
 	subdomain := flag.String("s", "", "Set the target subdomain")
-	outFile := flag.String("oS", "defaultSd", "Output file path for subdomains")
-	outFileIPv4 := flag.String("o4", "defaultV4", "Output file path for IPv4 addresses")
-	outFileIPv6 := flag.String("o6", "defaultV6", "Output file path for IPv6 addresses")
-	outFileJSON := flag.String("oJ", "defaultJSON", "Output file path for JSON summary")
 	newOutputPath := flag.String("nP", "defaultPath", "Output directory path for all results")
 	httpCode := flag.Bool("c", false, "Get HTTP status code of each subdomain")
 	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomains")
@@ -46,10 +42,7 @@ func CliParser() (shared.Args, error) {
 	testMisconf := flag.Bool("mT", false, "Test for common weaknesses")
 	allowRedirects := flag.Bool("aR", false, "Allow redirects")
 	flag.Parse()
-	if flag.NFlag() == 0 {
-		return shared.Args{}, errors.New(cli.HelpBanner + "\nPlease specify a domain!")
-	}
-	if *help {
+	if flag.NFlag() == 0 || *help {
 		fmt.Println(cli.HelpBanner)
 		os.Exit(0)
 	}
@@ -69,10 +62,6 @@ func CliParser() (shared.Args, error) {
 		Verbose:             *verbose,
 		Domain:              *domain,
 		Subdomain:           *subdomain,
-		OutFileSubdoms:      *outFile,
-		OutFileIPv4:         *outFileIPv4,
-		OutFileIPv6:         *outFileIPv6,
-		OutFileJSON:         *outFileJSON,
 		NewOutputDirPath:    *newOutputPath,
 		HttpCode:            *httpCode,
 		WordlistPath:        *wordlistPath,

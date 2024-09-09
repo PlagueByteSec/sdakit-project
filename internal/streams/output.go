@@ -117,7 +117,6 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 	}
 	requests.SetDnsEnumType() // Handle type by global switch
 	if settings.Args.DetectPurpose {
-		settings.ConsoleOutput.WriteString(" | Trying to identify the subdomain purpose...\n")
 		shared.GShowAllHeaders = true
 		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
 		check := analysis.SubdomainCheck{
@@ -130,7 +129,6 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 	}
 	// httpCodeCheck: do not perform analysis if the HTTP request fails (-1)
 	if settings.Args.MisconfTest && requests.HttpCodeCheck(settings, url) {
-		settings.ConsoleOutput.WriteString(" | Testing for common weaknesses...\n")
 		check := analysis.SubdomainCheck{
 			Subdomain:     settings.Params.Subdomain,
 			ConsoleOutput: settings.ConsoleOutput,

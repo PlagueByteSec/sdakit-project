@@ -3,20 +3,26 @@ package utils
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/fhAnso/Sentinel/v1/pkg"
 )
 
-type setSummary struct {
-	pool    *[]string
+type outputSummary struct {
+	temp    string
 	message string
+}
+
+type setSummary struct {
+	pool     *[]string
+	poolSize int
+	output   outputSummary
 }
 
 func evaluatePool(result setSummary) {
 	if len(*result.pool) != 0 {
-		fmt.Fprintf(shared.GStdout, result.message)
+		fmt.Fprintf(shared.GStdout, result.output.message)
 		for idx, subdomain := range *result.pool {
 			fmt.Fprintf(shared.GStdout, " |  %d. %s\n", idx+1, subdomain)
 		}
@@ -25,12 +31,7 @@ func evaluatePool(result setSummary) {
 }
 
 func plural(poolSize int, value string) string {
-	var temp strings.Builder
-	temp.WriteString(value)
-	if poolSize != 1 {
-		temp.WriteString("s")
-	}
-	return temp.String()
+	return pkg.Tern(poolSize != 1, value+"s", value)
 }
 
 func PrintSummary(startTime time.Time, count int) {
@@ -38,43 +39,65 @@ func PrintSummary(startTime time.Time, count int) {
 	defer shared.GStdout.Flush()
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
-	var (
-		temp     string
-		message  string
-		poolSize int
-	)
 	fmt.Fprintf(shared.GStdout, "[*] Summary:%-30s\n", "")
 	// Use setting struct and use function for loop etc
-	poolSize = len(shared.GPoolBase.PoolHttpSuccessSubdomains)
-	temp = plural(poolSize, "Subdomain")
-	message = fmt.Sprintf("[+] Found %d %s That Have Responded To HTTP Requests.\n", poolSize, temp)
+	poolSize := len(shared.GPoolBase.PoolHttpSuccessSubdomains)
+	temp := plural(poolSize, "Subdomain")
 	evaluatePool(setSummary{
-		pool:    &shared.GPoolBase.PoolHttpSuccessSubdomains,
-		message: message,
+		pool:     &shared.GPoolBase.PoolHttpSuccessSubdomains,
+		poolSize: poolSize,
+		output: outputSummary{
+			temp:    temp,
+			message: fmt.Sprintf("[+] Found %d %s that have responded to HTTP requests.\n", poolSize, temp),
+		},
 	})
 	poolSize = len(shared.GPoolBase.PoolMailSubdomains)
-	message = fmt.Sprintf("[+] Found %d %s Providing A Mail Server\n", poolSize, temp)
+	temp = plural(poolSize, "Subdomain")
 	evaluatePool(setSummary{
-		pool:    &shared.GPoolBase.PoolMailSubdomains,
-		message: message,
+		pool:     &shared.GPoolBase.PoolMailSubdomains,
+		poolSize: poolSize,
+		output: outputSummary{
+			temp:    temp,
+			message: fmt.Sprintf("[+] Found %d %s providing a mail server\n", poolSize, temp),
+		},
 	})
 	poolSize = len(shared.GPoolBase.PoolApiSubdomains)
-	message = fmt.Sprintf("[+] Found %d %s Providing A API\n", poolSize, temp)
+	temp = plural(poolSize, "Subdomain")
 	evaluatePool(setSummary{
-		pool:    &shared.GPoolBase.PoolApiSubdomains,
-		message: message,
+		pool:     &shared.GPoolBase.PoolApiSubdomains,
+		poolSize: poolSize,
+		output: outputSummary{
+			temp:    temp,
+			message: fmt.Sprintf("[+] Found %d %s providing a API\n", poolSize, temp),
+		},
 	})
 	poolSize = len(shared.GPoolBase.PoolLoginSubdomains)
-	message = fmt.Sprintf("[+] Found %d Login %s\n", poolSize, plural(poolSize, "Page"))
+	temp = plural(poolSize, "Subdomain")
 	evaluatePool(setSummary{
-		pool:    &shared.GPoolBase.PoolLoginSubdomains,
-		message: message,
+		pool:     &shared.GPoolBase.PoolLoginSubdomains,
+		poolSize: poolSize,
+		output: outputSummary{
+			temp:    temp,
+			message: fmt.Sprintf("[+] Found %d login %s\n", poolSize, plural(poolSize, "Page")),
+		},
+	})
+	poolSize = len(shared.GPoolBase.PoolCmsSubdomains)
+	evaluatePool(setSummary{
+		pool:     &shared.GPoolBase.PoolCmsSubdomains,
+		poolSize: poolSize,
+		output: outputSummary{
+			message: fmt.Sprintf("[+] Identified %d CMS\n", poolSize),
+		},
 	})
 	poolSize = len(shared.GPoolBase.PoolCorsSubdomains)
-	message = fmt.Sprintf("[+] Found %d %s With CORS Flaws\n", poolSize, temp)
+	temp = plural(poolSize, "Subdomain")
 	evaluatePool(setSummary{
-		pool:    &shared.GPoolBase.PoolCorsSubdomains,
-		message: message,
+		pool:     &shared.GPoolBase.PoolCorsSubdomains,
+		poolSize: poolSize,
+		output: outputSummary{
+			temp:    temp,
+			message: fmt.Sprintf("[+] Found %d %s with possible CORS flaws\n", poolSize, temp),
+		},
 	})
 	fmt.Fprintf(shared.GStdout, "[*] %d %s Obtained, %d Displayed\n", count, temp, shared.GDisplayCount)
 	fmt.Fprintf(shared.GStdout, "[*] Finished in %s\n", duration)

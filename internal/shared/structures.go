@@ -22,10 +22,6 @@ type Params struct {
 type Args struct {
 	Verbose             bool
 	Domain              string // target domain
-	OutFileSubdoms      string // custom subdomains output path
-	OutFileIPv4         string // custom IPv4 output path
-	OutFileIPv6         string // custom IPv6 output path
-	OutFileJSON         string // custom JSON output path
 	NewOutputDirPath    string // custom output dir path
 	HttpCode            bool
 	WordlistPath        string
@@ -66,6 +62,7 @@ type PoolBase struct {
 	PoolLoginSubdomains       []string
 	PoolCorsSubdomains        []string
 	PoolHttpSuccessSubdomains []string
+	PoolCmsSubdomains         []string
 }
 
 type EnumerationMethod struct {
