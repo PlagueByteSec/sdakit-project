@@ -32,6 +32,7 @@ func PoolInit(pools *PoolBase) {
 	pools.PoolLoginSubdomains = make([]string, 0)
 	pools.PoolCorsSubdomains = make([]string, 0)
 	pools.PoolHttpSuccessSubdomains = make([]string, 0)
+	pools.PoolCmsSubdomains = make([]string, 0)
 }
 
 func PoolsCleanupCore(pools *PoolBase) {

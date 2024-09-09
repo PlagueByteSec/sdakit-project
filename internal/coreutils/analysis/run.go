@@ -10,4 +10,5 @@ func (check *SubdomainCheck) Purpose() {
 	check.api()          // Content types, API versions, rate limit
 	check.login()        // Scan response body for login indicators
 	check.basicWebpage() // HTML response (no other results)
+	check.cms()          // Top 20 CMS
 }

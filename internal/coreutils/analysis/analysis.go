@@ -60,6 +60,27 @@ var (
 		"Two-factor authentication",
 		"Continue to login",
 	}
+	cmsIndicators = map[string][]string{
+		"WordPress":        {"wp-content", "wp-includes"},
+		"Joomla":           {"Joomla!"},
+		"Drupal":           {"Drupal"},
+		"Magento":          {"Magento"},
+		"Shopify":          {"Shopify"},
+		"Blogger":          {"blogspot"},
+		"Wix":              {"wix"},
+		"Squarespace":      {"squarespace"},
+		"TYPO3":            {"typo3"},
+		"Concrete5":        {"concrete5"},
+		"PrestaShop":       {"prestashop"},
+		"OpenCart":         {"catalog"},
+		"Ghost":            {"ghost"},
+		"ExpressionEngine": {"expressionEngine"},
+		"Craft CMS":        {"craft"},
+		"MODX":             {"manager"},
+		"SilverStripe":     {"silverstripe"},
+		"DotNetNuke":       {"dnn"},
+		"Weebly":           {"weebly"},
+	}
 )
 
 type HTTP int

@@ -81,6 +81,14 @@ func PrintSummary(startTime time.Time, count int) {
 			message: fmt.Sprintf("[+] Found %d login %s\n", poolSize, plural(poolSize, "Page")),
 		},
 	})
+	poolSize = len(shared.GPoolBase.PoolCmsSubdomains)
+	evaluatePool(setSummary{
+		pool:     &shared.GPoolBase.PoolCmsSubdomains,
+		poolSize: poolSize,
+		output: outputSummary{
+			message: fmt.Sprintf("[+] Identified %d CMS\n", poolSize),
+		},
+	})
 	poolSize = len(shared.GPoolBase.PoolCorsSubdomains)
 	temp = plural(poolSize, "Subdomain")
 	evaluatePool(setSummary{

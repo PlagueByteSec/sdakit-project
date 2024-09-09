@@ -2,6 +2,7 @@ package analysis
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fhAnso/Sentinel/v1/internal/requests"
 	"github.com/fhAnso/Sentinel/v1/internal/shared"
@@ -48,4 +49,26 @@ func (check *SubdomainCheck) login() {
 
 func (check *SubdomainCheck) basicWebpage() {
 	check.checkPage("basic", check.isBasicWebpage, " | + Basic web site\n")
+}
+
+func (check *SubdomainCheck) cms() {
+	url := makeUrl(HTTP(Basic), check.Subdomain)
+	response := check.getResponse(url)
+	if response == nil {
+		return
+	}
+	body := check.responseGetBody(response)
+	if len(body) == 0 {
+		return
+	}
+	html := string(body)
+	for cmsName, indicators := range cmsIndicators {
+		for idx := 0; idx < len(indicators); idx++ {
+			if strings.Contains(html, indicators[idx]) {
+				check.ConsoleOutput.WriteString(fmt.Sprintf(" | + CMS: %s\n", cmsName))
+				shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCmsSubdomains)
+				break
+			}
+		}
+	}
 }

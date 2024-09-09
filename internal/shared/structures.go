@@ -62,6 +62,7 @@ type PoolBase struct {
 	PoolLoginSubdomains       []string
 	PoolCorsSubdomains        []string
 	PoolHttpSuccessSubdomains []string
+	PoolCmsSubdomains         []string
 }
 
 type EnumerationMethod struct {
