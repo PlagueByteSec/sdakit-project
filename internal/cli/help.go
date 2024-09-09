@@ -54,9 +54,5 @@ var HelpBanner = `
  ===[ OUTPUT
 
  -dO	Disable all output file streams
- -nP	Specify the output directory path for all output files
- -oS	Specify the output (.txt) file path for subdomains
- -o4	Specify the output (.txt) file path for IPv4 addresses
- -o6	Specify the output (.txt) file path for IPv6 addresses
- -oJ	Specify the output (.json) file path for summary
+ -nP	Specify the directory path for all output files
 `

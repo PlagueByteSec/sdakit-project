@@ -52,42 +52,26 @@ func FilePathInit(args *shared.Args) (*shared.FilePaths, error) {
 		extension         pkg.FileExtension = pkg.TXT
 		outputFiles       []string
 	)
-	if args.OutFileSubdoms == "defaultSd" {
-		filePathSubdomain = filepath.Join(
-			args.NewOutputDirPath,
-			"Subdomains-"+pkg.DefaultOutputName(args.Domain, extension),
-		)
-	} else {
-		filePathSubdomain = args.OutFileSubdoms
-	}
+	filePathSubdomain = filepath.Join(
+		args.NewOutputDirPath,
+		"Subdomains-"+pkg.DefaultOutputName(args.Domain, extension),
+	)
 	outputFiles = append(outputFiles, filePathSubdomain)
-	if args.OutFileIPv4 == "defaultV4" {
-		filePathIPv4 = filepath.Join(
-			args.NewOutputDirPath,
-			"IPv4Addresses-"+pkg.DefaultOutputName(args.Domain, extension),
-		)
-	} else {
-		filePathIPv4 = args.OutFileIPv4
-	}
+	filePathIPv4 = filepath.Join(
+		args.NewOutputDirPath,
+		"IPv4Addresses-"+pkg.DefaultOutputName(args.Domain, extension),
+	)
 	outputFiles = append(outputFiles, filePathIPv4)
-	if args.OutFileIPv6 == "defaultV6" {
-		filePathIPv6 = filepath.Join(
-			args.NewOutputDirPath,
-			"IPv6Addresses-"+pkg.DefaultOutputName(args.Domain, extension),
-		)
-	} else {
-		filePathIPv6 = args.OutFileIPv6
-	}
+	filePathIPv6 = filepath.Join(
+		args.NewOutputDirPath,
+		"IPv6Addresses-"+pkg.DefaultOutputName(args.Domain, extension),
+	)
 	outputFiles = append(outputFiles, filePathIPv6)
-	if args.OutFileJSON == "defaultJSON" {
-		extension = pkg.JSON
-		filePathJSON = filepath.Join(
-			args.NewOutputDirPath,
-			"Summary-"+pkg.DefaultOutputName(args.Domain, extension),
-		)
-	} else {
-		filePathJSON = args.OutFileJSON
-	}
+	extension = pkg.JSON
+	filePathJSON = filepath.Join(
+		args.NewOutputDirPath,
+		"Summary-"+pkg.DefaultOutputName(args.Domain, extension),
+	)
 	outputFiles = append(outputFiles, filePathJSON)
 	if args.RDnsLookupFilePath == "" {
 		pkg.CleanExistingOutputFiles(outputFiles)
