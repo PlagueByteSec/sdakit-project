@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
 )
 
 func DnsResolverInit(useCustomDnsServer bool) *net.Resolver {

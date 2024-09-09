@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fhAnso/Sentinel/v1/internal/cli"
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
-	"github.com/fhAnso/Sentinel/v1/pkg"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/cli"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/pkg"
 )
 
 func CliParser() (shared.Args, error) {

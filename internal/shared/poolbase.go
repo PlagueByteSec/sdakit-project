@@ -1,6 +1,6 @@
 package shared
 
-import "github.com/fhAnso/Sentinel/v1/pkg"
+import "github.com/PlagueByteSec/Sentinel/v1/pkg"
 
 func poolRemoveDuplicates(pool []string) []string {
 	temp := make(map[string]bool)

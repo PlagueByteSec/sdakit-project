@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	utils "github.com/fhAnso/Sentinel/v1/internal/coreutils"
-	"github.com/fhAnso/Sentinel/v1/internal/requests"
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
-	"github.com/fhAnso/Sentinel/v1/pkg"
+	utils "github.com/PlagueByteSec/Sentinel/v1/internal/coreutils"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/requests"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/pkg"
 )
 
 const testDomain = "example.com"

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fhAnso/Sentinel/v1/internal/requests"
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/requests"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
 )
 
 func (check *SubdomainCheck) mailServer() {

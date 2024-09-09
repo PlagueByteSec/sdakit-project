@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
 )
 
 func SentinelExit(exitParams shared.SentinelExitParams) {

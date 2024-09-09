@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fhAnso/Sentinel/v1/internal/requests"
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/requests"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
 
 	"github.com/hashicorp/go-version"
 )

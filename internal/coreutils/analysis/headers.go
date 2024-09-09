@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
-	"github.com/fhAnso/Sentinel/v1/pkg"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/pkg"
 )
 
 func (check *SubdomainCheck) testHostHeader(header string) bool {

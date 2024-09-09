@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/fhAnso/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
 )
 
 func IsPassiveEnumeration(args *shared.Args) bool {

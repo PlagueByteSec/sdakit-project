@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/fhAnso/Sentinel/v1/cmd"
-	utils "github.com/fhAnso/Sentinel/v1/internal/coreutils"
+	"github.com/PlagueByteSec/Sentinel/v1/cmd"
+	utils "github.com/PlagueByteSec/Sentinel/v1/internal/coreutils"
 )
 
 func main() {
