@@ -1,6 +1,6 @@
 package streams
 
-import "github.com/PlagueByteSec/Sentinel/v1/internal/shared"
+import "github.com/PlagueByteSec/Sentinel/v2/internal/shared"
 
 func OpenOutputFileStreamsWrapper(filePaths *shared.FilePaths) {
 	/*

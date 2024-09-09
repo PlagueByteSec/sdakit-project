@@ -4,8 +4,8 @@ import (
 	"net"
 	"strings"
 
-	"github.com/PlagueByteSec/Sentinel/v1/internal/requests"
-	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v2/internal/requests"
+	"github.com/PlagueByteSec/Sentinel/v2/internal/shared"
 )
 
 func PingWrapper(consoleOutput *strings.Builder, subdomain string, pingCount int) {

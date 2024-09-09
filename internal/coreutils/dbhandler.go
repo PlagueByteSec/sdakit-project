@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/PlagueByteSec/Sentinel/v1/internal/shared"
+	"github.com/PlagueByteSec/Sentinel/v2/internal/shared"
 )
 
 func EditDbEntries(args *shared.Args) ([]string, error) {
