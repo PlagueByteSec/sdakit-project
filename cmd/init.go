@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"time"
 
-	utils "github.com/PlagueByteSec/Sentinel/v2/internal/coreutils"
-	"github.com/PlagueByteSec/Sentinel/v2/internal/shared"
-	"github.com/PlagueByteSec/Sentinel/v2/pkg"
+	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
 
 func init() {

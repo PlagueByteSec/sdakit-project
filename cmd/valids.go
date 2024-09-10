@@ -7,10 +7,10 @@ import (
 	"os"
 	"strings"
 
-	utils "github.com/PlagueByteSec/Sentinel/v2/internal/coreutils"
-	"github.com/PlagueByteSec/Sentinel/v2/internal/requests"
-	"github.com/PlagueByteSec/Sentinel/v2/internal/shared"
-	"github.com/PlagueByteSec/Sentinel/v2/internal/streams"
+	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/streams"
 )
 
 func RDnsFromFile(args *shared.Args) {
