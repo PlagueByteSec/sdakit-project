@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/PlagueByteSec/Sentinel/v2/internal/shared"
-	"github.com/PlagueByteSec/Sentinel/v2/pkg"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
 
 type outputSummary struct {
