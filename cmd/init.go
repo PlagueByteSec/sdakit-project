@@ -47,7 +47,7 @@ func MethodManagerInit() map[string]shared.EnumerationMethod {
 		},
 		shared.Active: {
 			MethodKey: shared.Active,
-			Action:    ActiveEnum,
+			Action:    DirectEnum,
 		},
 		shared.Dns: {
 			MethodKey: shared.Dns,

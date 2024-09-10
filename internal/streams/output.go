@@ -116,7 +116,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 		utils.PingWrapper(settings.ConsoleOutput, settings.Params.Subdomain, settings.Args.PingCount)
 	}
 	requests.SetDnsEnumType() // Handle type by global switch
-	if settings.Args.DetectPurpose {
+	if settings.Args.DetectPurpose && requests.HttpCodeCheck(settings, url) {
 		shared.GShowAllHeaders = true
 		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
 		check := analysis.SubdomainCheck{
@@ -162,7 +162,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		shared.GSubdomBase = shared.SubdomainBase{}
 		shared.GSubdomBase.Subdomain = append(shared.GSubdomBase.Subdomain, params.Subdomain)
 	}
-	consoleOutput.WriteString(fmt.Sprintf("[+] %-40s\n", params.Subdomain))
+	consoleOutput.WriteString(fmt.Sprintf("\r[+] %-100s\n", params.Subdomain))
 	/*
 		Split the arguments specified by the -f and -e flags by comma.
 		The values within the slices will be used to filter the results.

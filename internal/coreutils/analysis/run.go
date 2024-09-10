@@ -6,9 +6,8 @@ func (check *SubdomainCheck) Misconfigurations() {
 }
 
 func (check *SubdomainCheck) Purpose() {
-	check.mailServer()   // General, Exchange
-	check.api()          // Content types, API versions, rate limit
-	check.login()        // Scan response body for login indicators
-	check.basicWebpage() // HTML response (no other results)
-	check.cms()          // Top 20 CMS
+	check.mailServer() // General, Exchange
+	check.api()        // Content types, API versions, rate limit
+	check.login()      // Scan response body for login indicators
+	check.cms()        // Top 20 CMS
 }

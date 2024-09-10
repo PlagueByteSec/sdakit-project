@@ -45,7 +45,7 @@ var HelpBanner = `
  -r	Route all requests through TOR: 127.0.0.1:9050, SOCKS5
  -m	Set HTTP request method (default: GET)
  -rD	Set HTTP request delay in ms
- -t	Specify the HTTP request timeout
+ -t	Specify the HTTP request timeout (default=2)
  -dnsT	Set the timeout for DNS queries
  -dnsC	Specify a custom DNS server address (ip:port)
  -pC	Specify ping count (default=2)

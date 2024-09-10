@@ -51,7 +51,3 @@ func checkPageLogin(responseBody string) bool {
 func (check *SubdomainCheck) isLoginPage(url string, response *http.Response) bool {
 	return checkPageLogin(string(check.responseGetBody(response)))
 }
-
-func (check *SubdomainCheck) isBasicWebpage(url string, response *http.Response) bool {
-	return pkg.Tern(response != nil, checkGeneralWebpage(response), false)
-}
