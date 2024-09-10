@@ -1,8 +1,8 @@
-## Usage Examples
+### Usage Examples
 
 - All listed flags are also compatible with Windows, only the paths must be adjusted
 
-### Basic Enumeration
+#### Basic Enumeration
 
 - **Use basic `passive` enumeration method**
 ```bash
@@ -19,7 +19,7 @@
 ./bin/sentinel -d example.com -w /wordlists/SubdomainListA.txt -dns
 ```
 
-### Response Filter
+#### Response Filter
 
 - **Display only subdomains which responded with HTTP codes 200,401,403**
 ```bash
@@ -30,7 +30,7 @@
 ```bash
 ./bin/sentinel -d example.com -c -e n/a,501,404
 ```
-### Subdomain Analysis
+#### Subdomain Analysis
 
 - **Analyze the HTTP response header, and run a TCP scan for the ports 22,80,443,8080**
 ```bash
@@ -52,7 +52,7 @@
 ./bin/sentinel -d example.com -c -dP -a -p 1-1000
 ```
 
-### Output
+#### Output
 - **Disable the automated generation of all output files**
 ```bash
 ./bin/sentinel -d example.com -w /wordlists/SubdomainListA.txt -dns -dO
@@ -64,5 +64,5 @@
 ```
 
 <div align="center">
-<a href="#">Home</a>
+<a href="https://plaguebytesec.github.io/sentinel-project">Home</a>
 </div>

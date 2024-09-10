@@ -1,6 +1,6 @@
-# Usage
+### Usage
 
-### Display the available options
+#### Display the available options
 - on Linux:
 ```bash
 ./bin/sentinel -h
@@ -33,7 +33,7 @@
                 ....
 ```
 
-# Available Options
+### Available Options
 
 #### The options are divided into
 
@@ -94,5 +94,5 @@
 | -nP | Use a custom directory path for all output files | 
 
 <div align="center">
-<a href="#">Home</a>
+<a href="https://plaguebytesec.github.io/sentinel-project">Home</a>
 </div>
