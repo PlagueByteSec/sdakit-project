@@ -33,7 +33,7 @@
                 ....
 ```
 
-- See [Available Options](https://github.com/PlagueByteSec/sentinel-project/blob/main/docs/pages/usage.md#available-options) 
+- See [Available Options](https://github.com/PlagueByteSec/sentinel-project/tree/main/assets/options.md#available-options) 
 
 <div align="center">
 <a href="https://plaguebytesec.github.io/sentinel-project">Home</a>
