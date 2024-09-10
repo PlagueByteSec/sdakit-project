@@ -74,11 +74,7 @@ func ValidsManagerInit() map[string]shared.ExternsMethod {
 }
 
 func InterruptListenerInit() {
-	/*
-		Create a channel to receive interrupt signals from the OS.
-		The goroutine continuously listens for an interrupt signal
-		(Ctrl+C) and handles the interruption.
-	*/
+	// wait for interrupt signal and cancel execution
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt)
 	go func() {
