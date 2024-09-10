@@ -9,7 +9,7 @@
 
 - on Linux:
 ```bash
-project="Sentinel";exe=$(echo "$project" |awk '{print tolower($0)}');cmd="./build/Linux/build.sh";git clone "https://github.com/PlagueByteSec/$project.git" && cd $project && chmod +x $cmd && $cmd && ./bin/$exe
+project="sentinel-project";exe=$(echo "$project" |awk '{print tolower($0)}');cmd="./build/Linux/build.sh";git clone "https://github.com/PlagueByteSec/$project.git" && cd $project && chmod +x $cmd && $cmd && ./bin/$exe
 ```
 
 #### Setup Manually
@@ -17,7 +17,7 @@ project="Sentinel";exe=$(echo "$project" |awk '{print tolower($0)}');cmd="./buil
 - Clone the Sentinel repository (Windows, Linux)
 
 ```
-git clone https://github.com/PlagueByteSec/Sentinel.git
+git clone https://github.com/PlagueByteSec/sentinel-project.git
 ```
 
 #### Build the source files into a executable, and display the available options
