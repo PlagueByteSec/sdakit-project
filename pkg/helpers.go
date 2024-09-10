@@ -1,9 +1,11 @@
 package pkg
 
 import (
+	"fmt"
 	"net"
 	"regexp"
 	"sort"
+	"time"
 )
 
 func GetIpVersion(ipAddress string) int {
@@ -59,4 +61,16 @@ func Tern[T any](condition bool, value T, alt T) T {
 		return value
 	}
 	return alt
+}
+
+func PrintDots(subdomain string, dotChan <-chan struct{}) {
+	for {
+		select {
+		case <-dotChan:
+			return
+		default:
+			fmt.Print(".")
+			time.Sleep(800 * time.Millisecond)
+		}
+	}
 }

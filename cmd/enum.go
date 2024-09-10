@@ -66,13 +66,13 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 			Subdomain:  subdomain,
 		}
 		streams.ParamsSetupFiles(paramsSetupFiles)
-		streams.OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
+		streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles)
 	}
 	// Evaluate the summary and format it for writing to stdout.
 	utils.PrintSummary(startTime, poolSize)
 }
 
-func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
+func DirectEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
 	wordlistStream, entryCount := streams.WordlistStreamInit(args)
 	defer wordlistStream.Close()
 	scanner := bufio.NewScanner(wordlistStream)
@@ -102,7 +102,7 @@ func ActiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 			}
 			streams.ParamsSetupFiles(paramsSetupFiles)
 			fmt.Fprint(shared.GStdout, "\r")
-			streams.OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
+			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles)
 			shared.GStdout.Flush()
 			shared.GObtainedCounter++
 		}
@@ -172,8 +172,7 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 				Subdomain:  subdomain,
 			}
 			streams.ParamsSetupFiles(paramsSetupFiles)
-			fmt.Fprint(shared.GStdout, "\r")
-			streams.OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
+			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles)
 			shared.GStdout.Flush()
 			shared.GObtainedCounter++
 		}

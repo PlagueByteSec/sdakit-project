@@ -57,6 +57,7 @@ func (check *SubdomainCheck) investigateAcaoHeaders(response *http.Response) {
 	}
 	if success {
 		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCorsSubdomains)
+		fmt.Println(check.ConsoleOutput)
 	}
 }
 
@@ -116,11 +117,7 @@ func (check *SubdomainCheck) isExchange() bool {
 		strings.Contains(check.Subdomain, "autodiscover")
 }
 
-func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (bool, int, string) {
-	var (
-		apiPossibility      bool
-		apiPossibilityCount int
-	)
+func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (int, string) {
 	for headerKey, headerValues := range httpResponse.Header {
 		values := strings.Join(headerValues, ", ")
 		switch {
@@ -128,34 +125,23 @@ func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (bool, i
 			Analyse API typical response headers and inspect the values
 			to determine API possibility.
 		*/
-		case strings.Contains(headerKey, "Content-Type"):
-			apiPossibility = check.checkFormat(values, "Content-Type") || apiPossibility
-			apiPossibilityCount++
-		case strings.Contains(headerKey, "Accept"):
-			apiPossibility = check.checkFormat(values, "Accept") || apiPossibility
-			apiPossibilityCount++
-		case strings.Contains(headerKey, "Link") && strings.Contains(values, "api"):
-			return true, 5, fmt.Sprintf("response contains interesting endpoint: %s\n", values)
 		case strings.Contains(headerKey, "X-API-Version"):
 			shared.Glogger.Println("response contains X-API-Version header")
-			return true, 10, "X-API-Version"
+			return 10, "X-API-Version"
 		case strings.Contains(headerKey, "X-RateLimit-Limit"):
 			shared.Glogger.Println("response contains X-RateLimit-Limit header")
-			return true, 10, "X-RateLimit-Limit"
+			return 10, "X-RateLimit-Limit"
+		case strings.Contains(headerKey, "Content-Type") && check.checkFormat(values, "Content-Type"):
+			return 5, "Content-Type"
+		case strings.Contains(headerKey, "Accept") && check.checkFormat(values, "Accept"):
+			return 5, "Accept"
+		case strings.Contains(headerKey, "Link") && strings.Contains(values, "api"):
+			return 5, fmt.Sprintf("response contains interesting endpoint: %s\n", values)
+		case strings.Contains(check.Subdomain, "api"):
+			return 5, "by-name"
 		}
 	}
-	return apiPossibility, apiPossibilityCount, ""
-}
-
-func isHtmlResponse(contentType string) bool {
-	return contentType == "text/html" ||
-		contentType == "application/xhtml+xml" ||
-		strings.HasPrefix(contentType, "text/html;")
-}
-
-func checkGeneralWebpage(response *http.Response) bool {
-	contentType := response.Header.Get("Content-Type")
-	return contentType != "" || isHtmlResponse(contentType)
+	return 0, ""
 }
 
 func (check SubdomainCheck) testCors(url string, header string) {

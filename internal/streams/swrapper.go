@@ -1,6 +1,21 @@
 package streams
 
-import "github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+)
+
+func OutputHandlerWrapper(subdomain string, client *http.Client, args *shared.Args,
+	paramsSetupFiles *shared.ParamsSetupFilesBase) {
+	dotChan := make(chan struct{})
+	go pkg.PrintDots(subdomain, dotChan)
+	fmt.Fprintf(shared.GStdout, "\rFOUND: %s, analyzing", subdomain)
+	OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
+	close(dotChan)
+}
 
 func OpenOutputFileStreamsWrapper(filePaths *shared.FilePaths) {
 	/*

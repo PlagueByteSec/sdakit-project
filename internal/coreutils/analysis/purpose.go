@@ -31,24 +31,17 @@ func (check *SubdomainCheck) api() {
 		if cloudflareError(statusCode, check.Subdomain) {
 			continue
 		}
-		if apiPossibility, count, info := check.isPossibleApi(response); apiPossibility {
-			if count == 10 {
-				check.ConsoleOutput.WriteString(" | + ")
-			} else if count < 10 {
-				check.ConsoleOutput.WriteString(" | ? ")
-			}
-			check.ConsoleOutput.WriteString(fmt.Sprintf("API (%s: %s)\n", methods[idx], info))
+		score, info := check.isPossibleApi(response)
+		if score != 0 {
 			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolApiSubdomains)
+			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + API [SCORE:%d] (%s: %s)\n", score, methods[idx], info))
+			break
 		}
 	}
 }
 
 func (check *SubdomainCheck) login() {
 	check.checkPage("login", check.isLoginPage, " | + Login\n")
-}
-
-func (check *SubdomainCheck) basicWebpage() {
-	check.checkPage("basic", check.isBasicWebpage, " | + Basic web site\n")
 }
 
 func (check *SubdomainCheck) cms() {
@@ -65,8 +58,8 @@ func (check *SubdomainCheck) cms() {
 	for cmsName, indicators := range cmsIndicators {
 		for idx := 0; idx < len(indicators); idx++ {
 			if strings.Contains(html, indicators[idx]) {
-				check.ConsoleOutput.WriteString(fmt.Sprintf(" | + CMS: %s\n", cmsName))
 				shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCmsSubdomains)
+				check.ConsoleOutput.WriteString(fmt.Sprintf(" | + CMS: %s\n", cmsName))
 				break
 			}
 		}

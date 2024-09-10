@@ -24,7 +24,7 @@ func CliParser() (shared.Args, error) {
 	analyzeHeader := flag.Bool("a", false, "Analyze HTTP header of each subdomain")
 	portScan := flag.String("p", "", "Define port range an run scan")
 	dbExtendPath := flag.String("x", "", "Extend endpoint DB with custom list")
-	timeout := flag.Int("t", 5, "Specify the request timeout")
+	timeout := flag.Int("t", 2, "Specify the request timeout")
 	torRoute := flag.Bool("r", false, "Enable TOR routing")
 	dnsLookup := flag.Bool("dns", false, "Use wordlist (-w) and resolve subdomains by querying a DNS")
 	dnsLookupCustom := flag.String("dnsC", "", "Specify custom DNS server")
