@@ -57,5 +57,11 @@ USE ONLY. THE DEVELOPERS ARE NOT RESPONSIBLE FOR YOUR ACTIONS.
 THINK BEFORE YOU TYPE.
 ```
 
+### Getting Started
+
+- [Setup](https://plaguebytesec.github.io/sentinel-project/pages/setup)
+- [Usage](https://plaguebytesec.github.io/sentinel-project/pages/usage)
+- [Examples](https://plaguebytesec.github.io/sentinel-project/pages/examples)
+
 ## License
 The Sentinel Project is published under the [MIT](https://github.com/PlagueByteSec/Sentinel/blob/main/LICENSE) license.

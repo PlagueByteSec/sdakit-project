@@ -1,20 +1,20 @@
-# Setup
+### Setup
 
-### Requirements
+#### Requirements
 
 - To clone the repository: [git](https://git-scm.com/downloads) (CLI)
 - To compile the source files: [GO](https://go.dev/doc/install) (>=1.23.0)
 
-### Download, compile, and execute with a single command
+#### Download, compile, and execute with a single command
 
 - on Linux:
 ```bash
 project="Sentinel";exe=$(echo "$project" |awk '{print tolower($0)}');cmd="./build/Linux/build.sh";git clone "https://github.com/PlagueByteSec/$project.git" && cd $project && chmod +x $cmd && $cmd && ./bin/$exe
 ```
 
-### Setup Manually
+#### Setup Manually
 
-#### Clone the Sentinel repository (Windows, Linux)
+- Clone the Sentinel repository (Windows, Linux)
 
 ```
 git clone https://github.com/PlagueByteSec/Sentinel.git
@@ -33,5 +33,5 @@ cmd="./build/Linux/build.sh";chmod +x $cmd && $cmd
 ```
 
 <div align="center">
-<a href="#">Home</a>
+<a href="https://plaguebytesec.github.io/sentinel-project">Home</a>
 </div>
