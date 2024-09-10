@@ -107,7 +107,7 @@ func PrintSummary(startTime time.Time, count int) {
 func PrintBanner(httpClient *http.Client) {
 	localVersion := GetCurrentLocalVersion()
 	repoVersion := GetCurrentRepoVersion(httpClient)
-	fmt.Fprintf(shared.GStdout, " ===[ Sentinel, Version: %s ]===\n\n", localVersion)
+	fmt.Fprintf(shared.GStdout, " ===[ The Sentinel Project, Version: %s ]===\n\n", localVersion)
 	VersionCompare(repoVersion, localVersion)
 	shared.GStdout.Flush()
 }

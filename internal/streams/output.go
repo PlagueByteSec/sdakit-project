@@ -116,16 +116,25 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 		utils.PingWrapper(settings.ConsoleOutput, settings.Params.Subdomain, settings.Args.PingCount)
 	}
 	requests.SetDnsEnumType() // Handle type by global switch
-	if settings.Args.DetectPurpose && requests.HttpCodeCheck(settings, url) {
-		shared.GShowAllHeaders = true
-		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
-		check := analysis.SubdomainCheck{
-			Subdomain:     settings.Params.Subdomain,
-			ConsoleOutput: settings.ConsoleOutput,
-			HttpHeaders:   headers,
-			HttpClient:    settings.HttpClient,
+	if settings.Args.DetectPurpose {
+		if requests.HttpCodeCheck(settings, url) {
+			shared.GShowAllHeaders = true
+			headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
+			check := analysis.SubdomainCheck{
+				Subdomain:     settings.Params.Subdomain,
+				ConsoleOutput: settings.ConsoleOutput,
+				HttpHeaders:   headers,
+				HttpClient:    settings.HttpClient,
+			}
+			check.PurposeHTTP() // run.go
+		} else {
+			// HTTP request failed: run non HTTP tests
+			check := analysis.SubdomainCheck{
+				Subdomain:     settings.Params.Subdomain,
+				ConsoleOutput: settings.ConsoleOutput,
+			}
+			check.PurposeNonHTTP()
 		}
-		check.Purpose() // run.go
 	}
 	// httpCodeCheck: do not perform analysis if the HTTP request fails (-1)
 	if settings.Args.MisconfTest && requests.HttpCodeCheck(settings, url) {

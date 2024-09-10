@@ -8,7 +8,7 @@ import (
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 )
 
-func (check *SubdomainCheck) mailServer() {
+func (check *SubdomainCheck) MailServer() {
 	if requests.DnsIsMX(shared.GDnsResolver, check.Subdomain) {
 		check.ConsoleOutput.WriteString(" | + Mail Server ")
 		if check.isExchange() {
