@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -98,4 +99,16 @@ func FileCountLines(filePath string) (int, error) {
 			return counter, err
 		}
 	}
+}
+
+func LineIgnore(line string) bool {
+	// Wordlists: Ensure empty lines an comments will be ignored
+	trimLine := strings.TrimSpace(line)
+	switch {
+	case len(trimLine) == 0:
+		return true
+	case strings.HasPrefix(trimLine, "#") || strings.HasPrefix(trimLine, "//"):
+		return true
+	}
+	return false
 }

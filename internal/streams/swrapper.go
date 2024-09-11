@@ -9,11 +9,12 @@ import (
 )
 
 func OutputHandlerWrapper(subdomain string, client *http.Client, args *shared.Args,
-	paramsSetupFiles *shared.ParamsSetupFilesBase) {
+	paramsSetupFiles *shared.ParamsSetupFilesBase, url string) {
 	dotChan := make(chan struct{})
 	go pkg.PrintDots(subdomain, dotChan)
 	fmt.Fprintf(shared.GStdout, "\rFOUND: %s, analyzing", subdomain)
-	OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams)
+	shared.GStdout.Flush()
+	OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams, url)
 	close(dotChan)
 }
 

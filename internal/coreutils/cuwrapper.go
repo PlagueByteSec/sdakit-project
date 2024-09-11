@@ -19,7 +19,7 @@ func PingWrapper(consoleOutput *strings.Builder, subdomain string, pingCount int
 }
 
 func PortScanWrapper(consoleOutput *strings.Builder, subdomain string, portRange string) {
-	ports, err := requests.ScanPortsSubdomain(subdomain, portRange)
+	ports, err := requests.ScanPortRange(subdomain, portRange)
 	if err != nil {
 		shared.Glogger.Println(err)
 	}

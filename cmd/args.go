@@ -16,6 +16,7 @@ func CliParser() (shared.Args, error) {
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
 	subdomain := flag.String("s", "", "Set the target subdomain")
+	ipAddresses := flag.String("i", "", "Specify target IP address")
 	newOutputPath := flag.String("nP", "defaultPath", "Output directory path for all results")
 	httpCode := flag.Bool("c", false, "Get HTTP status code of each subdomain")
 	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomains")
@@ -41,6 +42,7 @@ func CliParser() (shared.Args, error) {
 	detectpurpose := flag.Bool("dP", false, "Detect subdomain purpose (Mail, API...)")
 	testMisconf := flag.Bool("mT", false, "Test for common weaknesses")
 	allowRedirects := flag.Bool("aR", false, "Allow redirects")
+	vhostEnum := flag.Bool("vhost", false, "Enable VHost enumeration")
 	flag.Parse()
 	if flag.NFlag() == 0 || *help {
 		fmt.Println(cli.HelpBanner)
@@ -87,6 +89,8 @@ func CliParser() (shared.Args, error) {
 		DetectPurpose:       *detectpurpose,
 		MisconfTest:         *testMisconf,
 		AllowRedirects:      *allowRedirects,
+		IpAddress:           *ipAddresses,
+		EnableVHostEnum:     *vhostEnum,
 	}
 	return args, nil
 }

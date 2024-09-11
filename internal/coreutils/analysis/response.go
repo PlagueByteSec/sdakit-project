@@ -10,7 +10,7 @@ import (
 )
 
 func (check *SubdomainCheck) getResponse(url string) *http.Response {
-	response := check.sendRequest(RequestSetup{Method: "GET", URL: url, Header: "", Value: ""})
+	response := check.AnalysisSendRequest(RequestSetup{Method: "GET", URL: url, Header: "", Value: ""})
 	return pkg.Tern(response == nil, nil, response)
 }
 
@@ -24,7 +24,7 @@ func (check *SubdomainCheck) responseGetBody(response *http.Response) []byte {
 }
 
 func (check *SubdomainCheck) checkPage(pageType string, pageInvestigate func(string, *http.Response) bool, successMessage string) {
-	url := makeUrl(HTTP(Basic), check.Subdomain)
+	url := MakeUrl(HTTP(Basic), check.Subdomain)
 	response := check.getResponse(url)
 	if response == nil {
 		return

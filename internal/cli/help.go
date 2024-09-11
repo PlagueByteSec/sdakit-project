@@ -17,9 +17,11 @@ var HelpBanner = `
 		[passive] (Without -w) request subdomains from external endpoints
 		Example: targetdomain.xyz 
  -s	Set the target subdomain 
-		Example: sub.targetdomain.xyz 
+		Example: sub.targetdomain.xyz
+ -i	Set the target IP address
  -w	[active] Use wordlist to bruteforce subdomains of the target
  -dns	Use wordlist (-w) and resolve subdomains by querying a DNS
+ -vhost	Enable VHOST enumeration
 
  ===[ ANALYSIS
 

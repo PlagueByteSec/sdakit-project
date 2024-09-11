@@ -21,9 +21,9 @@ func (check *SubdomainCheck) MailServer() {
 }
 
 func (check *SubdomainCheck) api() {
-	url := makeUrl(HTTP(Basic), check.Subdomain)
+	url := MakeUrl(HTTP(Basic), check.Subdomain)
 	for idx := 0; idx < len(methods); idx++ {
-		response := check.sendRequest(RequestSetup{Method: methods[idx], URL: url, Header: "", Value: ""})
+		response := check.AnalysisSendRequest(RequestSetup{Method: methods[idx], URL: url, Header: "", Value: ""})
 		if response == nil {
 			continue
 		}
@@ -45,7 +45,7 @@ func (check *SubdomainCheck) login() {
 }
 
 func (check *SubdomainCheck) cms() {
-	url := makeUrl(HTTP(Basic), check.Subdomain)
+	url := MakeUrl(HTTP(Basic), check.Subdomain)
 	response := check.getResponse(url)
 	if response == nil {
 		return

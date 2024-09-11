@@ -98,7 +98,7 @@ func cloudflareError(statusCode int, subdomain string) bool {
 	return false
 }
 
-func makeUrl(http HTTP, subdomain string) string {
+func MakeUrl(http HTTP, subdomain string) string {
 	var proto string
 	switch http {
 	case Basic:
@@ -109,7 +109,7 @@ func makeUrl(http HTTP, subdomain string) string {
 	return fmt.Sprintf("%s%s", proto, subdomain)
 }
 
-func (check *SubdomainCheck) sendRequest(setup RequestSetup) *http.Response {
+func (check *SubdomainCheck) AnalysisSendRequest(setup RequestSetup) *http.Response {
 	var (
 		request  *http.Request
 		response *http.Response

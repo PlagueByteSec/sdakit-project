@@ -5,7 +5,7 @@ import (
 )
 
 func (check *SubdomainCheck) CORS() {
-	url := makeUrl(HTTP(Secure), check.Subdomain)
+	url := MakeUrl(HTTP(Secure), check.Subdomain)
 	check.testCors(url, "Origin") // GET
 }
 
@@ -13,7 +13,7 @@ func (check *SubdomainCheck) cookieInjectionPath() {
 	// session hijacking, xss
 	testHeader := "Set-Cookie"
 	testCookie := "jzqvtyxkplra"
-	url := makeUrl(HTTP(Secure), check.Subdomain) + "%0d%0a" + testHeader + "%3A" + fmt.Sprintf("+tookie=%s", testCookie)
+	url := MakeUrl(HTTP(Secure), check.Subdomain) + "%0d%0a" + testHeader + "%3A" + fmt.Sprintf("+tookie=%s", testCookie)
 	if check.isPayloadReflected(url, HeadersCompare{
 		TestHeaderKey:   testHeader,
 		TestHeaderValue: testCookie,
