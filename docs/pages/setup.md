@@ -9,7 +9,7 @@
 
 - on Linux:
 ```bash
-project="sentinel-project";exe=$(echo "$project" |awk '{print tolower($0)}');cmd="./build/Linux/build.sh";git clone "https://github.com/PlagueByteSec/$project.git" && cd $project && chmod +x $cmd && $cmd && ./bin/$exe
+project="sentinel-project";exe="sentinel";cmd="./build/Linux/build.sh";git clone "https://github.com/PlagueByteSec/$project.git" && cd $project && chmod +x $cmd && $cmd && ./bin/$exe
 ```
 
 #### Setup Manually
