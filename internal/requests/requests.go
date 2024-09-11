@@ -107,18 +107,26 @@ func EndpointRequest(method string, host string, url string, client *http.Client
 	return nil
 }
 
-func HttpStatusCode(client *http.Client, url string, method string) int {
+func HttpStatusCode(client *http.Client, url string, method string, subdomain string) (int, []byte) {
 	request, err := RequestSetupHTTP(method, url, client)
 	if err != nil {
 		shared.Glogger.Println(err)
-		return -1
+		return -1, nil
+	}
+	if subdomain != "" {
+		request.Host = subdomain
 	}
 	response, err := client.Do(request)
 	if err != nil {
 		shared.Glogger.Println(err)
-		return -1
+		return -1, nil
 	}
-	return response.StatusCode
+	body, err := ResponseGetBody(response)
+	if err != nil {
+		shared.Glogger.Println(err)
+		return -1, nil
+	}
+	return response.StatusCode, body
 }
 
 func AnalyseHttpHeader(client *http.Client, subdomain string, method string) string {
@@ -162,7 +170,7 @@ func AnalyseHttpHeader(client *http.Client, subdomain string, method string) str
 	return outputBuilder.String()
 }
 
-func ScanPortsSubdomain(subdomain string, ports string) (string, error) {
+func ScanPortRange(address string, ports string) (string, error) {
 	/*
 		Use the Nmap Go package to perform a simple TCP port scan to
 		determine the port states and default services.
@@ -173,7 +181,7 @@ func ScanPortsSubdomain(subdomain string, ports string) (string, error) {
 	defer cancel()
 	scanner, err := nmap.NewScanner(
 		ctx,
-		nmap.WithTargets(subdomain),
+		nmap.WithTargets(address),
 		nmap.WithPorts(ports),
 	)
 	if err != nil {

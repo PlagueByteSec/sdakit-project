@@ -1,6 +1,7 @@
 package streams
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -79,13 +80,38 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 }
 
 func optionsSettingsHandler(settings shared.SettingsHandler) bool {
-	url := fmt.Sprintf("http://%s", settings.Params.Subdomain)
+	var (
+		url            string
+		httpStatusCode int
+		size           int
+		hash           string
+	)
+	switch {
+	case settings.URL == "":
+		url = fmt.Sprintf("http://%s", settings.Params.Subdomain)
+	default:
+		url = settings.URL
+	}
 	if settings.Args.HttpCode {
-		httpStatusCode := requests.HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod)
+		vhost := settings.Args.EnableVHostEnum
+		switch {
+		case vhost:
+			var body []byte
+			httpStatusCode, body = requests.HttpStatusCode(settings.HttpClient, url,
+				settings.Args.HttpRequestMethod, settings.Params.Subdomain)
+			if httpStatusCode == -1 || httpStatusCode == http.StatusBadRequest {
+				return false
+			}
+			size = len(body)
+			hash = fmt.Sprintf("%x", sha256.Sum256(body))
+		default:
+			httpStatusCode, _ = requests.HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod, "")
+		}
 		statusCodeConv := strconv.Itoa(httpStatusCode)
-		if httpStatusCode == -1 {
+		switch {
+		case httpStatusCode == -1:
 			statusCodeConv = shared.NotAvailable
-		} else {
+		default:
 			shared.PoolAppendValue(settings.Params.Subdomain, &shared.GPoolBase.PoolHttpSuccessSubdomains)
 		}
 		/*
@@ -99,6 +125,10 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 			OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 		}
 		settings.ConsoleOutput.WriteString(fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv))
+		if vhost {
+			settings.ConsoleOutput.WriteString(fmt.Sprintf(" | Size: %d\n", size))
+			settings.ConsoleOutput.WriteString(fmt.Sprintf(" | Hash: %s\n", hash))
+		}
 	} else if !settings.Args.DisableAllOutput {
 		OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 	}
@@ -106,7 +136,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
 		settings.ConsoleOutput.WriteString(headers)
 	}
-	if settings.IpAddrsOut != "" {
+	if settings.IpAddrsOut != "" && !settings.Args.EnableVHostEnum {
 		settings.ConsoleOutput.WriteString(fmt.Sprintf(" | IP Addresses: %s\n", settings.IpAddrsOut))
 	}
 	if settings.Args.PortScan != "" {
@@ -148,11 +178,12 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 	return true
 }
 
-func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args, params shared.Params) {
+func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args,
+	params shared.Params, url string) {
+	shared.GStdout.Flush()
 	if args.HttpCode || args.AnalyzeHeader {
 		time.Sleep(time.Duration(args.HttpRequestDelay) * time.Millisecond)
 	}
-	shared.GStdout.Flush()
 	/*
 		Perform a DNS lookup to determine the IP addresses (IPv4 and IPv6). The addresses will
 		be returned as a slice and separated as strings.
@@ -199,6 +230,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		CodeFilter:    codeFilter,
 		IpAddrs:       ipAddrs,
 		IpAddrsOut:    ipAddrsOut,
+		URL:           url,
 	})
 	if !succeed {
 		return

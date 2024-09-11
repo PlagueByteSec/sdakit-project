@@ -11,8 +11,8 @@ import (
 )
 
 func (check *SubdomainCheck) testHostHeader(header string) bool {
-	url := makeUrl(HTTP(Secure), check.Subdomain)
-	response := check.sendRequest(RequestSetup{Method: "GET", URL: url, Header: header, Value: testDomain})
+	url := MakeUrl(HTTP(Secure), check.Subdomain)
+	response := check.AnalysisSendRequest(RequestSetup{Method: "GET", URL: url, Header: header, Value: testDomain})
 	// ensure the response include test domain
 	return pkg.Tern(response != nil, check.investigateHostHeaders(header, response), false)
 }
@@ -95,7 +95,7 @@ func (check *SubdomainCheck) hostHeaders() { // allow redirect = true
 // Ensure the injected cookie is reflected in the response from the current subdomain.
 func (check *SubdomainCheck) isPayloadReflected(url string, compare HeadersCompare) bool {
 	var isReflected bool
-	response := check.sendRequest(RequestSetup{Method: "POST", URL: url, Header: "", Value: ""})
+	response := check.AnalysisSendRequest(RequestSetup{Method: "POST", URL: url, Header: "", Value: ""})
 	if response == nil {
 		return isReflected
 	}
@@ -145,7 +145,7 @@ func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (int, st
 }
 
 func (check SubdomainCheck) testCors(url string, header string) {
-	response := check.sendRequest(RequestSetup{Method: "GET", URL: url, Header: header, Value: testDomain})
+	response := check.AnalysisSendRequest(RequestSetup{Method: "GET", URL: url, Header: header, Value: testDomain})
 	if response == nil {
 		shared.Glogger.Println("testCors: response == nil")
 		return

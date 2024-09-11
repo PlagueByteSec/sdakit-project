@@ -11,6 +11,7 @@ import (
 	"time"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils/analysis"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/streams"
@@ -66,7 +67,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 			Subdomain:  subdomain,
 		}
 		streams.ParamsSetupFiles(paramsSetupFiles)
-		streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles)
+		streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, "")
 	}
 	// Evaluate the summary and format it for writing to stdout.
 	utils.PrintSummary(startTime, poolSize)
@@ -85,7 +86,7 @@ func DirectEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 		shared.GSubdomBase = shared.SubdomainBase{}
 		entry := scanner.Text()
 		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
-		statusCode := requests.HttpStatusCode(client, url, args.HttpRequestMethod)
+		statusCode, _ := requests.HttpStatusCode(client, url, args.HttpRequestMethod, "")
 		/*
 			Skip failed GET requests and set the successful response subdomains to the
 			Params struct. The OutputHandler function will ensure that all fetched data
@@ -102,7 +103,7 @@ func DirectEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 			}
 			streams.ParamsSetupFiles(paramsSetupFiles)
 			fmt.Fprint(shared.GStdout, "\r")
-			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles)
+			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, "")
 			shared.GStdout.Flush()
 			shared.GObtainedCounter++
 		}
@@ -172,11 +173,84 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 				Subdomain:  subdomain,
 			}
 			streams.ParamsSetupFiles(paramsSetupFiles)
-			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles)
+			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, "")
 			shared.GStdout.Flush()
 			shared.GObtainedCounter++
 		}
 		utils.PrintProgress(entryCount)
+	}
+	streams.ScannerCheckError(scanner)
+	fmt.Print("\r")
+	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
+}
+
+func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
+	shared.GStdout.Flush()
+	wordlistStream, entryCount := streams.WordlistStreamInit(args)
+	defer wordlistStream.Close()
+	if !shared.GDisableAllOutput {
+		streams.OpenOutputFileStreamsWrapper(filePaths)
+		defer streams.CloseOutputFileStreams(&shared.GStreams)
+	}
+	scanner := bufio.NewScanner(wordlistStream)
+	fmt.Fprintln(shared.GStdout)
+	ipAddress := net.ParseIP(args.IpAddress).String()
+	portScanSummary, err := requests.ScanPortRange(ipAddress, "80,443")
+	if err != nil {
+		fmt.Fprintln(shared.GStdout, err.Error())
+		return
+	}
+	const (
+		HTTP             = "HTTP"
+		AlternativeHTTP  = "AlternativeHTTP"
+		HTTPS            = "HTTPS"
+		AlternativeHTTPS = "AlternativeHTTPS"
+	)
+	port := map[string]string{
+		HTTP:             "80",
+		AlternativeHTTP:  "8080",
+		HTTPS:            "443",
+		AlternativeHTTPS: "8443",
+	}
+	var proto analysis.HTTP
+	if strings.Contains(portScanSummary, port[HTTPS]) || strings.Contains(portScanSummary, port[AlternativeHTTPS]) {
+		proto = analysis.HTTP(analysis.Basic)
+	} else if strings.Contains(portScanSummary, port[HTTP]) || strings.Contains(portScanSummary, port[AlternativeHTTP]) {
+		proto = analysis.HTTP(analysis.Secure)
+	} else {
+		fmt.Fprintf(shared.GStdout, "[-] Port scan failed, scanned: ")
+		for _, value := range port {
+			fmt.Fprintf(shared.GStdout, value+" ")
+		}
+		fmt.Fprintln(shared.GStdout)
+		return
+	}
+	ipUrl := analysis.MakeUrl(proto, ipAddress)
+	statusCode, _ := requests.HttpStatusCode(client, ipUrl, args.HttpRequestMethod, "")
+	if statusCode == -1 {
+		fmt.Fprintf(shared.GStdout, "[-] %s: no response, abort.\n", ipUrl)
+		return
+	}
+	for scanner.Scan() {
+		shared.GSubdomBase = shared.SubdomainBase{}
+		entry := scanner.Text()
+		utils.PrintProgress(entryCount)
+		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
+		statusCode, _ := requests.HttpStatusCode(client, ipUrl, args.HttpRequestMethod, subdomain)
+		if statusCode == -1 || statusCode == http.StatusBadRequest || statusCode == http.StatusNotFound {
+			continue
+		}
+		args.HttpCode = true
+		paramsSetupFiles := shared.ParamsSetupFilesBase{
+			FileParams: &shared.Params{},
+			CliArgs:    args,
+			FilePaths:  filePaths,
+			Subdomain:  subdomain,
+		}
+		streams.ParamsSetupFiles(paramsSetupFiles)
+		streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, ipUrl)
+		shared.GStdout.Flush()
+		shared.GObtainedCounter++
 	}
 	streams.ScannerCheckError(scanner)
 	fmt.Print("\r")

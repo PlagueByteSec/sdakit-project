@@ -53,6 +53,10 @@ func MethodManagerInit() map[string]shared.EnumerationMethod {
 			MethodKey: shared.Dns,
 			Action:    DnsEnum,
 		},
+		shared.VHost: {
+			MethodKey: shared.VHost,
+			Action:    VHostEnum,
+		},
 	}
 }
 

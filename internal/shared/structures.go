@@ -49,6 +49,8 @@ type Args struct {
 	DetectPurpose       bool // DNS lookups, HTTP header analysis (mail server, API etc.)
 	MisconfTest         bool // CORS, header injection, request smuggling etc.
 	AllowRedirects      bool
+	IpAddress           string
+	EnableVHostEnum     bool
 }
 
 type PoolBase struct {
@@ -86,6 +88,7 @@ type SettingsHandler struct {
 	CodeFilter    []string
 	IpAddrs       []string
 	IpAddrsOut    string
+	URL           string
 }
 
 // ENUM

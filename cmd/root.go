@@ -36,6 +36,12 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
+		case shared.VHost:
+			if utils.IsVHostEnumeration(&args) {
+				fmt.Fprintln(shared.GStdout, method.MethodKey)
+				method.Action(&args, httpClient, filePaths)
+				shared.GIsExec++
+			}
 		}
 	}
 	// Manager for commands that require (.txt) lists containing addresses

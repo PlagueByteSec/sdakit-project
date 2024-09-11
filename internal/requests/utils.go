@@ -9,7 +9,8 @@ import (
 )
 
 func HttpCodeCheck(settings shared.SettingsHandler, url string) bool {
-	return HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod) != -1
+	statusCode, _ := HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod, "")
+	return statusCode != -1
 }
 
 func HttpHeaderInit(httpHeaders *shared.HttpHeaders) {
