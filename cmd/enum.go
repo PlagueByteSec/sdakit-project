@@ -15,7 +15,27 @@ import (
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/streams"
+	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
+
+func OpenStreamsEnum(args *shared.Args, filePaths *shared.FilePaths) (*os.File, int) {
+	wordlistStream, entryCount := streams.WordlistStreamInit(args)
+	if !shared.GDisableAllOutput {
+		streams.OpenOutputFileStreamsWrapper(filePaths)
+	}
+	return wordlistStream, entryCount
+}
+
+func NextEntry() {
+	shared.GStdout.Flush()
+	shared.GObtainedCounter++
+}
+
+func Finish(scanner *bufio.Scanner) {
+	streams.ScannerCheckError(scanner)
+	fmt.Print("\r")
+	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
+}
 
 func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
 	shared.GStdout.Flush()
@@ -85,6 +105,9 @@ func DirectEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 	for scanner.Scan() {
 		shared.GSubdomBase = shared.SubdomainBase{}
 		entry := scanner.Text()
+		if pkg.LineIgnore(entry) {
+			continue
+		}
 		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
 		statusCode, _ := requests.HttpStatusCode(client, url, args.HttpRequestMethod, "")
 		/*
@@ -104,14 +127,11 @@ func DirectEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 			streams.ParamsSetupFiles(paramsSetupFiles)
 			fmt.Fprint(shared.GStdout, "\r")
 			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, "")
-			shared.GStdout.Flush()
-			shared.GObtainedCounter++
+			NextEntry()
 		}
 		utils.PrintProgress(entryCount)
 	}
-	streams.ScannerCheckError(scanner)
-	fmt.Print("\r")
-	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
+	Finish(scanner)
 }
 
 func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -119,12 +139,9 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 		Ensure that the specified wordlist can be found and open
 		a read-only stream.
 	*/
-	wordlistStream, entryCount := streams.WordlistStreamInit(args)
+	wordlistStream, entryCount := OpenStreamsEnum(args, filePaths)
 	defer wordlistStream.Close()
-	if !shared.GDisableAllOutput {
-		streams.OpenOutputFileStreamsWrapper(filePaths)
-		defer streams.CloseOutputFileStreams(&shared.GStreams)
-	}
+	defer streams.CloseOutputFileStreams(&shared.GStreams)
 	scanner := bufio.NewScanner(wordlistStream)
 	fmt.Fprintln(shared.GStdout)
 	/*
@@ -155,6 +172,9 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 	for scanner.Scan() {
 		shared.GDnsResults = []string{}
 		entry := scanner.Text()
+		if pkg.LineIgnore(entry) {
+			continue
+		}
 		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
 		requests.SetDnsEnumType()
 		/*
@@ -174,24 +194,18 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 			}
 			streams.ParamsSetupFiles(paramsSetupFiles)
 			streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, "")
-			shared.GStdout.Flush()
-			shared.GObtainedCounter++
+			NextEntry()
 		}
 		utils.PrintProgress(entryCount)
 	}
-	streams.ScannerCheckError(scanner)
-	fmt.Print("\r")
-	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
+	Finish(scanner)
 }
 
 func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
 	shared.GStdout.Flush()
-	wordlistStream, entryCount := streams.WordlistStreamInit(args)
+	wordlistStream, entryCount := OpenStreamsEnum(args, filePaths)
 	defer wordlistStream.Close()
-	if !shared.GDisableAllOutput {
-		streams.OpenOutputFileStreamsWrapper(filePaths)
-		defer streams.CloseOutputFileStreams(&shared.GStreams)
-	}
+	defer streams.CloseOutputFileStreams(&shared.GStreams)
 	scanner := bufio.NewScanner(wordlistStream)
 	fmt.Fprintln(shared.GStdout)
 	ipAddress := net.ParseIP(args.IpAddress).String()
@@ -234,6 +248,9 @@ func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePat
 	for scanner.Scan() {
 		shared.GSubdomBase = shared.SubdomainBase{}
 		entry := scanner.Text()
+		if pkg.LineIgnore(entry) {
+			continue
+		}
 		utils.PrintProgress(entryCount)
 		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
 		statusCode, _ := requests.HttpStatusCode(client, ipUrl, args.HttpRequestMethod, subdomain)
@@ -249,10 +266,6 @@ func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePat
 		}
 		streams.ParamsSetupFiles(paramsSetupFiles)
 		streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, ipUrl)
-		shared.GStdout.Flush()
-		shared.GObtainedCounter++
 	}
-	streams.ScannerCheckError(scanner)
-	fmt.Print("\r")
-	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
+	Finish(scanner)
 }
