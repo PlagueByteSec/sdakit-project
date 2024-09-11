@@ -8,12 +8,12 @@
 
 ## Description
 ```
-This project is designed to enumerate, filter, and validate subdomains for a specified
-target domain. For each identified subdomain, Sentinel collects comprehensive information, 
-including HTTP header analysis, common flaws, open ports, the subdomain purpose and more.
-The CLI is designed for clarity and ease of use, providing a structured overview of the
-results. Output is customizable and is organized into categories: IPv4, IPv6, subdomains,
-and summaries. All findings are automatically saved for further processing.
+The Sentinel Project is designed to assist security testers in the reconnaissance phase
+by providing various methods for subdomain discovery and analysis. The main goal 
+of this project is to make the process of subdomain enumeration as easy as possible 
+by automatically performing general analysis, testing for typical flaws, 
+determining the subdomain's purpose, and ensuring that all basic needs are met. All 
+results will be sorted and saved for further processing.
 ```
 
 ## Overview
@@ -26,9 +26,8 @@ and summaries. All findings are automatically saved for further processing.
 | Active (Direct) | Brute-force subdomains by sending HTTP requests to the target domain, and analyze the status codes | -d [DOMAIN], -w [wordlist] | ./bin/sentinel -d -w /path/to/wordlist |
 | Active (DNS) | Built possible subdomains, and try to resolve them to IP addresses (A, AAAA) | -d [DOMAIN], -w [WORDLIST], -dns | ./bin/sentinel -d example.com -w /path/to/wordlist -dns |
 
-- ***Result Filtering***: Filter results to avoid unneccessary result overwhelming.
-- ***Port Scanning***: Scanning the target subdomain for open ports.
-- ***Subdomain Analysis***: Analyze responses to payloads and general requestes to identify the tech stack, common misconfigurations, and security weaknesses.
+- ***Result Filtering***: Filter results to avoid unneccessary output overwhelming.
+- ***Subdomain Analysis***: Test each subdomain automatically for common security flaws and more.
 - ***Categorized Output***: Generate organized output for summary and further processing.
 
 ## Quick Start
