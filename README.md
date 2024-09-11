@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://github.com/PlagueByteSec/Sentinel/blob/main/assets/logoTransparent.png" alt="logoTransparent" width="500" height="250" />
+  <img src="https://github.com/PlagueByteSec/sentinel-project/blob/main/assets/TheSentinelProject-LogoTransparent.png" alt="logoTransparent" width="500" height="250" />
   <br>
-  <img src="https://img.shields.io/github/stars/PlagueByteSec/Sentinel?style=social" alt="stars" />
-  <img src="https://img.shields.io/github/v/release/PlagueByteSec/Sentinel" alt="version" />
-  <img src="https://img.shields.io/github/license/PlagueByteSec/Sentinel" alt="license" />
+  <img src="https://img.shields.io/github/stars/PlagueByteSec/sentinel-project?style=social" alt="stars" />
+  <img src="https://img.shields.io/github/v/release/PlagueByteSec/sentinel-project" alt="version" />
+  <img src="https://img.shields.io/github/license/PlagueByteSec/sentinel-project" alt="license" />
 </p>
 
 ## Description
@@ -64,4 +64,4 @@ THINK BEFORE YOU TYPE.
 - [Examples](https://plaguebytesec.github.io/sentinel-project/pages/examples)
 
 ## License
-The Sentinel Project is published under the [MIT](https://github.com/PlagueByteSec/Sentinel/blob/main/LICENSE) license.
+The Sentinel Project is published under the [MIT](https://github.com/PlagueByteSec/sentinel-project/blob/main/LICENSE) license.
