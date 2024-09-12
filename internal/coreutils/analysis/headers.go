@@ -45,13 +45,13 @@ func (check *SubdomainCheck) investigateAcaoHeaders(response *http.Response) {
 	for responseHeaderKey, responseHeaderValue := range response.Header {
 		switch {
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", testDomain, responseHeaderKey, responseHeaderValue}):
-			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CORS:OK]: %s accepts %s as origin\n", check.Subdomain, testDomain))
+			check.ConsoleOutput <- fmt.Sprintf(" | + [CORS:OK]: %s accepts %s as origin\n", check.Subdomain, testDomain)
 			success = true
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", "null", responseHeaderKey, responseHeaderValue}):
-			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CORS:OK]: %s accepts null as origin\n", check.Subdomain))
+			check.ConsoleOutput <- fmt.Sprintf(" | + [CORS:OK]: %s accepts null as origin\n", check.Subdomain)
 			success = true
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Credentials", "true", responseHeaderKey, responseHeaderValue}):
-			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + [CORS:OK]: %s allows creds in request\n", check.Subdomain))
+			check.ConsoleOutput <- fmt.Sprintf(" | + [CORS:OK]: %s allows creds in request\n", check.Subdomain)
 			success = true
 		}
 	}
@@ -86,8 +86,8 @@ func (check *SubdomainCheck) hostHeaders() { // allow redirect = true
 	headers := []string{"Host", "X-Forwarded-Host", "X-Host"}
 	for idx := 0; idx < len(headers); idx++ {
 		if check.testHostHeader(headers[idx]) {
-			check.ConsoleOutput.WriteString(" | + [HT:OK] Server seems to accept header: " + headers[idx])
-			check.ConsoleOutput.WriteString("\n")
+			check.ConsoleOutput <- " | + [HT:OK] Server seems to accept header: " + headers[idx]
+			check.ConsoleOutput <- "\n"
 		}
 	}
 }

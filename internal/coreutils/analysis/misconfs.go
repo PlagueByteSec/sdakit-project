@@ -19,7 +19,7 @@ func (check *SubdomainCheck) cookieInjectionPath() {
 		TestHeaderValue: testCookie,
 	}) {
 		output := fmt.Sprintf(" | + Payload reflected in response: %s: %s\n", testHeader, testCookie)
-		check.ConsoleOutput.WriteString(output)
+		check.ConsoleOutput <- output
 	}
 }
 

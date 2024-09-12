@@ -8,23 +8,23 @@ import (
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 )
 
-func PingWrapper(consoleOutput *strings.Builder, subdomain string, pingCount int) {
-	consoleOutput.WriteString(" | Ping: ")
+func PingWrapper(outputChan chan<- string, subdomain string, pingCount int) {
+	outputChan <- " | Ping: "
 	err := requests.PingSubdomain(subdomain, pingCount)
 	if err != nil {
-		consoleOutput.WriteString("FAILED\n")
+		outputChan <- "FAILED\n"
 		return
 	}
-	consoleOutput.WriteString("SUCCESS\n")
+	outputChan <- "SUCCESS\n"
 }
 
-func PortScanWrapper(consoleOutput *strings.Builder, subdomain string, portRange string) {
+func PortScanWrapper(outputChan chan<- string, subdomain string, portRange string) {
 	ports, err := requests.ScanPortRange(subdomain, portRange)
 	if err != nil {
 		shared.Glogger.Println(err)
 	}
 	if ports != "" {
-		consoleOutput.WriteString(ports)
+		outputChan <- ports
 	}
 }
 

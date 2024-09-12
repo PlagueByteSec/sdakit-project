@@ -30,7 +30,7 @@ func (check *SubdomainCheck) checkPage(pageType string, pageInvestigate func(str
 		return
 	}
 	if ok := pageInvestigate(url, response); ok {
-		check.ConsoleOutput.WriteString(successMessage)
+		check.ConsoleOutput <- successMessage
 		if pageType == "login" {
 			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
 		}

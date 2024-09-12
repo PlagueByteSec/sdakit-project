@@ -3,7 +3,6 @@ package analysis
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
@@ -15,7 +14,7 @@ const testDomain = "example.com"
 
 type SubdomainCheck struct {
 	Subdomain     string
-	ConsoleOutput *strings.Builder
+	ConsoleOutput chan<- string
 	HttpHeaders   string
 	HttpClient    *http.Client
 }
