@@ -4,7 +4,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"strings"
 )
 
 // CORE
@@ -83,7 +82,7 @@ type SettingsHandler struct {
 	Args          *Args
 	Params        Params
 	HttpClient    *http.Client
-	ConsoleOutput *strings.Builder
+	ConsoleOutput chan<- string
 	CodeFilterExc []string
 	CodeFilter    []string
 	IpAddrs       []string

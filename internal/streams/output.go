@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
@@ -79,7 +80,7 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 	}
 }
 
-func optionsSettingsHandler(settings shared.SettingsHandler) bool {
+func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- string) bool {
 	var (
 		url            string
 		httpStatusCode int
@@ -124,26 +125,26 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 		} else if !settings.Args.DisableAllOutput {
 			OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 		}
-		settings.ConsoleOutput.WriteString(fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv))
+		outputChan <- fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv)
 		if vhost {
-			settings.ConsoleOutput.WriteString(fmt.Sprintf(" | Size: %d\n", size))
-			settings.ConsoleOutput.WriteString(fmt.Sprintf(" | Hash: %s\n", hash))
+			outputChan <- fmt.Sprintf(" | Size: %d\n", size)
+			outputChan <- fmt.Sprintf(" | Hash: %s\n", hash)
 		}
 	} else if !settings.Args.DisableAllOutput {
 		OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 	}
 	if settings.Args.AnalyzeHeader {
 		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
-		settings.ConsoleOutput.WriteString(headers)
+		outputChan <- headers
 	}
 	if settings.IpAddrsOut != "" && !settings.Args.EnableVHostEnum {
-		settings.ConsoleOutput.WriteString(fmt.Sprintf(" | IP Addresses: %s\n", settings.IpAddrsOut))
+		outputChan <- fmt.Sprintf(" | IP Addresses: %s\n", settings.IpAddrsOut)
 	}
 	if settings.Args.PortScan != "" {
-		utils.PortScanWrapper(settings.ConsoleOutput, settings.Params.Subdomain, settings.Args.PortScan)
+		utils.PortScanWrapper(outputChan, settings.Params.Subdomain, settings.Args.PortScan)
 	}
 	if settings.Args.PingSubdomain {
-		utils.PingWrapper(settings.ConsoleOutput, settings.Params.Subdomain, settings.Args.PingCount)
+		utils.PingWrapper(outputChan, settings.Params.Subdomain, settings.Args.PingCount)
 	}
 	requests.SetDnsEnumType() // Handle type by global switch
 	if settings.Args.DetectPurpose {
@@ -152,7 +153,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 			headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
 			check := analysis.SubdomainCheck{
 				Subdomain:     settings.Params.Subdomain,
-				ConsoleOutput: settings.ConsoleOutput,
+				ConsoleOutput: outputChan,
 				HttpHeaders:   headers,
 				HttpClient:    settings.HttpClient,
 			}
@@ -161,7 +162,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 			// HTTP request failed: run non HTTP tests
 			check := analysis.SubdomainCheck{
 				Subdomain:     settings.Params.Subdomain,
-				ConsoleOutput: settings.ConsoleOutput,
+				ConsoleOutput: outputChan,
 			}
 			check.PurposeNonHTTP()
 		}
@@ -170,12 +171,19 @@ func optionsSettingsHandler(settings shared.SettingsHandler) bool {
 	if settings.Args.MisconfTest && requests.HttpCodeCheck(settings, url) {
 		check := analysis.SubdomainCheck{
 			Subdomain:     settings.Params.Subdomain,
-			ConsoleOutput: settings.ConsoleOutput,
+			ConsoleOutput: outputChan,
 			HttpClient:    settings.HttpClient,
 		}
 		check.Misconfigurations() // run.go
 	}
 	return true
+}
+
+func writer(results <-chan string, sb *strings.Builder, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for result := range results {
+		sb.WriteString(result)
+	}
 }
 
 func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args,
@@ -192,9 +200,14 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	if ipAddrs == nil {
 		return
 	}
+	var wg sync.WaitGroup
+	var consoleOutput strings.Builder
+	outputChan := make(chan string, 20)
+	wg.Add(1)
+	go writer(outputChan, &consoleOutput, &wg)
 	var (
 		// Use strings.Builder for better output control
-		consoleOutput strings.Builder
+		//consoleOutput strings.Builder
 		codeFilterExc []string
 		codeFilter    []string
 	)
@@ -202,7 +215,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		shared.GSubdomBase = shared.SubdomainBase{}
 		shared.GSubdomBase.Subdomain = append(shared.GSubdomBase.Subdomain, params.Subdomain)
 	}
-	consoleOutput.WriteString(fmt.Sprintf("\r[+] %-100s\n", params.Subdomain))
+	outputChan <- fmt.Sprintf("\r[+] %-100s\n", params.Subdomain)
 	/*
 		Split the arguments specified by the -f and -e flags by comma.
 		The values within the slices will be used to filter the results.
@@ -225,19 +238,22 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		Args:          args,
 		Params:        params,
 		HttpClient:    client,
-		ConsoleOutput: &consoleOutput,
+		ConsoleOutput: outputChan,
 		CodeFilterExc: codeFilterExc,
 		CodeFilter:    codeFilter,
 		IpAddrs:       ipAddrs,
 		IpAddrsOut:    ipAddrsOut,
 		URL:           url,
-	})
+	}, outputChan)
 	if !succeed {
+		close(outputChan)
 		return
 	}
 	if !args.DisableAllOutput {
 		shared.GJsonResult.Subdomains = append(shared.GJsonResult.Subdomains, shared.GSubdomBase)
 	}
+	close(outputChan)
+	wg.Wait()
 	// Display the final result block
 	fmt.Fprintln(shared.GStdout, consoleOutput.String())
 	shared.GDisplayCount++

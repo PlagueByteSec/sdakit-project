@@ -10,11 +10,11 @@ import (
 
 func (check *SubdomainCheck) MailServer() {
 	if requests.DnsIsMX(shared.GDnsResolver, check.Subdomain) {
-		check.ConsoleOutput.WriteString(" | + Mail Server ")
+		check.ConsoleOutput <- " | + Mail Server "
 		if check.isExchange() {
-			check.ConsoleOutput.WriteString("(Exchange)\n")
+			check.ConsoleOutput <- "(Exchange)\n"
 		} else {
-			check.ConsoleOutput.WriteString("\n")
+			check.ConsoleOutput <- "\n"
 		}
 		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolMailSubdomains)
 	}
@@ -34,7 +34,7 @@ func (check *SubdomainCheck) api() {
 		score, info := check.isPossibleApi(response)
 		if score != 0 {
 			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolApiSubdomains)
-			check.ConsoleOutput.WriteString(fmt.Sprintf(" | + API [SCORE:%d] (%s: %s)\n", score, methods[idx], info))
+			check.ConsoleOutput <- fmt.Sprintf(" | + API [SCORE:%d] (%s: %s)\n", score, methods[idx], info)
 			break
 		}
 	}
@@ -59,7 +59,7 @@ func (check *SubdomainCheck) cms() {
 		for idx := 0; idx < len(indicators); idx++ {
 			if strings.Contains(html, indicators[idx]) {
 				shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCmsSubdomains)
-				check.ConsoleOutput.WriteString(fmt.Sprintf(" | + CMS: %s\n", cmsName))
+				check.ConsoleOutput <- fmt.Sprintf(" | + CMS: %s\n", cmsName)
 				break
 			}
 		}
