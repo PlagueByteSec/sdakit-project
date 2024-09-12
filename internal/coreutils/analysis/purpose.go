@@ -23,7 +23,7 @@ func (check *SubdomainCheck) MailServer() {
 func (check *SubdomainCheck) api() {
 	url := MakeUrl(HTTP(Basic), check.Subdomain)
 	for idx := 0; idx < len(methods); idx++ {
-		response := check.AnalysisSendRequest(RequestSetup{Method: methods[idx], URL: url, Header: "", Value: ""})
+		response := check.AnalysisSendRequest(AnalysisRequestConfig{Method: methods[idx], URL: url, Header: "", Value: ""})
 		if response == nil {
 			continue
 		}

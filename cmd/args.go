@@ -43,6 +43,7 @@ func CliParser() (shared.Args, error) {
 	testMisconf := flag.Bool("mT", false, "Test for common weaknesses")
 	allowRedirects := flag.Bool("aR", false, "Allow redirects")
 	vhostEnum := flag.Bool("vhost", false, "Enable VHost enumeration")
+	filterHttpSize := flag.String("fS", "", "Filter HTTP response size")
 	flag.Parse()
 	if flag.NFlag() == 0 || *help {
 		fmt.Println(cli.HelpBanner)
@@ -91,6 +92,7 @@ func CliParser() (shared.Args, error) {
 		AllowRedirects:      *allowRedirects,
 		IpAddress:           *ipAddresses,
 		EnableVHostEnum:     *vhostEnum,
+		FilterHttpSize:      *filterHttpSize,
 	}
 	return args, nil
 }

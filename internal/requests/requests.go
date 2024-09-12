@@ -19,9 +19,33 @@ import (
 	probing "github.com/prometheus-community/pro-bing"
 )
 
+type HttpRequestBase struct {
+	CliArgs                *shared.Args
+	HttpClient             *http.Client
+	HttpRequest            *http.Request
+	HttpResponse           *http.Response
+	HttpResponseBody       []byte
+	HttpNeedResponse       bool
+	ResponseNeedStatusCode bool
+	ResponseNeedBody       bool
+	HttpMethod             string
+	CustomHeader           string
+	CustomUrl              string
+	Subdomain              string
+	Domain                 string
+	Error                  error
+}
+
+var httpRequestBase = &HttpRequestBase{}
+
+func ResetHttpRequestBase(base *HttpRequestBase) {
+	*base = *httpRequestBase
+}
+
 func HttpClientInit(args *shared.Args) (*http.Client, error) {
-	var client *http.Client
-	if args.TorRoute {
+	var httpClient *http.Client
+	switch {
+	case args.TorRoute:
 		/*
 			Parse the TOR proxy URL from constants.go. If successful, create
 			an HTTP client configured to use the TOR proxy with the specified timeout.
@@ -31,47 +55,90 @@ func HttpClientInit(args *shared.Args) (*http.Client, error) {
 			shared.Glogger.Println(err)
 			return nil, errors.New("failed to parse TOR proxy URL: " + err.Error())
 		}
-		client = &http.Client{
+		httpClient = &http.Client{
 			Transport: &http.Transport{
 				Proxy: http.ProxyURL(proxyUrl),
 			},
 			Timeout: time.Duration(args.Timeout) * time.Second,
 		}
-		fmt.Fprintln(shared.GStdout, "[*] All requests will be routet through TOR")
-	} else if args.AllowRedirects {
-		client = &http.Client{
+		if args.Verbose {
+			fmt.Fprintln(shared.GStdout, "[*] All requests will be routet through TOR")
+		}
+	case args.AllowRedirects:
+		httpClient = &http.Client{
 			Timeout: time.Duration(args.Timeout) * time.Second,
 			CheckRedirect: func(request *http.Request, via []*http.Request) error {
 				return nil
 			},
 		}
-	} else {
+	default:
 		// -r flag not set, use the standard HTTP client with the specified timeout
-		client = &http.Client{
+		httpClient = &http.Client{
 			Timeout: time.Duration(args.Timeout) * time.Second,
 		}
 	}
 	fmt.Fprintln(shared.GStdout)
-	return client, nil
+	return httpClient, nil
 }
 
-func ResponseGetBody(response *http.Response) ([]byte, error) {
-	defer response.Body.Close()
-	return io.ReadAll(response.Body)
-}
-
-func RequestSetupHTTP(method string, url string, client *http.Client) (*http.Request, error) {
+func (base *HttpRequestBase) requestSetupHTTP() error {
 	acceptedMethods := []string{"GET", "POST", "OPTIONS"}
-	if !pkg.IsInSlice(method, acceptedMethods) {
-		return nil, errors.New("not in allowd methods: " + method)
+	if !pkg.IsInSlice(base.HttpMethod, acceptedMethods) {
+		return fmt.Errorf("HTTP request method not allowed: %s", base.HttpMethod)
 	}
-	request, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return nil, err
+	base.HttpRequest, base.Error = http.NewRequest(base.HttpMethod, base.CustomUrl, nil)
+	if base.Error != nil {
+		return fmt.Errorf("failed to setup wrapper for NewRequestWithContext: %s", base.Error)
 	}
-	request.Header.Set("User-Agent", shared.DefaultUserAgent)
-	return request, nil
+	base.HttpRequest.Header.Set("User-Agent", shared.DefaultUserAgent)
+	return nil
+}
+
+func (base *HttpRequestBase) requestGetReponse() error {
+	if len(base.Subdomain) != 0 {
+		base.HttpRequest.Host = base.Subdomain
+	}
+	base.HttpResponse, base.Error = base.HttpClient.Do(base.HttpRequest)
+	if base.Error != nil {
+		return fmt.Errorf("HTTP client could not send request: %s", base.Error)
+	}
+	return nil
+}
+
+func (base *HttpRequestBase) responseGetBody() error {
+	defer base.HttpResponse.Body.Close()
+	base.HttpResponseBody, base.Error = io.ReadAll(base.HttpResponse.Body)
+	if base.Error != nil {
+		return fmt.Errorf("failed to read response body: %s", base.Error)
+	}
+	return nil
+}
+
+func RequestHandlerCore(base *HttpRequestBase) (*http.Response, int, []byte, error) {
+	if base.Error = base.requestSetupHTTP(); base.Error != nil {
+		return nil, -1, nil, base.Error
+	}
+	if base.Error = base.requestGetReponse(); base.Error != nil {
+		return nil, -1, nil, base.Error
+	}
+	if base.HttpNeedResponse {
+		return base.HttpResponse, -1, nil, nil
+	}
+	defer base.HttpResponse.Body.Close()
+	if base.ResponseNeedBody {
+		if base.Error = base.responseGetBody(); base.Error != nil {
+			return nil, -1, nil, base.Error
+		}
+	}
+	statusCode := base.HttpResponse.StatusCode
+	if base.ResponseNeedStatusCode && base.ResponseNeedBody {
+		return nil, statusCode, base.HttpResponseBody, nil
+	} else if base.ResponseNeedStatusCode {
+		return nil, statusCode, nil, nil
+	} else if base.ResponseNeedBody {
+		return nil, -1, base.HttpResponseBody, nil
+	}
+	return nil, statusCode, nil, nil
 }
 
 func EndpointRequest(method string, host string, url string, client *http.Client) error {
@@ -79,17 +146,13 @@ func EndpointRequest(method string, host string, url string, client *http.Client
 		Send an HTTP [method] request, read the body, and filter each subdomain
 		using regex. Duplicates will be removed.
 	*/
-	request, err := RequestSetupHTTP(method, url, client)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return err
-	}
-	response, err := client.Do(request)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return err
-	}
-	responseBody, err := ResponseGetBody(response)
+	_, _, responseBody, err := RequestHandlerCore(&HttpRequestBase{
+		HttpMethod:       method,
+		Domain:           host,
+		CustomUrl:        url,
+		HttpClient:       client,
+		ResponseNeedBody: true,
+	})
 	if err != nil {
 		shared.Glogger.Println(err)
 		return err
@@ -107,28 +170,6 @@ func EndpointRequest(method string, host string, url string, client *http.Client
 	return nil
 }
 
-func HttpStatusCode(client *http.Client, url string, method string, subdomain string) (int, []byte) {
-	request, err := RequestSetupHTTP(method, url, client)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return -1, nil
-	}
-	if subdomain != "" {
-		request.Host = subdomain
-	}
-	response, err := client.Do(request)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return -1, nil
-	}
-	body, err := ResponseGetBody(response)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return -1, nil
-	}
-	return response.StatusCode, body
-}
-
 func AnalyseHttpHeader(client *http.Client, subdomain string, method string) string {
 	/*
 		Analyze the response of an HTTP request to determine
@@ -140,12 +181,12 @@ func AnalyseHttpHeader(client *http.Client, subdomain string, method string) str
 		Content-Security-Policy
 	*/
 	url := fmt.Sprintf("http://%s", subdomain)
-	request, err := RequestSetupHTTP(method, url, client)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return ""
-	}
-	response, err := client.Do(request)
+	response, _, _, err := RequestHandlerCore(&HttpRequestBase{
+		HttpClient:       client,
+		CustomUrl:        url,
+		HttpMethod:       method,
+		HttpNeedResponse: true,
+	})
 	if err != nil {
 		shared.Glogger.Println(err)
 		return ""

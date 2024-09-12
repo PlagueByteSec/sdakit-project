@@ -10,7 +10,7 @@ import (
 )
 
 func (check *SubdomainCheck) getResponse(url string) *http.Response {
-	response := check.AnalysisSendRequest(RequestSetup{Method: "GET", URL: url, Header: "", Value: ""})
+	response := check.AnalysisSendRequest(AnalysisRequestConfig{Method: "GET", URL: url, Header: "", Value: ""})
 	return pkg.Tern(response == nil, nil, response)
 }
 

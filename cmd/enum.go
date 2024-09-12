@@ -109,7 +109,12 @@ func DirectEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePa
 			continue
 		}
 		url := fmt.Sprintf("http://%s.%s", entry, args.Domain)
-		statusCode, _ := requests.HttpStatusCode(client, url, args.HttpRequestMethod, "")
+		_, statusCode, _, _ := requests.RequestHandlerCore(&requests.HttpRequestBase{
+			HttpClient:             client,
+			CustomUrl:              url,
+			HttpMethod:             args.HttpRequestMethod,
+			ResponseNeedStatusCode: true,
+		})
 		/*
 			Skip failed GET requests and set the successful response subdomains to the
 			Params struct. The OutputHandler function will ensure that all fetched data
@@ -240,7 +245,12 @@ func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePat
 		return
 	}
 	ipUrl := analysis.MakeUrl(proto, ipAddress)
-	statusCode, _ := requests.HttpStatusCode(client, ipUrl, args.HttpRequestMethod, "")
+	_, statusCode, _, _ := requests.RequestHandlerCore(&requests.HttpRequestBase{
+		HttpClient:             client,
+		CustomUrl:              ipUrl,
+		HttpMethod:             args.HttpRequestMethod,
+		ResponseNeedStatusCode: true,
+	})
 	if statusCode == -1 {
 		fmt.Fprintf(shared.GStdout, "[-] %s: no response, abort.\n", ipUrl)
 		return
@@ -253,8 +263,14 @@ func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePat
 		}
 		utils.PrintProgress(entryCount)
 		subdomain := fmt.Sprintf("%s.%s", entry, args.Domain)
-		statusCode, _ := requests.HttpStatusCode(client, ipUrl, args.HttpRequestMethod, subdomain)
-		if statusCode == -1 || statusCode == http.StatusBadRequest || statusCode == http.StatusNotFound {
+		_, statusCode, _, _ := requests.RequestHandlerCore(&requests.HttpRequestBase{
+			HttpClient:             client,
+			CustomUrl:              ipUrl,
+			HttpMethod:             args.HttpRequestMethod,
+			Subdomain:              subdomain,
+			ResponseNeedStatusCode: true,
+		})
+		if statusCode == -1 {
 			continue
 		}
 		args.HttpCode = true

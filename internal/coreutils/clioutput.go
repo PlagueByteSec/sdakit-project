@@ -39,7 +39,7 @@ func PrintSummary(startTime time.Time, count int) {
 	defer shared.GStdout.Flush()
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
-	fmt.Fprintf(shared.GStdout, "[*] Summary:%-30s\n", "")
+	fmt.Fprintf(shared.GStdout, "\r[*] Summary:%-30s\n", "")
 	// Use setting struct and use function for loop etc
 	poolSize := len(shared.GPoolBase.PoolHttpSuccessSubdomains)
 	temp := plural(poolSize, "Subdomain")

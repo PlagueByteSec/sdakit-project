@@ -19,17 +19,6 @@ func GetIpVersion(ipAddress string) int {
 	return 6
 }
 
-func IsInSlice(value string, slice []string) bool {
-	/*
-		An HTTP status code will be compared against those
-		specified by the -e or -f flag. This function is used
-		to filter the output for customization.
-	*/
-	sort.Strings(slice)
-	idx := sort.SearchStrings(slice, value)
-	return idx < len(slice) && slice[idx] == value
-}
-
 func IsValidDomain(domain string) bool {
 	/*
 		Verify the target domain by checking it against a regex and
@@ -45,6 +34,24 @@ func IsValidDomain(domain string) bool {
 		}
 		if len(ipAddrs) != 0 {
 			return true
+		}
+	}
+	return false
+}
+
+func IsInSlice(value interface{}, slice interface{}) bool {
+	switch sliceType := slice.(type) {
+	case []string:
+		if checkValue, ok := value.(string); ok {
+			sort.Strings(sliceType)
+			idx := sort.SearchStrings(sliceType, checkValue)
+			return idx < len(sliceType) && sliceType[idx] == checkValue
+		}
+	case []int:
+		if checkValue, ok := value.(int); ok {
+			sort.Ints(sliceType)
+			idx := sort.SearchInts(sliceType, checkValue)
+			return idx < len(sliceType) && sliceType[idx] == checkValue
 		}
 	}
 	return false

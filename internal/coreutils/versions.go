@@ -17,21 +17,12 @@ func GetCurrentRepoVersion(client *http.Client) string {
 		Request the version.txt file from GitHub and return
 		the value as a string.
 	*/
-	request, err := requests.RequestSetupHTTP("GET", shared.VersionUrl, client)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return shared.NotAvailable
-	}
-	response, err := client.Do(request)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return shared.NotAvailable
-	}
-	responseBody, err := requests.ResponseGetBody(response)
-	if err != nil {
-		shared.Glogger.Println(err)
-		return shared.NotAvailable
-	}
+	_, _, responseBody, _ := requests.RequestHandlerCore(&requests.HttpRequestBase{
+		HttpClient:       client,
+		CustomUrl:        shared.VersionUrl,
+		HttpMethod:       "GET",
+		ResponseNeedBody: true,
+	})
 	return string(responseBody)
 }
 
@@ -64,8 +55,14 @@ func VersionCompare(versionRepo string, versionLocal string) {
 		versionLocal == shared.NotAvailable || versionLocal == "" {
 		return
 	}
-	parseRepoVersion, _ := version.NewVersion(versionRepo)
-	parseLocalVersion, _ := version.NewVersion(versionLocal)
+	parseRepoVersion, err := version.NewVersion(versionRepo)
+	if err != nil {
+		return
+	}
+	parseLocalVersion, err := version.NewVersion(versionLocal)
+	if err != nil {
+		return
+	}
 	if versionRepo != versionLocal && parseLocalVersion.LessThan(parseRepoVersion) {
 		fmt.Fprintf(shared.GStdout, "[*] An update is available! %s->%s\n", versionLocal, versionRepo)
 	}
