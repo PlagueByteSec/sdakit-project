@@ -38,8 +38,9 @@ var HelpBanner = `
 
  ===[ FILTERS
 
- -e	Exclude subdomains with specified HTTP response codes (comma seperated)
- -f	Filter for specific HTTP response codes (comma seperated)
+ -e		Exclude subdomains with specified HTTP response codes (comma seperated)
+ -f		Filter for specific HTTP response codes (comma seperated)
+ -fS	Exclude response size(s) from VHost results
  
  ===[ SETTINGS
 

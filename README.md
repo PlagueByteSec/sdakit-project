@@ -18,17 +18,10 @@ results will be sorted and saved for further processing.
 
 ## Overview
 
-- ***Discovery***: Identify subdomains using the preferred option:
-
-| Method | Description | Required Flags | Example |
-|--------|-------------|----------------|---------|  
-| Passive | Use public services like cert transparency logs, public DNS services etc. | -d [DOMAIN] | ./bin/sentinel -d example.com |
-| Active (Direct) | Brute-force subdomains by sending HTTP requests to the target domain, and analyze the status codes | -d [DOMAIN], -w [wordlist] | ./bin/sentinel -d -w /path/to/wordlist |
-| Active (DNS) | Built possible subdomains, and try to resolve them to IP addresses (A, AAAA) | -d [DOMAIN], -w [WORDLIST], -dns | ./bin/sentinel -d example.com -w /path/to/wordlist -dns |
-
-- ***Result Filtering***: Filter results to avoid unneccessary output overwhelming.
-- ***Subdomain Analysis***: Test each subdomain automatically for common security flaws and more.
-- ***Categorized Output***: Generate organized output for summary and further processing.
+- ***Discover*** hidden subdomains using the preferred option
+- ***Filter*** the results to avoid unneccessary output overwhelming 
+- ***Analyze*** each subdomain for common security flaws and more
+- ***Report*** and organize all results for summary and further processing
 
 ## Quick Start
 
