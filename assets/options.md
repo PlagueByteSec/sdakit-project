@@ -38,6 +38,7 @@
 |------|-------------|
 | -e | Exclude subdomains with specified HTTP response codes |
 | -f | Display only subdomains returning the specified HTTP response codes |
+| -fS |	Exclude response size(s) from VHost results |
 
 #### Settings
 | Flag | Description |
