@@ -9,7 +9,16 @@ import (
 )
 
 func HttpCodeCheck(settings shared.SettingsHandler, url string) bool {
-	statusCode, _ := HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod, "")
+	_, statusCode, _, err := RequestHandlerCore(&HttpRequestBase{
+		HttpClient:             settings.HttpClient,
+		CustomUrl:              url,
+		HttpMethod:             settings.Args.HttpRequestMethod,
+		ResponseNeedStatusCode: true,
+	})
+	if err != nil {
+		shared.Glogger.Println(err)
+		return false
+	}
 	return statusCode != -1
 }
 

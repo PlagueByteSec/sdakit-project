@@ -37,6 +37,24 @@ func WriteJSON(jsonFileName string) error {
 	return nil
 }
 
+func writer(results <-chan string, sb *strings.Builder, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for result := range results {
+		sb.WriteString(result)
+	}
+}
+
+func processFilter(filterValues string) []string {
+	delim := ","
+	var filter []string
+	if !strings.Contains(filterValues, delim) {
+		filter = []string{filterValues}
+	} else {
+		filter = strings.Split(filterValues, delim)
+	}
+	return filter
+}
+
 func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 	/*
 		Request the IP version based on the given IP address string. A check
@@ -84,6 +102,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 	var (
 		url            string
 		httpStatusCode int
+		err            error
 		size           int
 		hash           string
 	)
@@ -98,15 +117,30 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 		switch {
 		case vhost:
 			var body []byte
-			httpStatusCode, body = requests.HttpStatusCode(settings.HttpClient, url,
-				settings.Args.HttpRequestMethod, settings.Params.Subdomain)
-			if httpStatusCode == -1 || httpStatusCode == http.StatusBadRequest {
+			_, httpStatusCode, body, err = requests.RequestHandlerCore(&requests.HttpRequestBase{
+				HttpClient:             settings.HttpClient,
+				CustomUrl:              url,
+				HttpMethod:             settings.Args.HttpRequestMethod,
+				Subdomain:              settings.Params.Subdomain,
+				ResponseNeedStatusCode: true,
+				ResponseNeedBody:       true,
+			})
+			if err != nil {
+				shared.Glogger.Println(err)
+				return false
+			}
+			if httpStatusCode == -1 {
 				return false
 			}
 			size = len(body)
 			hash = fmt.Sprintf("%x", sha256.Sum256(body))
 		default:
-			httpStatusCode, _ = requests.HttpStatusCode(settings.HttpClient, url, settings.Args.HttpRequestMethod, "")
+			_, httpStatusCode, _, _ = requests.RequestHandlerCore(&requests.HttpRequestBase{
+				HttpClient:             settings.HttpClient,
+				CustomUrl:              url,
+				HttpMethod:             settings.Args.HttpRequestMethod,
+				ResponseNeedStatusCode: true,
+			})
 		}
 		statusCodeConv := strconv.Itoa(httpStatusCode)
 		switch {
@@ -125,11 +159,15 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 		} else if !settings.Args.DisableAllOutput {
 			OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 		}
-		outputChan <- fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv)
 		if vhost {
+			trimFilter := processFilter(settings.Args.FilterHttpSize)
+			if len(trimFilter) != 0 && pkg.IsInSlice(fmt.Sprintf("%d", size), trimFilter) {
+				return false
+			}
 			outputChan <- fmt.Sprintf(" | Size: %d\n", size)
 			outputChan <- fmt.Sprintf(" | Hash: %s\n", hash)
 		}
+		outputChan <- fmt.Sprintf(" | HTTP Status Code: %s\n", statusCodeConv)
 	} else if !settings.Args.DisableAllOutput {
 		OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 	}
@@ -179,13 +217,6 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 	return true
 }
 
-func writer(results <-chan string, sb *strings.Builder, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for result := range results {
-		sb.WriteString(result)
-	}
-}
-
 func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args,
 	params shared.Params, url string) {
 	shared.GStdout.Flush()
@@ -205,12 +236,6 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	outputChan := make(chan string, 20)
 	wg.Add(1)
 	go writer(outputChan, &consoleOutput, &wg)
-	var (
-		// Use strings.Builder for better output control
-		//consoleOutput strings.Builder
-		codeFilterExc []string
-		codeFilter    []string
-	)
 	if !shared.GDisableAllOutput {
 		shared.GSubdomBase = shared.SubdomainBase{}
 		shared.GSubdomBase.Subdomain = append(shared.GSubdomBase.Subdomain, params.Subdomain)
@@ -220,17 +245,8 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		Split the arguments specified by the -f and -e flags by comma.
 		The values within the slices will be used to filter the results.
 	*/
-	delim := ","
-	if !strings.Contains(args.ExcHttpCodes, delim) {
-		codeFilterExc = []string{args.ExcHttpCodes}
-	} else {
-		codeFilterExc = strings.Split(args.ExcHttpCodes, delim)
-	}
-	if !strings.Contains(args.FilHttpCodes, delim) {
-		codeFilter = []string{args.FilHttpCodes}
-	} else {
-		codeFilter = strings.Split(args.FilHttpCodes, delim)
-	}
+	codeFilter := processFilter(args.FilHttpCodes)
+	codeFilterExc := processFilter(args.ExcHttpCodes)
 	pkg.ResetSlice(&codeFilter)
 	pkg.ResetSlice(&codeFilterExc)
 	succeed := optionsSettingsHandler(shared.SettingsHandler{

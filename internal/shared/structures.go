@@ -50,6 +50,7 @@ type Args struct {
 	AllowRedirects      bool
 	IpAddress           string
 	EnableVHostEnum     bool
+	FilterHttpSize      string
 }
 
 type PoolBase struct {

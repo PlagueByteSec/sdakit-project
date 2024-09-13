@@ -26,7 +26,7 @@ type HeadersCompare struct {
 	ResponseHeaderValue []string
 }
 
-type RequestSetup struct {
+type AnalysisRequestConfig struct {
 	Method string
 	URL    string
 	Header string
@@ -108,29 +108,20 @@ func MakeUrl(http HTTP, subdomain string) string {
 	return fmt.Sprintf("%s%s", proto, subdomain)
 }
 
-func (check *SubdomainCheck) AnalysisSendRequest(setup RequestSetup) *http.Response {
-	var (
-		request  *http.Request
-		response *http.Response
-		err      error
-	)
-	request, err = requests.RequestSetupHTTP(setup.Method, setup.URL, check.HttpClient)
+func (check *SubdomainCheck) AnalysisSendRequest(setup AnalysisRequestConfig) *http.Response {
+	httpResponse, _, _, err := requests.RequestHandlerCore(&requests.HttpRequestBase{
+		HttpClient:       check.HttpClient,
+		CustomUrl:        setup.URL,
+		HttpMethod:       setup.Method,
+		HttpNeedResponse: true,
+	})
 	if err != nil {
-		goto exitError
-	}
-	if len(setup.Header) != 0 && len(setup.Value) != 0 {
-		request.Header.Set(setup.Header, setup.Value)
-	}
-	response, err = check.HttpClient.Do(request)
-	if err != nil {
-		goto exitError
-	}
-	if pkg.IsInSlice(string(response.StatusCode), errorCodes) {
-		shared.Glogger.Println("Error: Server returned: " + string(response.StatusCode))
+		shared.Glogger.Println(err)
 		return nil
 	}
-	return response
-exitError:
-	shared.Glogger.Println(err)
-	return nil
+	if pkg.IsInSlice(string(httpResponse.StatusCode), errorCodes) {
+		shared.Glogger.Println("Error: Server returned: " + string(httpResponse.StatusCode))
+		return nil
+	}
+	return httpResponse
 }
