@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 
@@ -33,13 +34,13 @@ func GetCurrentLocalVersion() string {
 	*/
 	cwd, err := os.Getwd()
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return shared.NotAvailable
 	}
 	versionFilePath := filepath.Join(cwd, shared.VersionFile)
 	content, err := os.ReadFile(versionFilePath)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return shared.NotAvailable
 	}
 	return string(content)

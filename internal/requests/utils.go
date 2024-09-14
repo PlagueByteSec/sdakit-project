@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 )
 
@@ -16,7 +17,7 @@ func HttpCodeCheck(settings shared.SettingsHandler, url string) bool {
 		ResponseNeedStatusCode: true,
 	})
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return false
 	}
 	return statusCode != -1

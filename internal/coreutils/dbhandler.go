@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 )
 
@@ -29,7 +30,7 @@ func EditDbEntries(args *shared.Args) ([]string, error) {
 		PrintVerbose("\n[*] Extending endpoints..")
 		stream, err := os.Open(args.DbExtendPath)
 		if err != nil {
-			shared.Glogger.Println(err)
+			logging.GLogger.Log(err.Error())
 			return nil, errors.New("failed to open file stream for: " + args.DbExtendPath)
 		}
 		defer stream.Close()

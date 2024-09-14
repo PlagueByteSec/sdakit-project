@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
 
@@ -116,11 +116,11 @@ func (check *SubdomainCheck) AnalysisSendRequest(setup AnalysisRequestConfig) *h
 		HttpNeedResponse: true,
 	})
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return nil
 	}
 	if pkg.IsInSlice(string(httpResponse.StatusCode), errorCodes) {
-		shared.Glogger.Println("Error: Server returned: " + string(httpResponse.StatusCode))
+		logging.GLogger.Log("Error: Server returned: " + string(httpResponse.StatusCode))
 		return nil
 	}
 	return httpResponse

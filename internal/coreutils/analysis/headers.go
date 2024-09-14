@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
@@ -26,8 +27,9 @@ func (check *SubdomainCheck) checkFormat(responseHeaderKey string, responseHeade
 	}
 	for idx := 0; idx < len(acceptedResponseValues); idx++ {
 		if strings.Contains(responseHeaderValues, acceptedResponseValues[idx]) {
-			shared.Glogger.Printf("response contains %s key with value(s): %s\n",
+			output := fmt.Sprintf("response contains %s key with value(s): %s\n",
 				responseHeaderKey, acceptedResponseValues[idx])
+			logging.GLogger.Log(output)
 			return true
 		}
 	}
@@ -71,7 +73,7 @@ func (check *SubdomainCheck) investigateHostHeaders(header string, response *htt
 		// check if test domain in response body
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
-			shared.Glogger.Println(err)
+			logging.GLogger.Log(err.Error())
 			return false
 		}
 		if strings.Contains(string(body), testDomain) {
@@ -125,10 +127,8 @@ func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (int, st
 			to determine API possibility.
 		*/
 		case strings.Contains(headerKey, "X-API-Version"):
-			shared.Glogger.Println("response contains X-API-Version header")
 			return 10, "X-API-Version"
 		case strings.Contains(headerKey, "X-RateLimit-Limit"):
-			shared.Glogger.Println("response contains X-RateLimit-Limit header")
 			return 10, "X-RateLimit-Limit"
 		case strings.Contains(headerKey, "Content-Type") && check.checkFormat(values, "Content-Type"):
 			return 5, "Content-Type"
@@ -146,7 +146,7 @@ func (check *SubdomainCheck) isPossibleApi(httpResponse *http.Response) (int, st
 func (check SubdomainCheck) testCors(url string, header string) {
 	response := check.AnalysisSendRequest(AnalysisRequestConfig{Method: "GET", URL: url, Header: header, Value: testDomain})
 	if response == nil {
-		shared.Glogger.Println("testCors: response == nil")
+		logging.GLogger.Log("testCors: AnalysisSendRequest returns nil")
 		return
 	}
 	check.investigateAcaoHeaders(response)

@@ -15,6 +15,7 @@ import (
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils/analysis"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
@@ -27,20 +28,20 @@ func WriteJSON(jsonFileName string) error {
 	*/
 	bytes, err := json.MarshalIndent(shared.GJsonResult.Subdomains, "", "	")
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return err
 	}
 	if err := os.WriteFile(jsonFileName, bytes, shared.DefaultPermission); err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return errors.New("failed to write JSON to: " + jsonFileName)
 	}
 	return nil
 }
 
-func writer(results <-chan string, sb *strings.Builder, wg *sync.WaitGroup) {
+func builderAddContent(consoleOutput <-chan string, sb *strings.Builder, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for result := range results {
-		sb.WriteString(result)
+	for output := range consoleOutput {
+		sb.WriteString(output)
 	}
 }
 
@@ -71,7 +72,7 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 				err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4Addrs)
 				if err != nil {
 					fileStream.Ipv4AddrStream.Close()
-					shared.Glogger.Println(err)
+					logging.GLogger.Log(err.Error())
 				}
 			}
 		}
@@ -87,7 +88,7 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 				err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6Addrs)
 				if err != nil {
 					fileStream.Ipv6AddrStream.Close()
-					shared.Glogger.Println(err)
+					logging.GLogger.Log(err.Error())
 				}
 			}
 		}
@@ -126,7 +127,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 				ResponseNeedBody:       true,
 			})
 			if err != nil {
-				shared.Glogger.Println(err)
+				logging.GLogger.Log(err.Error())
 				return false
 			}
 			if httpStatusCode == -1 {
@@ -235,7 +236,7 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	var consoleOutput strings.Builder
 	outputChan := make(chan string, 20)
 	wg.Add(1)
-	go writer(outputChan, &consoleOutput, &wg)
+	go builderAddContent(outputChan, &consoleOutput, &wg)
 	if !shared.GDisableAllOutput {
 		shared.GSubdomBase = shared.SubdomainBase{}
 		shared.GSubdomBase.Subdomain = append(shared.GSubdomBase.Subdomain, params.Subdomain)

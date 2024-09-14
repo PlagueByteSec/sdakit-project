@@ -3,13 +3,11 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"time"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
@@ -26,17 +24,13 @@ func init() {
 		fmt.Println("[-] Failed to create output directory for global logger. No logs will be available!")
 		return
 	}
-	currentTime := time.Now()
-	formatTime := currentTime.Format("2006-01-02")
-	logFileName := fmt.Sprintf("%s-%s", formatTime, shared.LogFileName)
-	logFilePath := filepath.Join(shared.LoggerOutputDir, logFileName)
-	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+	var err error
+	logging.GLogger, err = logging.NewLogger()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("[-] Failed to initialize logger: %s\n", err)
 		return
 	}
-	utils.PrintVerbose("[*] log file created: %s\n", logFilePath)
-	shared.Glogger = log.New(logFile, "", log.LstdFlags|log.Lshortfile)
+	logging.GLogger.Start()
 }
 
 func MethodManagerInit() map[string]shared.EnumerationMethod {
@@ -77,7 +71,7 @@ func ValidsManagerInit() map[string]shared.ExternsMethod {
 	}
 }
 
-func InterruptListenerInit() {
+func InterruptListenerStart() {
 	// wait for interrupt signal and cancel execution
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt)

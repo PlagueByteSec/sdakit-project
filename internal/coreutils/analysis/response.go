@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
@@ -17,7 +18,7 @@ func (check *SubdomainCheck) getResponse(url string) *http.Response {
 func (check *SubdomainCheck) responseGetBody(response *http.Response) []byte {
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return nil
 	}
 	return responseBody

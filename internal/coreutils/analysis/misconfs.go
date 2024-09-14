@@ -11,14 +11,13 @@ func (check *SubdomainCheck) CORS() {
 
 func (check *SubdomainCheck) cookieInjectionPath() {
 	// session hijacking, xss
-	testHeader := "Set-Cookie"
-	testCookie := "jzqvtyxkplra"
-	url := MakeUrl(HTTP(Secure), check.Subdomain) + "%0d%0a" + testHeader + "%3A" + fmt.Sprintf("+tookie=%s", testCookie)
+	testCookie := "tookie=jzqvtyxkplra"
+	url := MakeUrl(HTTP(Secure), check.Subdomain)
 	if check.isPayloadReflected(url, HeadersCompare{
-		TestHeaderKey:   testHeader,
-		TestHeaderValue: testCookie,
+		TestHeaderKey:   "X-Custom-Header",
+		TestHeaderValue: "senpro\r\nSet-Cookie: " + testCookie,
 	}) {
-		output := fmt.Sprintf(" | + Payload reflected in response: %s: %s\n", testHeader, testCookie)
+		output := fmt.Sprintf(" | + Cookie set: %s\n", testCookie)
 		check.ConsoleOutput <- output
 	}
 }

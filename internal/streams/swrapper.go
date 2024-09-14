@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
@@ -24,7 +25,7 @@ func OpenOutputFileStreamsWrapper(filePaths *shared.FilePaths) {
 		separate file streams for each category (Subdomains, IPv4 addresses, and IPv6 addresses).
 	*/
 	if err := OpenOutputFileStreams(&shared.GStreams, filePaths); err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 	}
 }
 

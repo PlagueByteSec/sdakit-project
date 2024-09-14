@@ -12,6 +12,7 @@ import (
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils/analysis"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/streams"
@@ -47,7 +48,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 	*/
 	endpoints, err := utils.EditDbEntries(args)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 	}
 	utils.PrintVerbose("[*] Sending GET request to endpoints..\n")
 	/*
@@ -56,7 +57,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 	*/
 	for idx := 0; idx < len(endpoints); idx++ {
 		if err := requests.EndpointRequest(args.HttpRequestMethod, args.Domain, endpoints[idx], client); err != nil {
-			shared.Glogger.Println(err)
+			logging.GLogger.Log(err.Error())
 		}
 	}
 	poolSize := len(shared.GPoolBase.PoolSubdomains)
