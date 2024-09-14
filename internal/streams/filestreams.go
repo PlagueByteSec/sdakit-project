@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 )
@@ -41,7 +42,7 @@ func FilePathInit(args *shared.Args) (*shared.FilePaths, error) {
 		utils.PrintVerbose("[*] New output directory path set: %s\n", args.NewOutputDirPath)
 	}
 	if err := pkg.CreateOutputDir(args.NewOutputDirPath); err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return nil, err
 	}
 	var (
@@ -96,7 +97,7 @@ func OpenOutputFileStreams(streams *shared.FileStreams, paths *shared.FilePaths)
 		shared.DefaultPermission,
 	)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return err
 	}
 	streams.Ipv6AddrStream, err = os.OpenFile(
@@ -106,7 +107,7 @@ func OpenOutputFileStreams(streams *shared.FileStreams, paths *shared.FilePaths)
 	)
 	if err != nil {
 		streams.Ipv4AddrStream.Close()
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return err
 	}
 	streams.SubdomainStream, err = os.OpenFile(
@@ -117,7 +118,7 @@ func OpenOutputFileStreams(streams *shared.FileStreams, paths *shared.FilePaths)
 	if err != nil {
 		streams.Ipv4AddrStream.Close()
 		streams.Ipv6AddrStream.Close()
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return err
 	}
 	return nil
@@ -131,7 +132,7 @@ func CloseOutputFileStreams(streams *shared.FileStreams) {
 
 func fileValidate(filePath string) {
 	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		utils.SentinelExit(shared.SentinelExitParams{
 			ExitCode:    -1,
 			ExitMessage: "could not find: " + filePath,
@@ -143,7 +144,7 @@ func fileValidate(filePath string) {
 func openFileStreamSingle(filePath string) *os.File {
 	fileStream, err := os.Open(filePath)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		utils.SentinelExit(shared.SentinelExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Unable to open stream (read-mode) to: " + filePath,
@@ -157,7 +158,7 @@ func WordlistStreamInit(args *shared.Args) (*os.File, int) {
 	fileValidate(args.WordlistPath)
 	lineCount, err := pkg.FileCountLines(args.WordlistPath)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		utils.SentinelExit(shared.SentinelExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Failed to count lines of " + args.WordlistPath,
@@ -172,7 +173,7 @@ func RoFileStreamInit(filePath string) *os.File {
 	fileValidate(filePath)
 	n, err := pkg.FileCountLines(filePath)
 	if n == 0 {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		utils.SentinelExit(shared.SentinelExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Could not process an empty file: " + filePath,
@@ -194,7 +195,7 @@ func WriteOutputFileStream(stream *os.File, content string) error {
 func ScannerCheckError(scanner *bufio.Scanner) {
 	// Handle errors for wordlist scanner
 	if err := scanner.Err(); err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		utils.SentinelExit(shared.SentinelExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Scanner failed",

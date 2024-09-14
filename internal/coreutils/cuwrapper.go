@@ -4,6 +4,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 )
@@ -21,7 +22,7 @@ func PingWrapper(outputChan chan<- string, subdomain string, pingCount int) {
 func PortScanWrapper(outputChan chan<- string, subdomain string, portRange string) {
 	ports, err := requests.ScanPortRange(subdomain, portRange)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 	}
 	if ports != "" {
 		outputChan <- ports

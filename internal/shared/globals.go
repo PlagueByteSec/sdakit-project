@@ -2,13 +2,11 @@ package shared
 
 import (
 	"bufio"
-	"log"
 	"net"
 	"time"
 )
 
 var (
-	Glogger *log.Logger
 	GStdout *bufio.Writer
 )
 

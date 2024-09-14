@@ -1,8 +1,8 @@
 package analysis
 
 func (check *SubdomainCheck) Misconfigurations() {
-	check.hostHeaders()         // Host header injections
-	check.cookieInjectionPath() // session hijacking, xss
+	check.hostHeaders()     // Host header injections
+	check.cookieInjection() // session hijacking, xss
 }
 
 func (check *SubdomainCheck) PurposeHTTP() {

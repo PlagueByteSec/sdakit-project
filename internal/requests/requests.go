@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
 
@@ -52,7 +53,7 @@ func HttpClientInit(args *shared.Args) (*http.Client, error) {
 		*/
 		proxyUrl, err := url.Parse(shared.TorProxyUrl)
 		if err != nil {
-			shared.Glogger.Println(err)
+			logging.GLogger.Log(err.Error())
 			return nil, errors.New("failed to parse TOR proxy URL: " + err.Error())
 		}
 		httpClient = &http.Client{
@@ -154,7 +155,7 @@ func EndpointRequest(method string, host string, url string, client *http.Client
 		ResponseNeedBody: true,
 	})
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return err
 	}
 	body := string(responseBody)
@@ -188,7 +189,7 @@ func AnalyseHttpHeader(client *http.Client, subdomain string, method string) str
 		HttpNeedResponse: true,
 	})
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return ""
 	}
 	var (
@@ -226,12 +227,12 @@ func ScanPortRange(address string, ports string) (string, error) {
 		nmap.WithPorts(ports),
 	)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return "", errors.New("nmap scanner init failed: " + err.Error())
 	}
 	result, _, err := scanner.Run()
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return "", errors.New("port scan failed: " + err.Error())
 	}
 	var (
@@ -264,14 +265,14 @@ func ScanPortRange(address string, ports string) (string, error) {
 func PingSubdomain(subdomain string, pingCount int) error {
 	pinger, err := probing.NewPinger(subdomain)
 	if err != nil {
-		shared.Glogger.Println(err)
+		logging.GLogger.Log(err.Error())
 		return err
 	}
 	pinger.Count = 3
 	pinger.SetPrivileged(true)
 	err = pinger.Run()
 	if err != nil {
-		shared.Glogger.Print(err)
+		logging.GLogger.Log(err.Error())
 		return err
 	}
 	return nil

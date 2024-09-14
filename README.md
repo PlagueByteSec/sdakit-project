@@ -21,7 +21,7 @@ results will be sorted and saved for further processing.
 - ***Discover*** hidden subdomains using the preferred option
 - ***Filter*** the results to avoid unneccessary output overwhelming 
 - ***Analyze*** each subdomain for common security flaws and more
-- ***Report*** and organize all results for summary and further processing
+- ***Organize*** and report all results for summary and further processing
 
 ## Quick Start
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/cli"
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/streams"
@@ -68,9 +69,10 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 }
 
 func Run(args shared.Args) {
+	defer logging.GLogger.Stop()
 	shared.GVerbose = args.Verbose
 	var filePaths *shared.FilePaths = nil
-	InterruptListenerInit()
+	InterruptListenerStart()
 	/*
 		Set up the HTTP client with a default timeout of 5 seconds
 		or a custom timeout specified with the -t flag. If the -r flag

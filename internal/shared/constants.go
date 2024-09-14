@@ -31,9 +31,8 @@ const (
 // OUTPUT
 const (
 	LogFileName     = "sentinel.log"
-	VersionFile     = "version.txt"
 	LoggerOutputDir = "log"
 	OutputDir       = "output"
+	VersionFile     = "version.txt"
 )
-
 const DefaultPermission = 0755

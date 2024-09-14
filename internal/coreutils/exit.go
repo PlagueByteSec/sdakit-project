@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 )
 
@@ -14,9 +15,8 @@ func SentinelExit(exitParams shared.SentinelExitParams) {
 	*/
 	fmt.Fprintln(shared.GStdout, exitParams.ExitMessage)
 	if exitParams.ExitError != nil {
-		errorMessage := fmt.Sprintf("Sentinel exit with an error: %s", exitParams.ExitError.Error())
-		shared.Glogger.Println(errorMessage)
-		fmt.Fprintln(shared.GStdout, errorMessage)
+		logging.GLogger.Log(exitParams.ExitError.Error())
+		fmt.Fprintln(shared.GStdout, exitParams.ExitError.Error())
 	}
 	shared.GStdout.Flush()
 	os.Exit(exitParams.ExitCode)
@@ -25,6 +25,6 @@ func SentinelExit(exitParams shared.SentinelExitParams) {
 func SentinelPanic(err error) {
 	fmt.Fprintf(shared.GStdout, "\r%-50s\n", err)
 	shared.GStdout.Flush()
-	shared.Glogger.Println(err)
-	shared.Glogger.Fatalf("Program execution failed")
+	logging.GLogger.Log(err.Error())
+	os.Exit(-1)
 }
