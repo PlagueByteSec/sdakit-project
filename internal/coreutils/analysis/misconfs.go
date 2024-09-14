@@ -9,7 +9,7 @@ func (check *SubdomainCheck) CORS() {
 	check.testCors(url, "Origin") // GET
 }
 
-func (check *SubdomainCheck) cookieInjectionPath() {
+func (check *SubdomainCheck) cookieInjection() {
 	// session hijacking, xss
 	testCookie := "tookie=jzqvtyxkplra"
 	url := MakeUrl(HTTP(Secure), check.Subdomain)
