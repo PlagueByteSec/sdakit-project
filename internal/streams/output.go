@@ -76,6 +76,7 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 				}
 			}
 		}
+		// add ipv4 to json structure
 		shared.GSubdomBase.IpAddresses.IPv4 = append(
 			shared.GSubdomBase.IpAddresses.IPv4,
 			net.ParseIP(ip),
@@ -92,6 +93,7 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 				}
 			}
 		}
+		// add ipv6 to json structure
 		shared.GSubdomBase.IpAddresses.IPv6 = append(
 			shared.GSubdomBase.IpAddresses.IPv6,
 			net.ParseIP(ip),
