@@ -47,4 +47,5 @@ func PoolsCleanupSummary(pools *PoolBase) {
 	poolRemoveDuplicates(pools.PoolLoginSubdomains)
 	poolRemoveDuplicates(pools.PoolCorsSubdomains)
 	poolRemoveDuplicates(pools.PoolHttpSuccessSubdomains)
+	poolRemoveDuplicates(pools.PoolCmsSubdomains)
 }
