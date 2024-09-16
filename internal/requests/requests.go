@@ -212,7 +212,7 @@ func AnalyseHttpHeader(client *http.Client, subdomain string, method string) str
 	return outputBuilder.String()
 }
 
-func ScanPortRange(address string, ports string) (string, error) {
+func ScanPortRange(address string, ports string, portsOnly bool) (string, []uint16, error) {
 	/*
 		Use the Nmap Go package to perform a simple TCP port scan to
 		determine the port states and default services.
@@ -228,16 +228,17 @@ func ScanPortRange(address string, ports string) (string, error) {
 	)
 	if err != nil {
 		logging.GLogger.Log(err.Error())
-		return "", errors.New("nmap scanner init failed: " + err.Error())
+		return "", nil, errors.New("nmap scanner init failed: " + err.Error())
 	}
 	result, _, err := scanner.Run()
 	if err != nil {
 		logging.GLogger.Log(err.Error())
-		return "", errors.New("port scan failed: " + err.Error())
+		return "", nil, errors.New("port scan failed: " + err.Error())
 	}
 	var (
-		output strings.Builder
-		mark   string
+		output    strings.Builder
+		mark      string
+		openPorts []uint16
 	)
 	for _, host := range result.Hosts {
 		if len(host.Ports) == 0 || len(host.Addresses) == 0 {
@@ -251,6 +252,9 @@ func ScanPortRange(address string, ports string) (string, error) {
 			}
 			summary := fmt.Sprintf(" | %s Port %d/%s %s %s\n",
 				mark, port.ID, port.Protocol, port.State, port.Service.Name)
+			if portsOnly && port.State.String() == "open" {
+				openPorts = append(openPorts, port.ID)
+			}
 			output.WriteString(summary)
 			shared.GSubdomBase.OpenPorts = append(
 				shared.GSubdomBase.OpenPorts,
@@ -258,8 +262,11 @@ func ScanPortRange(address string, ports string) (string, error) {
 			)
 		}
 	}
+	if portsOnly {
+		return "", openPorts, nil
+	}
 	portResults := output.String()
-	return portResults, nil
+	return portResults, nil, nil
 }
 
 func PingSubdomain(subdomain string, pingCount int) error {

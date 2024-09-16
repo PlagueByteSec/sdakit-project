@@ -20,7 +20,7 @@ func PingWrapper(outputChan chan<- string, subdomain string, pingCount int) {
 }
 
 func PortScanWrapper(outputChan chan<- string, subdomain string, portRange string) {
-	ports, err := requests.ScanPortRange(subdomain, portRange)
+	ports, _, err := requests.ScanPortRange(subdomain, portRange, false)
 	if err != nil {
 		logging.GLogger.Log(err.Error())
 	}
