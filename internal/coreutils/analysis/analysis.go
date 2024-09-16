@@ -1,8 +1,8 @@
 package analysis
 
 import (
-	"fmt"
 	"net/http"
+	"strconv"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
@@ -82,30 +82,12 @@ var (
 	}
 )
 
-type HTTP int
-
-const (
-	Basic HTTP = iota
-	Secure
-)
-
 func cloudflareError(statusCode int, subdomain string) bool {
 	if statusCode == 520 {
 		utils.PrintVerbose(" | - %s responds with %d, (server error, cloudflare)\n", subdomain, statusCode)
 		return true
 	}
 	return false
-}
-
-func MakeUrl(http HTTP, subdomain string) string {
-	var proto string
-	switch http {
-	case Basic:
-		proto = "http://"
-	case Secure:
-		proto = "https://"
-	}
-	return fmt.Sprintf("%s%s", proto, subdomain)
 }
 
 func (check *SubdomainCheck) AnalysisSendRequest(setup AnalysisRequestConfig) *http.Response {
@@ -119,8 +101,9 @@ func (check *SubdomainCheck) AnalysisSendRequest(setup AnalysisRequestConfig) *h
 		logging.GLogger.Log(err.Error())
 		return nil
 	}
-	if pkg.IsInSlice(string(httpResponse.StatusCode), errorCodes) {
-		logging.GLogger.Log("Error: Server returned: " + string(httpResponse.StatusCode))
+	codeToString := strconv.Itoa(httpResponse.StatusCode)
+	if pkg.IsInSlice(codeToString, errorCodes) {
+		logging.GLogger.Log("Error: Server returned: " + codeToString)
 		return nil
 	}
 	return httpResponse

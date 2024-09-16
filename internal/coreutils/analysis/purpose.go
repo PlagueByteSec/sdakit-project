@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/fhAnso/astkit"
 )
 
 func (check *SubdomainCheck) MailServer() {
@@ -21,7 +23,7 @@ func (check *SubdomainCheck) MailServer() {
 }
 
 func (check *SubdomainCheck) api() {
-	url := MakeUrl(HTTP(Basic), check.Subdomain)
+	url := astkit.MakeUrl(astkit.HTTP(astkit.Basic), check.Subdomain)
 	for idx := 0; idx < len(methods); idx++ {
 		response := check.AnalysisSendRequest(AnalysisRequestConfig{Method: methods[idx], URL: url, Header: "", Value: ""})
 		if response == nil {
@@ -45,23 +47,17 @@ func (check *SubdomainCheck) login() {
 }
 
 func (check *SubdomainCheck) cms() {
-	url := MakeUrl(HTTP(Basic), check.Subdomain)
-	response := check.getResponse(url)
-	if response == nil {
+	url := astkit.MakeUrl(astkit.HTTP(astkit.Secure), check.Subdomain)
+	client := astkit.ASTkitClient{
+		HttpClient: check.HttpClient,
+		URL:        url,
+	}
+	cms, err := astkit.ASTkitDetectCMS(&client)
+	if err != nil {
+		logging.GLogger.Log(err.Error())
 		return
 	}
-	body := check.responseGetBody(response)
-	if len(body) == 0 {
-		return
-	}
-	html := string(body)
-	for cmsName, indicators := range cmsIndicators {
-		for idx := 0; idx < len(indicators); idx++ {
-			if strings.Contains(html, indicators[idx]) {
-				shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCmsSubdomains)
-				check.ConsoleOutput <- fmt.Sprintf(" | + CMS: %s\n", cmsName)
-				break
-			}
-		}
+	if !strings.Contains(cms, "unknown") {
+		check.ConsoleOutput <- fmt.Sprintf(" | + CMS: %s\n", cms)
 	}
 }
