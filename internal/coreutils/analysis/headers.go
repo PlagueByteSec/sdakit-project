@@ -38,9 +38,16 @@ func (check *SubdomainCheck) checkFormat(responseHeaderKey string, responseHeade
 }
 
 func headerAccepted(compare HeadersCompare) bool {
-	// Ensure the response header contains the test header/value.
-	return strings.Contains(compare.ResponseHeaderKey, compare.TestHeaderKey) &&
-		strings.Contains(strings.Join(compare.ResponseHeaderValue, ", "), compare.TestHeaderValue)
+	if compare.TestHeaderKey != compare.ResponseHeaderKey {
+		return false
+	}
+	for i := 0; i < len(compare.ResponseHeaderValue); i++ {
+		value := compare.ResponseHeaderValue[i]
+		if strings.Contains(value, compare.TestHeaderValue) {
+			return true
+		}
+	}
+	return false
 }
 
 func (check *SubdomainCheck) investigateAcaoHeaders(response *http.Response) {
@@ -99,25 +106,6 @@ func (check *SubdomainCheck) hostHeaders() { // allow redirect = true
 			check.ConsoleOutput <- "\n"
 		}
 	}
-}
-
-// Ensure the injected cookie is reflected in the response from the current subdomain.
-func (check *SubdomainCheck) isPayloadReflected(url string, compare HeadersCompare) bool {
-	var isReflected bool
-	response := check.AnalysisSendRequest(AnalysisRequestConfig{Method: "POST", URL: url, Header: "", Value: ""})
-	if response == nil {
-		return isReflected
-	}
-	defer response.Body.Close()
-	for responseHeaderKey, responseHeaderValue := range response.Header {
-		if headerAccepted(HeadersCompare{
-			compare.TestHeaderKey, compare.TestHeaderValue,
-			responseHeaderKey, responseHeaderValue,
-		}) {
-			isReflected = true
-		}
-	}
-	return isReflected
 }
 
 func (check *SubdomainCheck) isExchange() bool {
