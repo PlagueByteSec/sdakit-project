@@ -11,12 +11,12 @@ import (
 	"time"
 
 	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils/analysis"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/streams"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	"github.com/fhAnso/astkit"
 )
 
 func OpenStreamsEnum(args *shared.Args, filePaths *shared.FilePaths) (*os.File, int) {
@@ -232,11 +232,11 @@ func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePat
 		HTTPS:            "443",
 		AlternativeHTTPS: "8443",
 	}
-	var proto analysis.HTTP
+	var proto astkit.HTTP
 	if strings.Contains(portScanSummary, port[HTTPS]) || strings.Contains(portScanSummary, port[AlternativeHTTPS]) {
-		proto = analysis.HTTP(analysis.Basic)
+		proto = astkit.HTTP(astkit.Basic)
 	} else if strings.Contains(portScanSummary, port[HTTP]) || strings.Contains(portScanSummary, port[AlternativeHTTP]) {
-		proto = analysis.HTTP(analysis.Secure)
+		proto = astkit.HTTP(astkit.Secure)
 	} else {
 		fmt.Fprintf(shared.GStdout, "[-] Port scan failed, scanned: ")
 		for _, value := range port {
@@ -245,7 +245,7 @@ func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePat
 		fmt.Fprintln(shared.GStdout)
 		return
 	}
-	ipUrl := analysis.MakeUrl(proto, ipAddress)
+	ipUrl := astkit.MakeUrl(proto, ipAddress)
 	_, statusCode, _, _ := requests.RequestHandlerCore(&requests.HttpRequestBase{
 		HttpClient:             client,
 		CustomUrl:              ipUrl,

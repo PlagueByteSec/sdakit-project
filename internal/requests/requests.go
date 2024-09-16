@@ -252,14 +252,17 @@ func ScanPortRange(address string, ports string, portsOnly bool) (string, []uint
 			}
 			summary := fmt.Sprintf(" | %s Port %d/%s %s %s\n",
 				mark, port.ID, port.Protocol, port.State, port.Service.Name)
-			if portsOnly && port.State.String() == "open" {
+			isOpen := port.State.String() == "open"
+			if portsOnly && isOpen {
 				openPorts = append(openPorts, port.ID)
+				continue
+			} else if isOpen {
+				output.WriteString(summary)
+				shared.GSubdomBase.OpenPorts = append(
+					shared.GSubdomBase.OpenPorts,
+					int(port.ID),
+				)
 			}
-			output.WriteString(summary)
-			shared.GSubdomBase.OpenPorts = append(
-				shared.GSubdomBase.OpenPorts,
-				int(port.ID),
-			)
 		}
 	}
 	if portsOnly {

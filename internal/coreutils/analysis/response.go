@@ -8,6 +8,7 @@ import (
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	"github.com/fhAnso/astkit"
 )
 
 func (check *SubdomainCheck) getResponse(url string) *http.Response {
@@ -25,7 +26,7 @@ func (check *SubdomainCheck) responseGetBody(response *http.Response) []byte {
 }
 
 func (check *SubdomainCheck) checkPage(pageType string, pageInvestigate func(string, *http.Response) bool, successMessage string) {
-	url := MakeUrl(HTTP(Basic), check.Subdomain)
+	url := astkit.MakeUrl(astkit.HTTP(astkit.Basic), check.Subdomain)
 	response := check.getResponse(url)
 	if response == nil {
 		return

@@ -9,10 +9,11 @@ import (
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	"github.com/fhAnso/astkit"
 )
 
 func (check *SubdomainCheck) testHostHeader(header string) bool {
-	url := MakeUrl(HTTP(Secure), check.Subdomain)
+	url := astkit.MakeUrl(astkit.HTTP(astkit.Secure), check.Subdomain)
 	response := check.AnalysisSendRequest(AnalysisRequestConfig{Method: "GET", URL: url, Header: header, Value: testDomain})
 	// ensure the response include test domain
 	return pkg.Tern(response != nil, check.investigateHostHeaders(header, response), false)

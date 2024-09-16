@@ -4,17 +4,16 @@ import (
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
-	"github.com/fhAnso/ASTkit/client"
-	"github.com/fhAnso/ASTkit/httph"
+	"github.com/fhAnso/astkit"
 )
 
 func (check *SubdomainCheck) CORS() {
-	url := MakeUrl(HTTP(Secure), check.Subdomain)
+	url := astkit.MakeUrl(astkit.HTTP(astkit.Secure), check.Subdomain)
 	check.testCors(url, "Origin") // GET
 }
 
 func (check *SubdomainCheck) cookieInjection() {
-	client := client.ASTkitClient{
+	client := astkit.ASTkitClient{
 		HttpClient: check.HttpClient,
 	}
 	_, openPorts, _ := requests.ScanPortRange(check.Subdomain, "80,8080,443,8443", true)
@@ -22,7 +21,7 @@ func (check *SubdomainCheck) cookieInjection() {
 		return
 	}
 	for idx := 0; idx < len(openPorts); idx++ {
-		result, err := httph.InjectCookie(httph.HeaderInjectionConfig{
+		result, err := astkit.InjectCookie(astkit.HeaderInjectionConfig{
 			Client:    &client,
 			Host:      check.Subdomain,
 			Port:      openPorts[idx],
