@@ -45,17 +45,24 @@ func headerAccepted(compare HeadersCompare) bool {
 
 func (check *SubdomainCheck) investigateAcaoHeaders(response *http.Response) {
 	var success bool
+	processSuccess := func(message string) {
+		check.ConsoleOutput <- fmt.Sprintf(" | + CORS: %s\n", message)
+		success = true
+	}
 	for responseHeaderKey, responseHeaderValue := range response.Header {
 		switch {
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", testDomain, responseHeaderKey, responseHeaderValue}):
-			check.ConsoleOutput <- fmt.Sprintf(" | + [CORS:OK]: %s accepts %s as origin\n", check.Subdomain, testDomain)
-			success = true
+			processSuccess(fmt.Sprintf("%s accepts %s as origin\n", check.Subdomain, testDomain))
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", "null", responseHeaderKey, responseHeaderValue}):
-			check.ConsoleOutput <- fmt.Sprintf(" | + [CORS:OK]: %s accepts null as origin\n", check.Subdomain)
-			success = true
+			processSuccess(fmt.Sprintf("%s accepts null as origin\n", check.Subdomain))
+		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", "*", responseHeaderKey, responseHeaderValue}):
+			processSuccess(fmt.Sprintf("%s allows all origins\n", check.Subdomain))
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Credentials", "true", responseHeaderKey, responseHeaderValue}):
-			check.ConsoleOutput <- fmt.Sprintf(" | + [CORS:OK]: %s allows creds in request\n", check.Subdomain)
-			success = true
+			if headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", "*", responseHeaderKey, responseHeaderValue}) {
+				processSuccess(fmt.Sprintf("%s allows credentials with wildcard origin\n", check.Subdomain))
+			} else {
+				processSuccess(fmt.Sprintf("%s allows credentials in request\n", check.Subdomain))
+			}
 		}
 	}
 	if success {
