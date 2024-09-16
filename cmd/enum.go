@@ -215,7 +215,7 @@ func VHostEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePat
 	scanner := bufio.NewScanner(wordlistStream)
 	fmt.Fprintln(shared.GStdout)
 	ipAddress := net.ParseIP(args.IpAddress).String()
-	portScanSummary, err := requests.ScanPortRange(ipAddress, "80,443")
+	portScanSummary, _, err := requests.ScanPortRange(ipAddress, "80,443", false)
 	if err != nil {
 		fmt.Fprintln(shared.GStdout, err.Error())
 		return

@@ -2,6 +2,10 @@ github.com/Ullaakut/nmap/v3 v3.0.3 h1:bSFREzf0vWOi27vncgP/tiIRUx2OP+N0hGo8O/YHec
 github.com/Ullaakut/nmap/v3 v3.0.3/go.mod h1:dd5K68P7LHc5nKrFwQx6EdTt61O9UN5x3zn1R4SLcco=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/fhAnso/ASTkit/client v0.0.0-20240916142823-2c5604ffaf26 h1:sZTVFRJEloOo8aGrtU5EGHgPgtm5kBx4vLF0a6BS8DU=
+github.com/fhAnso/ASTkit/client v0.0.0-20240916142823-2c5604ffaf26/go.mod h1:+Xg4Wa+CgatgbupYgF7RgYfIL+9xDdH1J4vigbC8KDU=
+github.com/fhAnso/ASTkit/httph v0.0.0-20240916142823-2c5604ffaf26 h1:grHm9iDpborqg/ytNjppcFPjx1phLj32yCyVYA0xE/M=
+github.com/fhAnso/ASTkit/httph v0.0.0-20240916142823-2c5604ffaf26/go.mod h1:kGB5b+w0CHjVo3MmOv7D4dsjcUON4xl71KV/OdyCBI4=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/hashicorp/go-version v1.7.0 h1:5tqGy27NaOTB8yJKUZELlFAS/LTKJkrmONwQKeRZfjY=
