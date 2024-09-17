@@ -3,6 +3,7 @@ package analysis
 func (check *SubdomainCheck) Misconfigurations() {
 	check.hostHeaders()     // Host header injections
 	check.cookieInjection() // session hijacking, xss
+	check.CORS()
 }
 
 func (check *SubdomainCheck) PurposeHTTP() {
