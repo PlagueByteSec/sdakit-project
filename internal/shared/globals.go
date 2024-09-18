@@ -49,3 +49,15 @@ var (
 	GLoginCount     int
 	GCorsCount      int
 )
+
+var (
+	GTargetDomain string
+	GScanMethod   string
+)
+
+var GReportPool = make(map[string]SetTestResults)
+
+var (
+	GCurrentIPv4Filename string
+	GCurrentIPv6Filename string
+)

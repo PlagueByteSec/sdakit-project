@@ -77,7 +77,7 @@ func InterruptListenerStart() {
 	signal.Notify(sigChan, os.Interrupt)
 	go func() {
 		for range sigChan {
-			utils.SentinelExit(shared.SentinelExitParams{
+			utils.ProgramExit(utils.ExitParams{
 				ExitCode:    0,
 				ExitMessage: "\n\nG0oDBy3!",
 				ExitError:   nil,

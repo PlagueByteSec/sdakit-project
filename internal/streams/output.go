@@ -178,7 +178,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 		headers := requests.AnalyseHttpHeader(settings.HttpClient, settings.Params.Subdomain, settings.Args.HttpRequestMethod)
 		outputChan <- headers
 	}
-	if settings.IpAddrsOut != "" && !settings.Args.EnableVHostEnum {
+	if settings.IpAddrsOut != "" {
 		outputChan <- fmt.Sprintf(" | IP Addresses: %s\n", settings.IpAddrsOut)
 	}
 	if settings.Args.PortScan != "" {
@@ -222,6 +222,9 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 
 func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args,
 	params shared.Params, url string) {
+	if shared.GScanMethod != shared.Passive {
+		shared.PoolAppendValue(params.Subdomain, &shared.GPoolBase.PoolSubdomains)
+	}
 	shared.GStdout.Flush()
 	if args.HttpCode || args.AnalyzeHeader {
 		time.Sleep(time.Duration(args.HttpRequestDelay) * time.Millisecond)
@@ -230,9 +233,15 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 		Perform a DNS lookup to determine the IP addresses (IPv4 and IPv6). The addresses will
 		be returned as a slice and separated as strings.
 	*/
-	ipAddrsOut, ipAddrs := utils.IpResolveWrapper(shared.GDnsResolver, params.Subdomain)
-	if ipAddrs == nil {
-		return
+	var (
+		ipAddrsOut string
+		ipAddrs    []string
+	)
+	if !utils.IsPassiveEnumeration(args) {
+		ipAddrsOut, ipAddrs = utils.IpResolveWrapper(shared.GDnsResolver, params.Subdomain)
+		if ipAddrs == nil {
+			return
+		}
 	}
 	var wg sync.WaitGroup
 	var consoleOutput strings.Builder

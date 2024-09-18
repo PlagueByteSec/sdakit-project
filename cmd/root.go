@@ -20,6 +20,7 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 		switch key {
 		case shared.Passive: // Request endpoints (certificate transparency logs etc.)
 			if utils.IsPassiveEnumeration(&args) {
+				shared.GScanMethod = method.MethodKey
 				fmt.Fprintln(shared.GStdout, method.MethodKey)
 				fmt.Fprintln(shared.GStdout)
 				method.Action(&args, httpClient, filePaths)
@@ -27,18 +28,21 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 			}
 		case shared.Active: // Brute-force by evaluating HTTP codes
 			if utils.IsActiveEnumeration(&args) {
+				shared.GScanMethod = method.MethodKey
 				fmt.Fprintln(shared.GStdout, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.Dns: // Try to resolve a list of subdomains to IP addresses
 			if utils.IsDnsEnumeration(&args) {
+				shared.GScanMethod = method.MethodKey
 				fmt.Fprintln(shared.GStdout, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.VHost:
 			if utils.IsVHostEnumeration(&args) {
+				shared.GScanMethod = method.MethodKey
 				fmt.Fprintln(shared.GStdout, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
@@ -71,6 +75,7 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 func Run(args shared.Args) {
 	defer logging.GLogger.Stop()
 	shared.GVerbose = args.Verbose
+	shared.GTargetDomain = args.Domain
 	var filePaths *shared.FilePaths = nil
 	InterruptListenerStart()
 	/*
@@ -81,7 +86,11 @@ func Run(args shared.Args) {
 	*/
 	httpClient, err := requests.HttpClientInit(&args)
 	if err != nil {
-		utils.SentinelPanic(err)
+		utils.ProgramExit(utils.ExitParams{
+			ExitCode:    -1,
+			ExitMessage: "HttpClientInit failed",
+			ExitError:   err,
+		})
 	}
 	// Print banner and compare local with repo version
 	utils.PrintBanner(httpClient)
@@ -98,14 +107,18 @@ func Run(args shared.Args) {
 		*/
 		filePaths, err = streams.FilePathInit(&args)
 		if err != nil {
-			utils.SentinelPanic(err)
+			utils.ProgramExit(utils.ExitParams{
+				ExitCode:    -1,
+				ExitMessage: "FilePathInitInit failed",
+				ExitError:   err,
+			})
 		}
 	}
 	utils.PrintVerbose("[*] HTTP request method: %s\n", args.HttpRequestMethod)
 	fmt.Fprint(shared.GStdout, "[*] Method: ")
 	methodManager(args, httpClient, filePaths)
 	if shared.GIsExec == 0 {
-		utils.SentinelExit(shared.SentinelExitParams{
+		utils.ProgramExit(utils.ExitParams{
 			ExitCode:    -1,
 			ExitMessage: cli.HelpBanner,
 			ExitError:   errors.New("failed to start enum: syntax error"),
@@ -118,7 +131,7 @@ func Run(args shared.Args) {
 	if !shared.GDisableAllOutput {
 		streams.WriteJSON(filePaths.FilePathJSON)
 	}
-	utils.SentinelExit(shared.SentinelExitParams{
+	utils.ProgramExit(utils.ExitParams{
 		ExitCode:    0,
 		ExitMessage: "",
 		ExitError:   nil,

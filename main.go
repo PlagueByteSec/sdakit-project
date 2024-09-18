@@ -8,7 +8,11 @@ import (
 func main() {
 	args, err := cmd.CliParser()
 	if err != nil {
-		utils.SentinelPanic(err)
+		utils.ProgramExit(utils.ExitParams{
+			ExitCode:    -1,
+			ExitMessage: "CliParser failed",
+			ExitError:   err,
+		})
 	}
 	cmd.Run(args)
 }
