@@ -11,12 +11,16 @@ import (
 
 func OutputHandlerWrapper(subdomain string, client *http.Client, args *shared.Args,
 	paramsSetupFiles *shared.ParamsSetupFilesBase, url string) {
-	dotChan := make(chan struct{})
-	go pkg.PrintDots(subdomain, dotChan)
-	fmt.Fprintf(shared.GStdout, "\rFOUND: %s, analyzing", subdomain)
-	shared.GStdout.Flush()
-	OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams, url)
-	close(dotChan)
+	if args.AnalyzeHeader || args.MisconfTest || args.DetectPurpose {
+		dotChan := make(chan struct{})
+		go pkg.PrintDots(subdomain, dotChan)
+		fmt.Fprintf(shared.GStdout, "\rFOUND: %s, analyzing", subdomain)
+		shared.GStdout.Flush()
+		OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams, url)
+		close(dotChan)
+	} else {
+		OutputHandler(&shared.GStreams, client, args, *paramsSetupFiles.FileParams, url)
+	}
 }
 
 func OpenOutputFileStreamsWrapper(filePaths *shared.FilePaths) {

@@ -47,6 +47,18 @@ func (check *SubdomainCheck) cookieInjection() {
 			continue
 		}
 		check.ConsoleOutput <- result
+		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCookieInjection)
+		shared.GReportPool["CI"] = shared.SetTestResults{
+			TestName:   "Cookie injection",
+			TestResult: "FOUND",
+			Subdomain:  check.Subdomain,
+		}
+		return
+	}
+	shared.GReportPool["CI"] = shared.SetTestResults{
+		TestName:   "Cookie injection",
+		TestResult: "PASSED",
+		Subdomain:  check.Subdomain,
 	}
 }
 
@@ -77,8 +89,18 @@ func (check *SubdomainCheck) requestSmuggling() {
 				continue
 			}
 			check.ConsoleOutput <- result
+			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolRequestSmuggling)
+			shared.GReportPool["RS"] = shared.SetTestResults{
+				TestName:   "Request smuggling",
+				TestResult: "FOUND",
+				Subdomain:  check.Subdomain,
+			}
+			return
 		}
 	}
+	shared.GReportPool["RS"] = shared.SetTestResults{
+		TestName:   "Request smuggling",
+		TestResult: "PASSED",
+		Subdomain:  check.Subdomain,
+	}
 }
-
-// TODO: func (check *SubdomainCheck) RequestSmuggling(httpClient *http.Client)

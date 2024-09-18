@@ -121,6 +121,8 @@ func OpenOutputFileStreams(streams *shared.FileStreams, paths *shared.FilePaths)
 		logging.GLogger.Log(err.Error())
 		return err
 	}
+	shared.GCurrentIPv4Filename = paths.FilePathIPv4
+	shared.GCurrentIPv6Filename = paths.FilePathIPv6
 	return nil
 }
 
@@ -132,8 +134,7 @@ func CloseOutputFileStreams(streams *shared.FileStreams) {
 
 func fileValidate(filePath string) {
 	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-		logging.GLogger.Log(err.Error())
-		utils.SentinelExit(shared.SentinelExitParams{
+		utils.ProgramExit(utils.ExitParams{
 			ExitCode:    -1,
 			ExitMessage: "could not find: " + filePath,
 			ExitError:   err,
@@ -144,8 +145,7 @@ func fileValidate(filePath string) {
 func openFileStreamSingle(filePath string) *os.File {
 	fileStream, err := os.Open(filePath)
 	if err != nil {
-		logging.GLogger.Log(err.Error())
-		utils.SentinelExit(shared.SentinelExitParams{
+		utils.ProgramExit(utils.ExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Unable to open stream (read-mode) to: " + filePath,
 			ExitError:   err,
@@ -158,8 +158,7 @@ func WordlistStreamInit(args *shared.Args) (*os.File, int) {
 	fileValidate(args.WordlistPath)
 	lineCount, err := pkg.FileCountLines(args.WordlistPath)
 	if err != nil {
-		logging.GLogger.Log(err.Error())
-		utils.SentinelExit(shared.SentinelExitParams{
+		utils.ProgramExit(utils.ExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Failed to count lines of " + args.WordlistPath,
 			ExitError:   err,
@@ -173,11 +172,10 @@ func RoFileStreamInit(filePath string) *os.File {
 	fileValidate(filePath)
 	n, err := pkg.FileCountLines(filePath)
 	if n == 0 {
-		logging.GLogger.Log(err.Error())
-		utils.SentinelExit(shared.SentinelExitParams{
+		utils.ProgramExit(utils.ExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Could not process an empty file: " + filePath,
-			ExitError:   nil,
+			ExitError:   err,
 		})
 	}
 	ipListStream := openFileStreamSingle(filePath)
@@ -195,8 +193,7 @@ func WriteOutputFileStream(stream *os.File, content string) error {
 func ScannerCheckError(scanner *bufio.Scanner) {
 	// Handle errors for wordlist scanner
 	if err := scanner.Err(); err != nil {
-		logging.GLogger.Log(err.Error())
-		utils.SentinelExit(shared.SentinelExitParams{
+		utils.ProgramExit(utils.ExitParams{
 			ExitCode:    -1,
 			ExitMessage: "Scanner failed",
 			ExitError:   err,

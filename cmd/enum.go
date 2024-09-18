@@ -35,7 +35,7 @@ func NextEntry() {
 func Finish(scanner *bufio.Scanner) {
 	streams.ScannerCheckError(scanner)
 	fmt.Print("\r")
-	utils.PrintSummary(shared.GStartTime, shared.GObtainedCounter)
+	utils.WriteSummary(shared.GStartTime, shared.GObtainedCounter)
 }
 
 func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -91,7 +91,7 @@ func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FileP
 		streams.OutputHandlerWrapper(subdomain, client, args, &paramsSetupFiles, "")
 	}
 	// Evaluate the summary and format it for writing to stdout.
-	utils.PrintSummary(startTime, poolSize)
+	utils.WriteSummary(startTime, poolSize)
 }
 
 func DirectEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
@@ -159,7 +159,7 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 		testValue := strings.Split(args.DnsLookupCustom, ":")
 		dnsServerIp := net.ParseIP(testValue[0])
 		if testValue == nil {
-			utils.SentinelExit(shared.SentinelExitParams{
+			utils.ProgramExit(utils.ExitParams{
 				ExitCode:    -1,
 				ExitMessage: "Please specify a valid DNS server address",
 				ExitError:   nil,
@@ -167,7 +167,7 @@ func DnsEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths
 		}
 		dnsServerPort, err := strconv.ParseInt(testValue[1], 0, 16)
 		if err != nil || dnsServerPort < 1 && dnsServerPort > 65535 {
-			utils.SentinelExit(shared.SentinelExitParams{
+			utils.ProgramExit(utils.ExitParams{
 				ExitCode:    -1,
 				ExitMessage: "Please specify a valid DNS server port",
 				ExitError:   nil,

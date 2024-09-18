@@ -51,24 +51,43 @@ func headerAccepted(compare HeadersCompare) bool {
 }
 
 func (check *SubdomainCheck) investigateAcaoHeaders(response *http.Response) {
-	var success bool
+	var (
+		success bool
+		result  string
+	)
 	processSuccess := func(message string) {
+		shared.GReportPool["CORS"] = shared.SetTestResults{
+			TestName:   "CORS",
+			TestResult: "FOUND",
+			Subdomain:  check.Subdomain,
+		}
 		check.ConsoleOutput <- fmt.Sprintf(" | + CORS: %s\n", message)
 		success = true
 	}
 	for responseHeaderKey, responseHeaderValue := range response.Header {
 		switch {
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", testDomain, responseHeaderKey, responseHeaderValue}):
-			processSuccess(fmt.Sprintf("%s accepts %s as origin\n", check.Subdomain, testDomain))
+			result = fmt.Sprintf("%s accepts %s as origin\n", check.Subdomain, testDomain)
+			processSuccess(result)
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", "null", responseHeaderKey, responseHeaderValue}):
-			processSuccess(fmt.Sprintf("%s accepts null as origin\n", check.Subdomain))
+			result = fmt.Sprintf("%s accepts null as origin\n", check.Subdomain)
+			processSuccess(result)
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", "*", responseHeaderKey, responseHeaderValue}):
-			processSuccess(fmt.Sprintf("%s allows all origins\n", check.Subdomain))
+			result = fmt.Sprintf("%s allows all origins\n", check.Subdomain)
+			processSuccess(result)
 		case headerAccepted(HeadersCompare{"Access-Control-Allow-Credentials", "true", responseHeaderKey, responseHeaderValue}):
 			if headerAccepted(HeadersCompare{"Access-Control-Allow-Origin", "*", responseHeaderKey, responseHeaderValue}) {
-				processSuccess(fmt.Sprintf("%s allows credentials with wildcard origin\n", check.Subdomain))
+				result = fmt.Sprintf("%s allows credentials with wildcard origin\n", check.Subdomain)
+				processSuccess(result)
 			} else {
-				processSuccess(fmt.Sprintf("%s allows credentials in request\n", check.Subdomain))
+				result = fmt.Sprintf("%s allows credentials in request\n", check.Subdomain)
+				processSuccess(result)
+			}
+		default:
+			shared.GReportPool["CORS"] = shared.SetTestResults{
+				TestName:   "CORS",
+				TestResult: "PASSED",
+				Subdomain:  check.Subdomain,
 			}
 		}
 	}

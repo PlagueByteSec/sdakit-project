@@ -8,23 +8,41 @@ import (
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 )
 
-func SentinelExit(exitParams shared.SentinelExitParams) {
+type ExitParams struct {
+	ExitCode    int
+	ExitMessage string
+	ExitError   error
+}
+
+func cleanEmptyFiles() {
+	files := []string{
+		shared.GCurrentIPv4Filename,
+		shared.GCurrentIPv6Filename,
+	}
+	for idx := 0; idx < len(files); idx++ {
+		currentFile := files[idx]
+		checkFile, err := os.Stat(currentFile)
+		if err != nil {
+			logging.GLogger.Log(err.Error())
+			continue
+		}
+		if checkFile.Size() == 0 {
+			os.Remove(currentFile)
+		}
+	}
+}
+
+func ProgramExit(exitParams ExitParams) {
 	/*
-		Read the exit settings specified in SentinelExitParams and
+		Read the exit settings and
 		adjust the behavior based on those settings.
 	*/
 	fmt.Fprintln(shared.GStdout, exitParams.ExitMessage)
 	if exitParams.ExitError != nil {
 		logging.GLogger.Log(exitParams.ExitError.Error())
-		fmt.Fprintln(shared.GStdout, exitParams.ExitError.Error())
+		fmt.Fprintf(shared.GStdout, "\r%-50s\n", exitParams.ExitError.Error())
 	}
+	cleanEmptyFiles()
 	shared.GStdout.Flush()
 	os.Exit(exitParams.ExitCode)
-}
-
-func SentinelPanic(err error) {
-	fmt.Fprintf(shared.GStdout, "\r%-50s\n", err)
-	shared.GStdout.Flush()
-	logging.GLogger.Log(err.Error())
-	os.Exit(-1)
 }

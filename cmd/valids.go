@@ -64,7 +64,11 @@ func PingFromFile(args *shared.Args) {
 func AnalyseHttpHeaderSingle(args *shared.Args) {
 	httpClient, err := requests.HttpClientInit(args)
 	if err != nil {
-		utils.SentinelPanic(err)
+		utils.ProgramExit(utils.ExitParams{
+			ExitCode:    -1,
+			ExitMessage: "HttpClientInit failed",
+			ExitError:   err,
+		})
 	}
 	if strings.HasPrefix(args.Subdomain, "http://") {
 		args.Subdomain = strings.TrimPrefix(args.Subdomain, "http://")

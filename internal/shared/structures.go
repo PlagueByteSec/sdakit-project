@@ -65,6 +65,15 @@ type PoolBase struct {
 	PoolCorsSubdomains        []string
 	PoolHttpSuccessSubdomains []string
 	PoolCmsSubdomains         []string
+	PoolCookieInjection       []string
+	PoolHeaderInjection       []string
+	PoolRequestSmuggling      []string
+}
+
+type SetTestResults struct {
+	TestName   string
+	TestResult string
+	Subdomain  string
 }
 
 type EnumerationMethod struct {
@@ -138,11 +147,4 @@ type SubdomainBase struct {
 
 type JsonResult struct {
 	Subdomains []SubdomainBase `json:"subdomains"`
-}
-
-// EXIT
-type SentinelExitParams struct {
-	ExitCode    int
-	ExitMessage string
-	ExitError   error
 }
