@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
@@ -12,7 +11,7 @@ import (
 
 func OutputHandlerWrapper(subdomain string, client *http.Client, args *shared.Args,
 	paramsSetupFiles *shared.ParamsSetupFilesBase, url string) {
-	if !utils.IsPassiveEnumeration(args) {
+	if args.AnalyzeHeader || args.MisconfTest || args.DetectPurpose {
 		dotChan := make(chan struct{})
 		go pkg.PrintDots(subdomain, dotChan)
 		fmt.Fprintf(shared.GStdout, "\rFOUND: %s, analyzing", subdomain)
