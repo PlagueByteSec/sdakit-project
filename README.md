@@ -19,9 +19,10 @@ results will be sorted and saved for further processing.
 ## Overview
 
 - ***Discover*** hidden subdomains using the preferred option
-- ***Filter*** the results to avoid unneccessary output overwhelming 
 - ***Analyze*** each subdomain for common security flaws and more
-- ***Organize*** and report all results for summary and further processing
+- ***Filter*** all output as needed
+- ***Categorize*** all results and store addresses seperately
+- ***Generate*** a report automatically containing all test results and found subdomains
 
 ## Quick Start
 
