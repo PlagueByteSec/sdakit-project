@@ -21,13 +21,13 @@ type summaryConfig struct {
 
 func summaryEvaluatePool(reportGenerator *report.ReportGenerator, config report.ReportGeneratorConfig) {
 	if len(*config.Pool) != 0 {
-		reportGenerator.WriteToReport(`<ol>`)
+		reportGenerator.WriteToReport(`<ol>` + "\n")
 		fmt.Fprintf(shared.GStdout, config.Output.Message)
 		for idx, subdomain := range *config.Pool {
 			fmt.Fprintf(shared.GStdout, " |  %d. %s\n", idx+1, subdomain)
-			reportGenerator.WriteToReport(`<h3><li>` + subdomain + `</li></h3>`)
+			reportGenerator.WriteToReport(`<h3><li>` + subdomain + `</li></h3>` + "\n")
 		}
-		reportGenerator.WriteToReport(`</ol>`)
+		reportGenerator.WriteToReport(`</ol>` + "\n")
 		shared.GStdout.Flush()
 	}
 }
@@ -42,7 +42,7 @@ func generateSummary(config summaryConfig) {
 	if !config.noSup {
 		temp = plural(poolSize, "Subdomain")
 	}
-	reportContent := fmt.Sprintf(`<h2 id="category">`+config.categoryName+`:</h2>\n`, config.categoryName)
+	reportContent := fmt.Sprintf(`<h2 id="category">` + config.categoryName + `:</h2>` + "\n")
 	if poolSize != 0 {
 		config.reportGenerator.WriteToReport(reportContent)
 	}

@@ -69,12 +69,12 @@ func (reportGenerator *ReportGenerator) WriteToReport(content string) {
 func GenerateTotalResultsReport(reportGenerator *ReportGenerator) {
 	reportGenerator.WriteToReport(`<h1 id="category-headline">Enumeration Results</h1>
 <h2 id="category">All Subdomains:</h2>
-<ol>`)
+<ol>` + "\n")
 	subdomainPool := shared.GPoolBase.PoolSubdomains
 	for idx := 0; idx < len(subdomainPool); idx++ {
-		reportGenerator.WriteToReport(`<h3><li>` + subdomainPool[idx] + `</li></h3>`)
+		reportGenerator.WriteToReport(`<h3><li>` + subdomainPool[idx] + `</li></h3>` + "\n")
 	}
-	reportGenerator.WriteToReport(`</ol>`)
+	reportGenerator.WriteToReport(`</ol>` + "\n")
 }
 
 func GenerateTestReport(reportGenerator *ReportGenerator) {
@@ -82,17 +82,17 @@ func GenerateTestReport(reportGenerator *ReportGenerator) {
 	if len(shared.GReportPool) == 0 {
 		return
 	}
-	reportGenerator.WriteToReport(`<div id="table-container">`)
+	reportGenerator.WriteToReport(`<div id="table-container">` + "\n")
 	for _, value := range shared.GReportPool {
-		result.WriteString(`<tr>`)
-		result.WriteString(`<td>` + value.Subdomain + `</td>`)
-		result.WriteString(`<td>` + value.TestName + `</td>`)
+		result.WriteString(`<tr>` + "\n")
+		result.WriteString(`<td>` + value.Subdomain + `</td>` + "\n")
+		result.WriteString(`<td>` + value.TestName + `</td>` + "\n")
 		if value.TestResult == "PASSED" {
-			result.WriteString(`<td style="color: green;">` + value.TestResult + `</td>`)
+			result.WriteString(`<td style="color: green;">` + value.TestResult + `</td>` + "\n")
 		} else if value.TestResult == "FOUND" {
-			result.WriteString(`<td style="color: red;">` + value.TestResult + `</td>`)
+			result.WriteString(`<td style="color: red;">` + value.TestResult + `</td>` + "\n")
 		}
-		result.WriteString(`</tr>`)
+		result.WriteString(`</tr>` + "\n")
 	}
 	output := `</table>
 <h1 id="category-headline">Analysis Results</h1>
@@ -101,7 +101,8 @@ func GenerateTestReport(reportGenerator *ReportGenerator) {
 	<th>Subdomain</th>
     <th>Test</th>
     <th>Result</th>
-</tr>` + result.String() + "</div>"
+</tr>` + result.String() + `</table>
+</div>` + "\n"
 	reportGenerator.WriteToReport(output)
 }
 
