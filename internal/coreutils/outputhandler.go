@@ -69,6 +69,7 @@ func generateSummary(scg summaryConfigGenerator) {
 func WriteSummary(startTime time.Time, count int) {
 	// Calculate the time duration and format the summary
 	defer shared.GStdout.Flush()
+	shared.PoolsCleanupSummary(&shared.GPoolBase)
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
 	rg, err := summary.ReportGeneratorInit()

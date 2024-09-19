@@ -53,23 +53,6 @@ type Args struct {
 	FilterHttpSize      string
 }
 
-type PoolBase struct {
-	// CORE
-	PoolIPv4Addresses []string
-	PoolIPv6Addresses []string
-	PoolSubdomains    []string
-	// SUMMARY
-	PoolMailSubdomains        []string
-	PoolApiSubdomains         []string
-	PoolLoginSubdomains       []string
-	PoolCorsSubdomains        []string
-	PoolHttpSuccessSubdomains []string
-	PoolCmsSubdomains         []string
-	PoolCookieInjection       []string
-	PoolHeaderInjection       []string
-	PoolRequestSmuggling      []string
-}
-
 type SetTestResults struct {
 	TestName   string
 	TestResult string
