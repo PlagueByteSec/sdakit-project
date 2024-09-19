@@ -198,14 +198,14 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 				HttpHeaders:   headers,
 				HttpClient:    settings.HttpClient,
 			}
-			check.PurposeHTTP() // run.go
+			check.TargetAnalyseHTTP()
 		} else {
 			// HTTP request failed: run non HTTP tests
 			check := analysis.SubdomainCheck{
 				Subdomain:     settings.Params.Subdomain,
 				ConsoleOutput: outputChan,
 			}
-			check.PurposeNonHTTP()
+			check.TargetAnalyseNonHTTP()
 		}
 	}
 	// httpCodeCheck: do not perform analysis if the HTTP request fails (-1)
@@ -215,7 +215,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 			ConsoleOutput: outputChan,
 			HttpClient:    settings.HttpClient,
 		}
-		check.Misconfigurations() // run.go
+		check.TestSecurity()
 	}
 	return true
 }

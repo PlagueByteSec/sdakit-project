@@ -108,3 +108,20 @@ func (check *SubdomainCheck) AnalysisSendRequest(setup AnalysisRequestConfig) *h
 	}
 	return httpResponse
 }
+
+func (check *SubdomainCheck) TestSecurity() {
+	check.hostHeaders()     // Host header injections
+	check.cookieInjection() // session hijacking, xss
+	check.requestSmuggling()
+	check.CORS()
+}
+
+func (check *SubdomainCheck) TargetAnalyseHTTP() {
+	check.api()   // Content types, API versions, rate limit
+	check.login() // Scan response body for login indicators
+	check.cms()   // Top 20 CMS
+}
+
+func (check *SubdomainCheck) TargetAnalyseNonHTTP() {
+	check.MailServer()
+}

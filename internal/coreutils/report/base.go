@@ -1,7 +1,6 @@
-package summary
+package report
 
-func generateSummaryTemplate() string {
-	return `<!DOCTYPE html>
+var ReportStart = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -84,13 +83,10 @@ func generateSummaryTemplate() string {
             <th>Date</th>
             <th>Method</th>
         </tr>`
-}
 
-func closeSummaryTemplate() string {
-	return `<hr style="border-color: rgb(214, 0, 0);">
+var ReportEnd = `<hr style="border-color: rgb(214, 0, 0);">
     <div id="details">
 		<h5>This report was generated automatically.</h5>
     </div>
 </body>
 </html>`
-}
