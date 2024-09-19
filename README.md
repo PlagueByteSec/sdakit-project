@@ -8,21 +8,13 @@
 
 ## Description
 ```
-The Sentinel Project is designed to assist security testers in the reconnaissance phase
-by providing various methods for subdomain discovery and analysis. The main goal 
-of this project is to make the process of subdomain enumeration as easy as possible 
-by automatically performing general analysis, testing for typical flaws, 
-determining the subdomain's purpose, and ensuring that all basic needs are met. All 
-results will be sorted and saved for further processing.
+The Sentinel Project is designed to assist security testers by providing various methods 
+for subdomain discovery and analysis. The main goal of this project is to make the 
+process of subdomain enumeration as easy as possible by automatically performing general 
+analysis, testing for typical flaws, determining the subdomain's purpose, and generation
+of a clean overview in form of a final report. The prefered scan options can be configured 
+as needed. All subdomains and addresses are stored seperately for further processing.
 ```
-
-## Overview
-
-- ***Discover*** hidden subdomains using the preferred option
-- ***Analyze*** each subdomain for common security flaws and more
-- ***Filter*** all output as needed
-- ***Categorize*** all results and store addresses seperately
-- ***Generate*** a report automatically containing all test results and found subdomains
 
 ## Quick Start
 

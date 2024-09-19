@@ -20,30 +20,25 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 		switch key {
 		case shared.Passive: // Request endpoints (certificate transparency logs etc.)
 			if utils.IsPassiveEnumeration(&args) {
-				shared.GScanMethod = method.MethodKey
-				fmt.Fprintln(shared.GStdout, method.MethodKey)
-				fmt.Fprintln(shared.GStdout)
+				utils.PrintMethod(method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.Active: // Brute-force by evaluating HTTP codes
 			if utils.IsActiveEnumeration(&args) {
-				shared.GScanMethod = method.MethodKey
-				fmt.Fprintln(shared.GStdout, method.MethodKey)
+				utils.PrintMethod(method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.Dns: // Try to resolve a list of subdomains to IP addresses
 			if utils.IsDnsEnumeration(&args) {
-				shared.GScanMethod = method.MethodKey
-				fmt.Fprintln(shared.GStdout, method.MethodKey)
+				utils.PrintMethod(method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.VHost:
 			if utils.IsVHostEnumeration(&args) {
-				shared.GScanMethod = method.MethodKey
-				fmt.Fprintln(shared.GStdout, method.MethodKey)
+				utils.PrintMethod(method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
@@ -115,7 +110,6 @@ func Run(args shared.Args) {
 		}
 	}
 	utils.PrintVerbose("[*] HTTP request method: %s\n", args.HttpRequestMethod)
-	fmt.Fprint(shared.GStdout, "[*] Method: ")
 	methodManager(args, httpClient, filePaths)
 	if shared.GIsExec == 0 {
 		utils.ProgramExit(utils.ExitParams{
