@@ -14,7 +14,7 @@ import (
 
 func init() {
 	// make every pool at startup and open a stream writer to stdout.
-	shared.PoolInit(&shared.GPoolBase)
+	shared.PoolsInit(&shared.GPoolBase)
 	shared.GStdout = bufio.NewWriter(os.Stdout)
 	/*
 		Create the log directory if it does not exist, and use the log file name with
