@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 )
 
 type ExitParams struct {

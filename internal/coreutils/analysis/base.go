@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
-	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
-	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	utils "github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
+	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 )
 
 const testDomain = "example.com"

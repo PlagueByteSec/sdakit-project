@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/fhAnso/astkit"
 )
 

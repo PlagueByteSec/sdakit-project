@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 )
 
 func IsPassiveEnumeration(args *shared.Args) bool {

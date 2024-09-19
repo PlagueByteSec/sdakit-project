@@ -10,12 +10,12 @@ import (
 	"strings"
 	"time"
 
-	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/requests"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/streams"
-	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	utils "github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/streams"
+	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 	"github.com/fhAnso/astkit"
 )
 

@@ -3,21 +3,21 @@
 #### Display the available options
 - on Linux:
 ```bash
-./bin/sentinel -h
+./bin/sdakit -h
 ``` 
 
 - on Windows
 ```cmd
-.\bin\sentinel.exe -h
+.\bin\sdakit.exe -h
 ```
 
 #### The output should look similar to this:
 
 ```
-===[ The Sentinel Project, By @PlagueByte.Sec
+===[ The SDAkit Project, By @PlagueByte.Sec
         
 	Contact: plaguebyte.sec@keemail.me
-	License: MIT (https://github.com/PlagueByteSec/sentinel-project/blob/main/LICENSE)
+	License: MIT (https://github.com/PlagueByteSec/sdakit-project/blob/main/LICENSE)
 																		 
  ===[ Description
 
@@ -33,8 +33,8 @@
                 ....
 ```
 
-- See [Available Options](https://github.com/PlagueByteSec/sentinel-project/tree/main/assets/options.md#available-options) 
+- See [Available Options](https://github.com/PlagueByteSec/sdakit-project/tree/main/assets/options.md#available-options) 
 
 <div align="center">
-<a href="https://plaguebytesec.github.io/sentinel-project">Home</a>
+<a href="https://plaguebytesec.github.io/sdakit-project">Home</a>
 </div>

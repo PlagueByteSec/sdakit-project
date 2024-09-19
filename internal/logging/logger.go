@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 )
 
 var GLogger *Logger
