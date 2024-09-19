@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 )
 
 func HttpCodeCheck(settings shared.SettingsHandler, url string) bool {

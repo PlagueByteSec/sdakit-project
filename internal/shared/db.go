@@ -1,6 +1,6 @@
 package shared
 
-// This is the database file for the Sentinel project.
+// This is the database file for the sdakit project.
 // More URLs can be added here. Replace the
 // hostname with the key HOST.
 

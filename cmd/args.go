@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/cli"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
-	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/cli"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 )
 
 func CliParser() (shared.Args, error) {

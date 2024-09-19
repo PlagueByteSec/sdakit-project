@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils/report"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
-	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils/report"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 )
 
 type summaryConfig struct {
@@ -168,7 +168,7 @@ func PrintBanner(httpClient *http.Client) {
 	localVersion := GetCurrentLocalVersion()
 	repoVersion := GetCurrentRepoVersion(httpClient)
 	var banner strings.Builder
-	banner.WriteString("\n           - The Sentinel Project - \n")
+	banner.WriteString("\n           - The SDAkit Project - \n")
 	banner.WriteString("Subdomain Discovery and Security Analysis Toolkit\n\n")
 	banner.WriteString(fmt.Sprintf("  Version: %s\n", localVersion))
 	banner.WriteString("  By @PlagueByte.Sec\n")

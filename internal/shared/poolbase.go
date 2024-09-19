@@ -1,6 +1,6 @@
 package shared
 
-import "github.com/PlagueByteSec/sentinel-project/v2/pkg"
+import "github.com/PlagueByteSec/sdakit-project/v2/pkg"
 
 type PoolBase struct {
 	// General

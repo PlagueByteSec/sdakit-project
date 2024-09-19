@@ -1,10 +1,10 @@
 package cli
 
 var HelpBanner = ` 													
-===[ The Sentinel Project, By @PlagueByte.Sec
+===[ The SDAkit Project, By @PlagueByte.Sec
         
 	Contact: plaguebyte.sec@keemail.me
-	License: MIT (https://github.com/PlagueByteSec/sentinel-project/blob/main/LICENSE)
+	License: MIT (https://github.com/PlagueByteSec/sdakit-project/blob/main/LICENSE)
 																		 
  ===[ Description
 

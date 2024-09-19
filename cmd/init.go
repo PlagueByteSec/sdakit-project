@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/signal"
 
-	utils "github.com/PlagueByteSec/sentinel-project/v2/internal/coreutils"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/logging"
-	"github.com/PlagueByteSec/sentinel-project/v2/internal/shared"
-	"github.com/PlagueByteSec/sentinel-project/v2/pkg"
+	utils "github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 )
 
 func init() {
@@ -18,7 +18,7 @@ func init() {
 	shared.GStdout = bufio.NewWriter(os.Stdout)
 	/*
 		Create the log directory if it does not exist, and use the log file name with
-		the pattern <date>-sentinel.log to log all messages.
+		the pattern <date>-sdakit.log to log all messages.
 	*/
 	if err := pkg.CreateOutputDir(shared.LoggerOutputDir); err != nil {
 		fmt.Println("[-] Failed to create output directory for global logger. No logs will be available!")

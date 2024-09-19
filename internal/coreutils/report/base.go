@@ -5,7 +5,7 @@ var ReportStart = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Sentinel Project | Summary</title>
+    <title>The sdakit Project | Summary</title>
     <style>
         html, body {
             height: 100%;
@@ -73,7 +73,7 @@ var ReportStart = `<!DOCTYPE html>
 </head>
 <body>
     <div id="head">
-        <img id="logo-headline" src="https://github.com/PlagueByteSec/sentinel-project/blob/main/assets/TheSentinelProject-LogoTransparent.png?raw=true" alt="logo">
+        <img id="logo-headline" src="https://github.com/PlagueByteSec/sdakit-project/blob/main/assets/ThesdakitProject-LogoTransparent.png?raw=true" alt="logo">
         <h1 id="headline">Report</h1>
     </div>
     <hr style="border-color: rgb(214, 0, 0);">    
