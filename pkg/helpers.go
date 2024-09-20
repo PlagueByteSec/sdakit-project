@@ -4,9 +4,34 @@ import (
 	"fmt"
 	"net"
 	"regexp"
-	"sort"
+	"strings"
 	"time"
 )
+
+func BuildBanner(text string) string {
+	lines := strings.Split(text, "\n")
+	// Determine the maximum line length
+	maxLineLength := 0
+	for idx := 0; idx < len(lines); idx++ {
+		line := lines[idx]
+		if len(line) > maxLineLength {
+			maxLineLength = len(line)
+		}
+	}
+	frameLength := maxLineLength + 10
+	frameLine := strings.Repeat("* ", frameLength/2)
+	var result []string
+	for idx := 0; idx < len(lines); idx++ {
+		line := lines[idx]
+		framedLine := fmt.Sprintf("*   %s   *", line)
+		// Pad the line with if it's shorter than the max length
+		if len(line) < maxLineLength {
+			framedLine = fmt.Sprintf("*   %s%s   *", line, strings.Repeat(" ", maxLineLength-len(line)))
+		}
+		result = append(result, framedLine)
+	}
+	return fmt.Sprintf("%s\n%s\n%s", frameLine, strings.Join(result, "\n"), frameLine)
+}
 
 func GetIpVersion(ipAddress string) int {
 	parser := net.ParseIP(ipAddress)
@@ -37,30 +62,6 @@ func IsValidDomain(domain string) bool {
 		}
 	}
 	return false
-}
-
-func IsInSlice(value interface{}, slice interface{}) bool {
-	switch sliceType := slice.(type) {
-	case []string:
-		if checkValue, ok := value.(string); ok {
-			sort.Strings(sliceType)
-			idx := sort.SearchStrings(sliceType, checkValue)
-			return idx < len(sliceType) && sliceType[idx] == checkValue
-		}
-	case []int:
-		if checkValue, ok := value.(int); ok {
-			sort.Ints(sliceType)
-			idx := sort.SearchInts(sliceType, checkValue)
-			return idx < len(sliceType) && sliceType[idx] == checkValue
-		}
-	}
-	return false
-}
-
-func ResetSlice(slice *[]string) {
-	if len(*slice) >= 1 && (*slice)[0] == "" {
-		*slice = []string{}
-	}
 }
 
 func Tern[T any](condition bool, value T, alt T) T {

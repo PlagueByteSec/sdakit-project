@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	utils "github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils"
+	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
-	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 )
 
 const testDomain = "example.com"
@@ -102,7 +102,7 @@ func (check *SubdomainCheck) AnalysisSendRequest(setup AnalysisRequestConfig) *h
 		return nil
 	}
 	codeToString := strconv.Itoa(httpResponse.StatusCode)
-	if pkg.IsInSlice(codeToString, errorCodes) {
+	if pools.ManagePool(pools.PoolAction(pools.PoolCheck), codeToString, &errorCodes) {
 		logging.GLogger.Log("Error: Server returned: " + codeToString)
 		return nil
 	}

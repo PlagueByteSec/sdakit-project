@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/cli"
@@ -41,27 +40,6 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 				utils.PrintMethod(method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
-			}
-		}
-	}
-	// Manager for commands that require (.txt) lists containing addresses
-	extern := ValidsManagerInit()
-	for key, method := range extern {
-		switch key {
-		case shared.RDns: // Resolving addresses from IP list
-			if utils.IsRDnsEnumeration(&args) {
-				fmt.Fprintln(shared.GStdout, shared.RDns)
-				method.Action(&args)
-			}
-		case shared.Ping: // Ping subdomains from subdomain list
-			if utils.IsPingFromFile(&args) {
-				fmt.Fprintln(shared.GStdout, shared.Ping)
-				method.Action(&args)
-			}
-		case shared.HeaderAnalysis:
-			if utils.IsHttpHeaderAnalysis(&args) {
-				fmt.Fprintln(shared.GStdout, shared.HeaderAnalysis)
-				method.Action(&args)
 			}
 		}
 	}

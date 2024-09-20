@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
@@ -18,7 +19,7 @@ func (check *SubdomainCheck) MailServer() {
 		} else {
 			check.ConsoleOutput <- "\n"
 		}
-		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolMailSubdomains)
+		pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolMailSubdomains)
 	}
 }
 
@@ -35,7 +36,7 @@ func (check *SubdomainCheck) api() {
 		}
 		score, info := check.isPossibleApi(response)
 		if score != 0 {
-			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolApiSubdomains)
+			pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolApiSubdomains)
 			check.ConsoleOutput <- fmt.Sprintf(" | + API [SCORE:%d] (%s: %s)\n", score, methods[idx], info)
 			break
 		}

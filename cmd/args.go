@@ -31,7 +31,6 @@ func CliParser() (shared.Args, error) {
 	analyzeHeader := flag.Bool("a", false, "Analyze HTTP header of each subdomain")
 	portScan := flag.String("p", "", "Define port range an run scan")
 	dnsLookup := flag.Bool("dns", false, "Use wordlist (-w) and resolve subdomains by querying a DNS")
-	pingSubdomain := flag.Bool("pS", false, "Ping subdomains (privileged execution required)")
 	analyseHeaderSingle := flag.Bool("aS", false, "Analyse HTTP header of single subdomain (specified with -s)")
 	detectpurpose := flag.Bool("dP", false, "Detect subdomain purpose (Mail, API...)")
 	testMisconf := flag.Bool("mT", false, "Test for common weaknesses")
@@ -41,11 +40,8 @@ func CliParser() (shared.Args, error) {
 	torRoute := flag.Bool("r", false, "Enable TOR routing")
 	dnsLookupCustom := flag.String("dnsC", "", "Specify custom DNS server")
 	dnsLookupTimeout := flag.Int("dnsT", 500, "Specify timeout for DNS queries in ms")
-	rDnsLookupFilePath := flag.String("rF", "", "IP address list file path")
 	httpRequestDelay := flag.Int("rD", 500, "Specify HTTP request delay")
 	disableAllOutput := flag.Bool("dO", false, "Disable all output file streams")
-	pingCount := flag.Int("pC", 2, "Specify Ping count (default=2)")
-	pingFromFile := flag.String("pF", "", "Ping subdomains from file")
 	httpRequestMethod := flag.String("m", "GET", "Method for sending requests (default: GET)")
 	showAllHeaders := flag.Bool("aH", false, "Display all headers of HTTP response")
 	allowRedirects := flag.Bool("aR", false, "Allow redirects")
@@ -85,11 +81,7 @@ func CliParser() (shared.Args, error) {
 		DnsLookupCustom:     *dnsLookupCustom,
 		DnsLookupTimeout:    *dnsLookupTimeout,
 		HttpRequestDelay:    *httpRequestDelay,
-		RDnsLookupFilePath:  *rDnsLookupFilePath,
 		DisableAllOutput:    *disableAllOutput,
-		PingSubdomain:       *pingSubdomain,
-		PingCount:           *pingCount,
-		PingSubdomainsFile:  *pingFromFile,
 		AnalyseHeaderSingle: *analyseHeaderSingle,
 		HttpRequestMethod:   *httpRequestMethod,
 		ShowAllHeaders:      *showAllHeaders,

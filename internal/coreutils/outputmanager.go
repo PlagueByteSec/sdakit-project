@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils/report"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 )
@@ -59,7 +60,7 @@ func generateSummary(config summaryConfig) {
 func WriteSummary(startTime time.Time, count int) {
 	// Calculate the time duration and format the summary
 	defer shared.GStdout.Flush()
-	shared.PoolsCleanupSummary(&shared.GPoolBase)
+	datapools.PoolsCleanupSummary(&shared.GPoolBase)
 	endTime := time.Now()
 	duration := endTime.Sub(startTime)
 	reportGenerator, err := report.StartReportGenerator()
@@ -139,31 +140,6 @@ func PrintMethod(methodKey string) {
 	fmt.Fprintf(shared.GStdout, "[*] Discovery Method: %s\n\n", methodKey)
 }
 
-func buildBanner(text string) string {
-	lines := strings.Split(text, "\n")
-	// Determine the maximum line length
-	maxLineLength := 0
-	for idx := 0; idx < len(lines); idx++ {
-		line := lines[idx]
-		if len(line) > maxLineLength {
-			maxLineLength = len(line)
-		}
-	}
-	frameLength := maxLineLength + 10
-	frameLine := strings.Repeat("* ", frameLength/2)
-	var result []string
-	for idx := 0; idx < len(lines); idx++ {
-		line := lines[idx]
-		framedLine := fmt.Sprintf("*   %s   *", line)
-		// Pad the line with if it's shorter than the max length
-		if len(line) < maxLineLength {
-			framedLine = fmt.Sprintf("*   %s%s   *", line, strings.Repeat(" ", maxLineLength-len(line)))
-		}
-		result = append(result, framedLine)
-	}
-	return fmt.Sprintf("%s\n%s\n%s", frameLine, strings.Join(result, "\n"), frameLine)
-}
-
 func PrintBanner(httpClient *http.Client) {
 	localVersion := GetCurrentLocalVersion()
 	repoVersion := GetCurrentRepoVersion(httpClient)
@@ -173,7 +149,7 @@ func PrintBanner(httpClient *http.Client) {
 	banner.WriteString(fmt.Sprintf("  Version: %s\n", localVersion))
 	banner.WriteString("  By @PlagueByte.Sec\n")
 	banner.WriteString("  License: MIT\n")
-	fmt.Fprintln(shared.GStdout, buildBanner(banner.String()))
+	fmt.Fprintln(shared.GStdout, pkg.BuildBanner(banner.String()))
 	VersionCompare(repoVersion, localVersion)
 	fmt.Fprintln(shared.GStdout)
 	shared.GStdout.Flush()

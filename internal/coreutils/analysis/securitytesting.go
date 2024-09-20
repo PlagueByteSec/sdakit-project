@@ -3,6 +3,7 @@ package analysis
 import (
 	"errors"
 
+	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
@@ -47,7 +48,7 @@ func (check *SubdomainCheck) cookieInjection() {
 			continue
 		}
 		check.ConsoleOutput <- result
-		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCookieInjection)
+		pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolCookieInjection)
 		shared.GReportPool["CI"] = shared.SetTestResults{
 			TestName:   "Cookie injection",
 			TestResult: "FOUND",
@@ -89,7 +90,7 @@ func (check *SubdomainCheck) requestSmuggling() {
 				continue
 			}
 			check.ConsoleOutput <- result
-			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolRequestSmuggling)
+			pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolRequestSmuggling)
 			shared.GReportPool["RS"] = shared.SetTestResults{
 				TestName:   "Request smuggling",
 				TestResult: "FOUND",

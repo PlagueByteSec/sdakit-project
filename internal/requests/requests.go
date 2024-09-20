@@ -1,9 +1,9 @@
 package requests
 
 import (
+	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
-	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 
 	"context"
 	"errors"
@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/Ullaakut/nmap/v3"
-	probing "github.com/prometheus-community/pro-bing"
 )
 
 type HttpRequestBase struct {
@@ -84,7 +83,7 @@ func HttpClientInit(args *shared.Args) (*http.Client, error) {
 
 func (base *HttpRequestBase) requestSetupHTTP() error {
 	acceptedMethods := []string{"GET", "POST", "OPTIONS"}
-	if !pkg.IsInSlice(base.HttpMethod, acceptedMethods) {
+	if !pools.ManagePool(pools.PoolAction(pools.PoolCheck), base.HttpMethod, &acceptedMethods) {
 		return fmt.Errorf("HTTP request method not allowed: %s", base.HttpMethod)
 	}
 	base.HttpRequest, base.Error = http.NewRequest(base.HttpMethod, base.CustomUrl, nil)
@@ -163,11 +162,11 @@ func EndpointRequest(method string, host string, url string, client *http.Client
 	matches := regex.FindAllString(body, -1)
 	for idx := 0; idx < len(matches); idx++ {
 		// Make sure that only new entries will be added
-		if !pkg.IsInSlice(matches[idx], shared.GPoolBase.PoolSubdomains) {
+		if !pools.ManagePool(pools.PoolAction(pools.PoolCheck), matches[idx], &shared.GPoolBase.PoolSubdomains) {
 			shared.GPoolBase.PoolSubdomains = append(shared.GPoolBase.PoolSubdomains, matches[idx])
 		}
 	}
-	shared.PoolsCleanupCore(&shared.GPoolBase)
+	pools.PoolsCleanupCore(&shared.GPoolBase)
 	return nil
 }
 
@@ -270,20 +269,4 @@ func ScanPortRange(address string, ports string, portsOnly bool) (string, []uint
 	}
 	portResults := output.String()
 	return portResults, nil, nil
-}
-
-func PingSubdomain(subdomain string, pingCount int) error {
-	pinger, err := probing.NewPinger(subdomain)
-	if err != nil {
-		logging.GLogger.Log(err.Error())
-		return err
-	}
-	pinger.Count = 3
-	pinger.SetPrivileged(true)
-	err = pinger.Run()
-	if err != nil {
-		logging.GLogger.Log(err.Error())
-		return err
-	}
-	return nil
 }

@@ -35,13 +35,9 @@ type Args struct {
 	DnsLookup           bool
 	DnsLookupCustom     string // Custom DNS server (args)
 	DnsLookupTimeout    int
-	HttpRequestDelay    int    // in milliseconds
-	RDnsLookupFilePath  string // IP address file path
+	HttpRequestDelay    int // in milliseconds
 	DisableAllOutput    bool
-	PingSubdomain       bool
-	PingCount           int
-	PingSubdomainsFile  string // read subdomains from file and ping
-	AnalyseHeaderSingle bool   // HTTP
+	AnalyseHeaderSingle bool // HTTP
 	Subdomain           string
 	HttpRequestMethod   string
 	ShowAllHeaders      bool
@@ -62,11 +58,6 @@ type SetTestResults struct {
 type EnumerationMethod struct {
 	MethodKey string
 	Action    func(*Args, *http.Client, *FilePaths)
-}
-
-type ExternsMethod struct {
-	MethodKey string
-	Action    func(*Args)
 }
 
 // OPTION-MANAGER

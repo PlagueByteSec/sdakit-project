@@ -1,42 +1,16 @@
-package shared
+package datapools
 
-import "github.com/PlagueByteSec/sdakit-project/v2/pkg"
+import (
+	"sort"
+)
 
-type PoolBase struct {
-	// General
-	PoolIPv4Addresses         []string
-	PoolIPv6Addresses         []string
-	PoolSubdomains            []string
-	PoolHttpSuccessSubdomains []string
-	// Purpose/Service detection
-	PoolMailSubdomains  []string
-	PoolApiSubdomains   []string
-	PoolLoginSubdomains []string
-	PoolCmsSubdomains   []string
-	// Security testing
-	PoolCorsSubdomains   []string
-	PoolCookieInjection  []string
-	PoolHeaderInjection  []string
-	PoolRequestSmuggling []string
-}
+type PoolAction int
 
-func PoolsInit(pools *PoolBase) {
-	// General
-	pools.PoolIPv4Addresses = make([]string, 0)
-	pools.PoolIPv6Addresses = make([]string, 0)
-	pools.PoolSubdomains = make([]string, 0)
-	pools.PoolHttpSuccessSubdomains = make([]string, 0)
-	// Purpose/Service detection
-	pools.PoolMailSubdomains = make([]string, 0)
-	pools.PoolApiSubdomains = make([]string, 0)
-	pools.PoolLoginSubdomains = make([]string, 0)
-	pools.PoolCmsSubdomains = make([]string, 0)
-	// Security testing
-	pools.PoolCorsSubdomains = make([]string, 0)
-	pools.PoolHeaderInjection = make([]string, 0)
-	pools.PoolCookieInjection = make([]string, 0)
-	pools.PoolRequestSmuggling = make([]string, 0)
-}
+const (
+	PoolAppend PoolAction = iota
+	PoolCheck
+	PoolReset
+)
 
 func poolRemoveDuplicates(pool []string) []string {
 	temp := make(map[string]bool)
@@ -72,8 +46,24 @@ func PoolsCleanupSummary(pools *PoolBase) {
 	pools.PoolRequestSmuggling = poolRemoveDuplicates(pools.PoolRequestSmuggling)
 }
 
-func PoolAppendValue(subdomain string, pool *[]string) {
-	if !pkg.IsInSlice(subdomain, *pool) {
-		*pool = append(*pool, subdomain)
+func ManagePool(action PoolAction, entry string, pool *[]string) bool {
+	switch action {
+	case PoolAppend: // Append value to the pool if it doesn't already exist
+		idx := sort.SearchStrings(*pool, entry)
+		if idx >= len(*pool) || (*pool)[idx] != entry {
+			*pool = append(*pool, entry)
+			sort.Strings(*pool)
+		}
+		return true
+	case PoolCheck: // Check if the entry exists in pool
+		idx := sort.SearchStrings(*pool, entry)
+		return idx < len(*pool) && (*pool)[idx] == entry
+	case PoolReset:
+		if len(*pool) >= 1 && (*pool)[0] == "" {
+			*pool = []string{}
+		}
+		return true
+	default:
+		return false
 	}
 }

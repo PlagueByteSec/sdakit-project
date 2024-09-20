@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
@@ -34,7 +35,7 @@ func (check *SubdomainCheck) checkPage(pageType string, pageInvestigate func(str
 	if ok := pageInvestigate(url, response); ok {
 		check.ConsoleOutput <- successMessage
 		if pageType == "login" {
-			shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
+			pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
 		}
 	}
 }

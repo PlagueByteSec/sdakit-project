@@ -30,16 +30,13 @@ var HelpBanner = `
  -aH	Display all HTTP headers of subdomain response from -a and -aS
  -aS	Analyse the HTTP response from a subdomain (specified by -s)
  -p	Scan subdomains for open ports (comma seperated or from-to)
- -pS	Ping subdomains (privileged execution required)
- -pF	Ping subdomains from file (privileged execution required)
- -rF	Read IP addresses from file and perform RDNS lookup
  -dP	Determine the subdomain purpose (mail, API, ...)
  -mT	Test subdomain for common weaknesses (CORS, header injections, ...)
 
  ===[ FILTERS
 
- -e		Exclude subdomains with specified HTTP response codes (comma seperated)
- -f		Filter for specific HTTP response codes (comma seperated)
+ -e	Exclude subdomains with specified HTTP response codes (comma seperated)
+ -f	Filter for specific HTTP response codes (comma seperated)
  -fS	Exclude response size(s) from VHost results
  
  ===[ SETTINGS
@@ -51,7 +48,6 @@ var HelpBanner = `
  -t	Specify the HTTP request timeout (default=2)
  -dnsT	Set the timeout for DNS queries
  -dnsC	Specify a custom DNS server address (ip:port)
- -pC	Specify ping count (default=2)
  -aR	Follow redirects: 301, 302, 303, ...
 
  ===[ OUTPUT
