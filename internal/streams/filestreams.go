@@ -74,9 +74,6 @@ func FilePathInit(args *shared.Args) (*shared.FilePaths, error) {
 		"Summary-"+pkg.DefaultOutputName(args.Domain, extension),
 	)
 	outputFiles = append(outputFiles, filePathJSON)
-	if args.RDnsLookupFilePath == "" {
-		pkg.CleanExistingOutputFiles(outputFiles)
-	}
 	return &shared.FilePaths{
 		FilePathSubdomain: filePathSubdomain,
 		FilePathIPv4:      filePathIPv4,

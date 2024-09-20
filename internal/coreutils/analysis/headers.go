@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
@@ -92,7 +93,7 @@ func (check *SubdomainCheck) investigateAcaoHeaders(response *http.Response) {
 		}
 	}
 	if success {
-		shared.PoolAppendValue(check.Subdomain, &shared.GPoolBase.PoolCorsSubdomains)
+		pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolCorsSubdomains)
 		fmt.Println(check.ConsoleOutput)
 	}
 }

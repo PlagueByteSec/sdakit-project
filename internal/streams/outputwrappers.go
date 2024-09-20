@@ -34,8 +34,8 @@ func OpenOutputFileStreamsWrapper(filePaths *shared.FilePaths) {
 }
 
 func OutputWrapper(ipAddrs []string, params shared.Params, streams *shared.FileStreams) {
-	for _, ip := range ipAddrs {
-		IpManage(params, ip, streams)
+	for idx := 0; idx < len(ipAddrs); idx++ {
+		IpManage(params, ipAddrs[idx], streams)
 	}
 	if !shared.GDisableAllOutput {
 		err := WriteOutputFileStream(streams.SubdomainStream, params.FileContentSubdoms)

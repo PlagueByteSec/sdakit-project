@@ -9,16 +9,6 @@ import (
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 )
 
-func PingWrapper(outputChan chan<- string, subdomain string, pingCount int) {
-	outputChan <- " | Ping: "
-	err := requests.PingSubdomain(subdomain, pingCount)
-	if err != nil {
-		outputChan <- "FAILED\n"
-		return
-	}
-	outputChan <- "SUCCESS\n"
-}
-
 func PortScanWrapper(outputChan chan<- string, subdomain string, portRange string) {
 	ports, _, err := requests.ScanPortRange(subdomain, portRange, false)
 	if err != nil {

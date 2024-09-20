@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	utils "github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils"
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
@@ -14,7 +15,7 @@ import (
 
 func init() {
 	// make every pool at startup and open a stream writer to stdout.
-	shared.PoolsInit(&shared.GPoolBase)
+	datapools.PoolsInit(&shared.GPoolBase)
 	shared.GStdout = bufio.NewWriter(os.Stdout)
 	/*
 		Create the log directory if it does not exist, and use the log file name with
@@ -50,23 +51,6 @@ func MethodManagerInit() map[string]shared.EnumerationMethod {
 		shared.VHost: {
 			MethodKey: shared.VHost,
 			Action:    VHostEnum,
-		},
-	}
-}
-
-func ValidsManagerInit() map[string]shared.ExternsMethod {
-	return map[string]shared.ExternsMethod{
-		shared.RDns: {
-			MethodKey: shared.RDns,
-			Action:    RDnsFromFile,
-		},
-		shared.Ping: {
-			MethodKey: shared.Ping,
-			Action:    PingFromFile,
-		},
-		shared.HeaderAnalysis: {
-			MethodKey: shared.HeaderAnalysis,
-			Action:    AnalyseHttpHeaderSingle,
 		},
 	}
 }

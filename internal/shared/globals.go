@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"net"
 	"time"
+
+	"github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 )
 
 var (
@@ -11,7 +13,7 @@ var (
 )
 
 var (
-	GPoolBase    PoolBase
+	GPoolBase    datapools.PoolBase
 	GSubdomBase  SubdomainBase
 	GSubdomAddrs SubdomainIpAddresses
 	GJsonResult  JsonResult

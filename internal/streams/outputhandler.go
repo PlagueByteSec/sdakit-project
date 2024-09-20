@@ -15,6 +15,7 @@ import (
 
 	utils "github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils/analysis"
+	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
@@ -66,8 +67,8 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 	switch ipAddrVersion {
 	case 4:
 		params.FileContentIPv4Addrs = ip
-		if !pkg.IsInSlice(params.FileContentIPv4Addrs, shared.GPoolBase.PoolIPv4Addresses) {
-			shared.GPoolBase.PoolIPv4Addresses = append(shared.GPoolBase.PoolIPv4Addresses, params.FileContentIPv4Addrs)
+		if !pools.ManagePool(pools.PoolAction(pools.PoolCheck), params.FileContentIPv4Addrs, &shared.GPoolBase.PoolIPv4Addresses) {
+			pools.ManagePool(pools.PoolAction(pools.PoolAppend), params.FileContentIPv4Addrs, &shared.GPoolBase.PoolIPv4Addresses)
 			if !shared.GDisableAllOutput {
 				err := WriteOutputFileStream(fileStream.Ipv4AddrStream, params.FileContentIPv4Addrs)
 				if err != nil {
@@ -83,8 +84,8 @@ func IpManage(params shared.Params, ip string, fileStream *shared.FileStreams) {
 		)
 	case 6:
 		params.FileContentIPv6Addrs = ip
-		if !pkg.IsInSlice(params.FileContentIPv6Addrs, shared.GPoolBase.PoolIPv6Addresses) {
-			shared.GPoolBase.PoolIPv6Addresses = append(shared.GPoolBase.PoolIPv6Addresses, params.FileContentIPv6Addrs)
+		if !pools.ManagePool(pools.PoolAction(pools.PoolCheck), params.FileContentIPv6Addrs, &shared.GPoolBase.PoolIPv6Addresses) {
+			pools.ManagePool(pools.PoolAction(pools.PoolAppend), params.FileContentIPv6Addrs, &shared.GPoolBase.PoolIPv6Addresses)
 			if !shared.GDisableAllOutput {
 				err := WriteOutputFileStream(fileStream.Ipv6AddrStream, params.FileContentIPv6Addrs)
 				if err != nil {
@@ -150,21 +151,21 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 		case httpStatusCode == -1:
 			statusCodeConv = shared.NotAvailable
 		default:
-			shared.PoolAppendValue(settings.Params.Subdomain, &shared.GPoolBase.PoolHttpSuccessSubdomains)
+			pools.ManagePool(pools.PoolAction(pools.PoolAppend), settings.Params.Subdomain, &shared.GPoolBase.PoolHttpSuccessSubdomains)
 		}
 		/*
 			Ensure that the status codes are correctly filtered by comparing the
 			results with codeFilter and CodeFilterExc.
 		*/
-		if len(settings.CodeFilter) >= 1 && !pkg.IsInSlice(statusCodeConv, settings.CodeFilter) ||
-			len(settings.CodeFilterExc) >= 1 && pkg.IsInSlice(statusCodeConv, settings.CodeFilterExc) {
+		if len(settings.CodeFilter) >= 1 && !pools.ManagePool(pools.PoolAction(pools.PoolCheck), statusCodeConv, &settings.CodeFilter) ||
+			len(settings.CodeFilterExc) >= 1 && !pools.ManagePool(pools.PoolAction(pools.PoolCheck), statusCodeConv, &settings.CodeFilterExc) {
 			return false
 		} else if !settings.Args.DisableAllOutput {
 			OutputWrapper(settings.IpAddrs, settings.Params, settings.Streams)
 		}
 		if vhost {
 			trimFilter := processFilter(settings.Args.FilterHttpSize)
-			if len(trimFilter) != 0 && pkg.IsInSlice(fmt.Sprintf("%d", size), trimFilter) {
+			if len(trimFilter) != 0 && pools.ManagePool(pools.PoolAction(pools.PoolAppend), fmt.Sprintf("%d", size), &trimFilter) {
 				return false
 			}
 			outputChan <- fmt.Sprintf(" | Size: %d\n", size)
@@ -183,9 +184,6 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 	}
 	if settings.Args.PortScan != "" {
 		utils.PortScanWrapper(outputChan, settings.Params.Subdomain, settings.Args.PortScan)
-	}
-	if settings.Args.PingSubdomain {
-		utils.PingWrapper(outputChan, settings.Params.Subdomain, settings.Args.PingCount)
 	}
 	requests.SetDnsEnumType() // Handle type by global switch
 	if settings.Args.DetectPurpose {
@@ -223,7 +221,7 @@ func optionsSettingsHandler(settings shared.SettingsHandler, outputChan chan<- s
 func OutputHandler(streams *shared.FileStreams, client *http.Client, args *shared.Args,
 	params shared.Params, url string) {
 	if shared.GScanMethod != shared.Passive {
-		shared.PoolAppendValue(params.Subdomain, &shared.GPoolBase.PoolSubdomains)
+		pools.ManagePool(pools.PoolAction(pools.PoolAppend), params.Subdomain, &shared.GPoolBase.PoolSubdomains)
 	}
 	shared.GStdout.Flush()
 	if args.HttpCode || args.AnalyzeHeader {
@@ -259,8 +257,8 @@ func OutputHandler(streams *shared.FileStreams, client *http.Client, args *share
 	*/
 	codeFilter := processFilter(args.FilHttpCodes)
 	codeFilterExc := processFilter(args.ExcHttpCodes)
-	pkg.ResetSlice(&codeFilter)
-	pkg.ResetSlice(&codeFilterExc)
+	pools.ManagePool(pools.PoolAction(pools.PoolReset), "", &codeFilter)
+	pools.ManagePool(pools.PoolAction(pools.PoolReset), "", &codeFilterExc)
 	succeed := optionsSettingsHandler(shared.SettingsHandler{
 		Streams:       streams,
 		Args:          args,
