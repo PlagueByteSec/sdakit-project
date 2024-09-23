@@ -15,9 +15,10 @@
 |------|-------------|
 | -v | Enable verbose output |
 | -d [DOMAIN] | Specify the target domain |
-| -s [SUBDOMAIN] | Specify the target subdomain |
+| -i | Set the target IP address |
 | -w [WORDLIST] | Use a wordlist for direct and DNS enumeration |
 | -dns | Enable DNS enumeration (-w required) |
+| -vhost | Enable VHOST enumeration | 
 
 #### Analysis
 | Flag | Description |
@@ -27,9 +28,6 @@
 | -aH | Expose all HTTP response headers of each subdomain |
 | -aS | Inspect the HTTP response from a subdomain specified by -s |
 | -p | Scan each subdomain for open ports |
-| -pS | Ping each subdomain to test reachability (implemented for n/a responses) |
-| -pF | Read subdomains from a file and test for reachability |
-| -rF | Read IP addresses from a file and perform a RDNS lookup of each entry |
 | -dP | Determine the subdomain purpose |
 | -mT | Scan each subdomain for common flaws |
 
@@ -50,7 +48,6 @@
 | -t | Specify the timeout for each HTTP request |
 | -dnsT | Specify the timeout for DNS queries |
 | -dnsC | Use a custom DNS server address |
-| -pC | Specify the count of each ICMP request | 
 | -aR | Follow HTTP redirects |
 
 #### Output
