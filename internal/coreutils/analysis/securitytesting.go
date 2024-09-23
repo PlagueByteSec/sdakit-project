@@ -27,6 +27,10 @@ func testInit(check *SubdomainCheck) (*astkit.ASTkitClient, []uint16, error) {
 }
 
 func (check *SubdomainCheck) cookieInjection() {
+	const (
+		category = "(CRLF) Cookie injection"
+		key      = "CI"
+	)
 	client, openPorts, err := testInit(check)
 	if err != nil {
 		logging.GLogger.Log(err.Error())
@@ -38,7 +42,7 @@ func (check *SubdomainCheck) cookieInjection() {
 			Host:      check.Subdomain,
 			Port:      openPorts[idx],
 			UserAgent: shared.DefaultUserAgent,
-			Test:      astkit.TestType(astkit.CookieInjection),
+			Test:      astkit.TestType(astkit.CRLF),
 		})
 		if err != nil {
 			logging.GLogger.Log(err.Error())
@@ -49,21 +53,25 @@ func (check *SubdomainCheck) cookieInjection() {
 		}
 		check.ConsoleOutput <- result
 		pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolCookieInjection)
-		shared.GReportPool["CI"] = shared.SetTestResults{
-			TestName:   "Cookie injection",
+		shared.GReportPool[key] = shared.SetTestResults{
+			TestName:   category,
 			TestResult: "FOUND",
 			Subdomain:  check.Subdomain,
 		}
 		return
 	}
-	shared.GReportPool["CI"] = shared.SetTestResults{
-		TestName:   "Cookie injection",
+	shared.GReportPool[key] = shared.SetTestResults{
+		TestName:   category,
 		TestResult: "PASSED",
 		Subdomain:  check.Subdomain,
 	}
 }
 
 func (check *SubdomainCheck) requestSmuggling() {
+	const (
+		category = "Request smuggling"
+		key      = "RS"
+	)
 	client, openPorts, err := testInit(check)
 	if err != nil {
 		logging.GLogger.Log(err.Error())
@@ -91,16 +99,16 @@ func (check *SubdomainCheck) requestSmuggling() {
 			}
 			check.ConsoleOutput <- result
 			pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolRequestSmuggling)
-			shared.GReportPool["RS"] = shared.SetTestResults{
-				TestName:   "Request smuggling",
+			shared.GReportPool[key] = shared.SetTestResults{
+				TestName:   category,
 				TestResult: "FOUND",
 				Subdomain:  check.Subdomain,
 			}
 			return
 		}
 	}
-	shared.GReportPool["RS"] = shared.SetTestResults{
-		TestName:   "Request smuggling",
+	shared.GReportPool[key] = shared.SetTestResults{
+		TestName:   category,
 		TestResult: "PASSED",
 		Subdomain:  check.Subdomain,
 	}

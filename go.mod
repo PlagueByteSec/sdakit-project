@@ -4,7 +4,7 @@ go 1.23.1
 
 require (
 	github.com/Ullaakut/nmap/v3 v3.0.3
-	github.com/fhAnso/astkit v0.0.0-20240917082058-2e3b99e2d300
+	github.com/fhAnso/astkit v0.0.0-20240923092740-282ba6fa0662
 	github.com/hashicorp/go-version v1.7.0
 )
 

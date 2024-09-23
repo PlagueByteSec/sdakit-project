@@ -83,7 +83,7 @@ func WriteSummary(startTime time.Time, count int) {
 	generateSummary(summaryConfig{
 		reportGenerator: reportGenerator,
 		pool:            shared.GPoolBase.PoolMailSubdomains,
-		categoryName:    "Mail Servers",
+		categoryName:    "Mail",
 		messageFormat:   "[+] Found %d %s providing a mail server\n",
 		noSup:           false,
 	})
