@@ -54,31 +54,9 @@ var (
 		"Reset Password",
 		"Account Login",
 		"User ID",
-		"Email",
 		"Please log in",
 		"Two-factor authentication",
 		"Continue to login",
-	}
-	cmsIndicators = map[string][]string{
-		"WordPress":        {"wp-content", "wp-includes"},
-		"Joomla":           {"Joomla!"},
-		"Drupal":           {"Drupal"},
-		"Magento":          {"Magento"},
-		"Shopify":          {"Shopify"},
-		"Blogger":          {"blogspot"},
-		"Wix":              {"wix"},
-		"Squarespace":      {"squarespace"},
-		"TYPO3":            {"typo3"},
-		"Concrete5":        {"concrete5"},
-		"PrestaShop":       {"prestashop"},
-		"OpenCart":         {"catalog"},
-		"Ghost":            {"ghost"},
-		"ExpressionEngine": {"expressionEngine"},
-		"Craft CMS":        {"craft"},
-		"MODX":             {"MODX Revolution"},
-		"SilverStripe":     {"silverstripe"},
-		"DotNetNuke":       {"dnn"},
-		"Weebly":           {"weebly"},
 	}
 )
 
@@ -117,9 +95,8 @@ func (check *SubdomainCheck) TestSecurity() {
 }
 
 func (check *SubdomainCheck) TargetAnalyseHTTP() {
-	check.api()   // Content types, API versions, rate limit
-	check.login() // Scan response body for login indicators
-	check.cms()   // Top 20 CMS
+	check.api()                     // Content types, API versions, rate limit
+	check.investigateHtmlResponse() // Scan response body for login indicators, Top 20 CMS
 }
 
 func (check *SubdomainCheck) TargetAnalyseNonHTTP() {

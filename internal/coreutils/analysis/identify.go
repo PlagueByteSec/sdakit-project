@@ -2,10 +2,8 @@ package analysis
 
 import (
 	"fmt"
-	"strings"
 
 	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
-	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/fhAnso/astkit"
@@ -15,7 +13,7 @@ func (check *SubdomainCheck) MailServer() {
 	if requests.DnsIsMX(shared.GDnsResolver, check.Subdomain) {
 		check.ConsoleOutput <- " | + Mail Server "
 		if check.isExchange() {
-			check.ConsoleOutput <- "(Exchange)\n"
+			check.ConsoleOutput <- "(Microsoft Exchange)\n"
 		} else {
 			check.ConsoleOutput <- "\n"
 		}
@@ -43,22 +41,17 @@ func (check *SubdomainCheck) api() {
 	}
 }
 
-func (check *SubdomainCheck) login() {
-	check.checkPage("login", check.isLoginPage, " | + Login\n")
-}
-
-func (check *SubdomainCheck) cms() {
-	url := astkit.MakeUrl(astkit.HTTP(astkit.Secure), check.Subdomain)
-	client := astkit.ASTkitClient{
-		HttpClient: check.HttpClient,
-		URL:        url,
-	}
-	cms, err := astkit.ASTkitDetectCMS(&client)
-	if err != nil {
-		logging.GLogger.Log(err.Error())
+func (check *SubdomainCheck) investigateHtmlResponse() {
+	url := astkit.MakeUrl(astkit.HTTP(astkit.Basic), check.Subdomain)
+	response := check.getResponse(url) // GET
+	if response == nil {
 		return
 	}
-	if !strings.Contains(cms, "unknown") {
-		check.ConsoleOutput <- fmt.Sprintf(" | + CMS: %s\n", cms)
+	defer response.Body.Close()
+	body := string(check.responseGetBody(response))
+	if len(body) == 0 {
+		return
 	}
+	check.checkPage("login", detectLogin, body)
+	check.checkPage("cms", detectCMS, body)
 }

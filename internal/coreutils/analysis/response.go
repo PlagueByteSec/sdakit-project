@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -11,6 +12,15 @@ import (
 	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 	"github.com/fhAnso/astkit"
 )
+
+func findIndicator(body string, indicators []string) string {
+	for _, indicator := range indicators {
+		if result := pkg.Tern(strings.Contains(body, indicator), indicator, ""); result != "" {
+			return result
+		}
+	}
+	return ""
+}
 
 func (check *SubdomainCheck) getResponse(url string) *http.Response {
 	response := check.AnalysisSendRequest(AnalysisRequestConfig{Method: "GET", URL: url, Header: "", Value: ""})
@@ -26,31 +36,29 @@ func (check *SubdomainCheck) responseGetBody(response *http.Response) []byte {
 	return responseBody
 }
 
-func (check *SubdomainCheck) checkPage(pageType string, pageInvestigate func(string, *http.Response) bool, successMessage string) {
-	url := astkit.MakeUrl(astkit.HTTP(astkit.Basic), check.Subdomain)
-	response := check.getResponse(url)
-	if response == nil {
-		return
-	}
-	if ok := pageInvestigate(url, response); ok {
-		check.ConsoleOutput <- successMessage
-		if pageType == "login" {
+func (check *SubdomainCheck) checkPage(pageType string, runDetection func(body string) string, body string) {
+	if result := runDetection(body); result != "" {
+		switch pageType {
+		case "login":
 			pools.ManagePool(pools.PoolAction(pools.PoolAppend), check.Subdomain, &shared.GPoolBase.PoolLoginSubdomains)
+			check.ConsoleOutput <- fmt.Sprintf(" | + login: %s\n", result)
+		case "cms":
+			output := fmt.Sprintf("%s (%s)", check.Subdomain, result)
+			pools.ManagePool(pools.PoolAction(pools.PoolAppend), output, &shared.GPoolBase.PoolCmsSubdomains)
+			check.ConsoleOutput <- fmt.Sprintf(" | + CMS: %s\n", result)
 		}
 	}
 }
 
-func checkPageLogin(responseBody string) bool {
-	if len(responseBody) != 0 {
-		for idx := 0; idx < len(loginIndicators); idx++ {
-			if strings.Contains(responseBody, loginIndicators[idx]) {
-				return true
-			}
-		}
-	}
-	return false
+func detectLogin(body string) string {
+	return findIndicator(body, loginIndicators)
 }
 
-func (check *SubdomainCheck) isLoginPage(url string, response *http.Response) bool {
-	return checkPageLogin(string(check.responseGetBody(response)))
+func detectCMS(body string) string {
+	for cmsName, indicators := range astkit.AcceptedCMS {
+		if result := findIndicator(body, indicators); result != "" {
+			return cmsName
+		}
+	}
+	return ""
 }

@@ -83,7 +83,7 @@ func WriteSummary(startTime time.Time, count int) {
 	generateSummary(summaryConfig{
 		reportGenerator: reportGenerator,
 		pool:            shared.GPoolBase.PoolMailSubdomains,
-		categoryName:    "Mail Servers",
+		categoryName:    "Mail",
 		messageFormat:   "[+] Found %d %s providing a mail server\n",
 		noSup:           false,
 	})
@@ -146,9 +146,10 @@ func PrintBanner(httpClient *http.Client) {
 	var banner strings.Builder
 	banner.WriteString("\n           - The SDAkit Project - \n")
 	banner.WriteString("Subdomain Discovery and Security Analysis Toolkit\n\n")
+	banner.WriteString("  License: MIT\n")
 	banner.WriteString(fmt.Sprintf("  Version: %s\n", localVersion))
 	banner.WriteString("  By @PlagueByte.Sec\n")
-	banner.WriteString("  License: MIT\n")
+	banner.WriteString("  Contact: plaguebyte.sec@keemail.me\n")
 	fmt.Fprintln(shared.GStdout, pkg.BuildBanner(banner.String()))
 	VersionCompare(repoVersion, localVersion)
 	fmt.Fprintln(shared.GStdout)

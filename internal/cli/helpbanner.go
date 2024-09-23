@@ -1,30 +1,28 @@
 package cli
 
 var HelpBanner = ` 													
-===[ The SDAkit Project, By @PlagueByte.Sec
+ - The SDAkit Project, By @PlagueByte.Sec - 
         
-	Contact: plaguebyte.sec@keemail.me
-	License: MIT (https://github.com/PlagueByteSec/sdakit-project/blob/main/LICENSE)
+ Contact: plaguebyte.sec@keemail.me
+ License: MIT (https://github.com/PlagueByteSec/sdakit-project/blob/main/LICENSE)
 																		 
- ===[ Description
+Description
+============
+ This program is designed to fetch, filter and validate subdomains from a target domain.
 
-	This program is designed to fetch, filter and validate subdomains from a target domain.
-
- ===[ Options ]===
-
+Options 
+========
  -v	Verbose output
  -d	Set the target domain name
 		[passive] (Without -w) request subdomains from external endpoints
 		Example: targetdomain.xyz 
- -s	Set the target subdomain 
-		Example: sub.targetdomain.xyz
  -i	Set the target IP address
  -w	[active] Use wordlist to bruteforce subdomains of the target
  -dns	Use wordlist (-w) and resolve subdomains by querying a DNS
  -vhost	Enable VHOST enumeration
 
- ===[ ANALYSIS
-
+ANALYSIS
+=========
  -c	Send HTTP requests to retrieve the status code from each subdomain
  -a	Analyze HTTP headers of each subdomain (server, csp, software, ...)
  -aH	Display all HTTP headers of subdomain response from -a and -aS
@@ -33,14 +31,14 @@ var HelpBanner = `
  -dP	Determine the subdomain purpose (mail, API, ...)
  -mT	Test subdomain for common weaknesses (CORS, header injections, ...)
 
- ===[ FILTERS
-
+FILTERS
+========
  -e	Exclude subdomains with specified HTTP response codes (comma seperated)
  -f	Filter for specific HTTP response codes (comma seperated)
  -fS	Exclude response size(s) from VHost results
  
- ===[ SETTINGS
-
+SETTINGS
+=========
  -x	Extend endpoint DB with custom list (.txt)
  -r	Route all requests through TOR: 127.0.0.1:9050, SOCKS5
  -m	Set HTTP request method (default: GET)
@@ -50,8 +48,8 @@ var HelpBanner = `
  -dnsC	Specify a custom DNS server address (ip:port)
  -aR	Follow redirects: 301, 302, 303, ...
 
- ===[ OUTPUT
-
+OUTPUT
+=======
  -dO	Disable all output file streams
  -nP	Specify the directory path for all output files
 `
