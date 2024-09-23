@@ -1,11 +1,11 @@
 ### Description
 ```txt
-The SDAkit Project is designed to assist security testers in the reconnaissance phase
-by providing various methods for subdomain discovery and analysis. The main goal 
-of this project is to make the process of subdomain enumeration as easy as possible 
-by automatically performing general analysis, testing for typical flaws, 
-determining the subdomain's purpose, and ensuring that all basic needs are met. All 
-results will be sorted and saved for further processing.
+The SDAkit Project is designed to assist security testers by providing various methods 
+for subdomain discovery and analysis. The main goal of this project is to make the 
+process of subdomain enumeration as easy as possible by automatically performing general 
+analysis, testing for typical flaws, determining the subdomain's purpose, and generation
+of a clean overview in form of a final report. The prefered scan options can be configured 
+as needed. All subdomains and addresses are stored seperately for further processing.
 ```
 
 ### External Libraries
@@ -19,3 +19,4 @@ results will be sorted and saved for further processing.
 - [Setup](https://plaguebytesec.github.io/sdakit-project/pages/setup)
 - [Usage](https://plaguebytesec.github.io/sdakit-project/pages/usage)
 - [Examples](https://plaguebytesec.github.io/sdakit-project/pages/examples)
+- [Back to Github](https://github.com/PlagueByteSec/sdakit-project)
