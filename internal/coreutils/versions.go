@@ -9,6 +9,7 @@ import (
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/logging"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
+	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 
 	"github.com/hashicorp/go-version"
 )
@@ -18,13 +19,13 @@ func GetCurrentRepoVersion(client *http.Client) string {
 		Request the version.txt file from GitHub and return
 		the value as a string.
 	*/
-	_, _, responseBody, _ := requests.RequestHandlerCore(&requests.HttpRequestBase{
+	_, _, repoVersion, _ := requests.RequestHandlerCore(&requests.HttpRequestBase{
 		HttpClient:       client,
 		CustomUrl:        shared.VersionUrl,
 		HttpMethod:       "GET",
 		ResponseNeedBody: true,
 	})
-	return string(responseBody)
+	return string(repoVersion)
 }
 
 func GetCurrentLocalVersion() string {
@@ -32,12 +33,13 @@ func GetCurrentLocalVersion() string {
 		Read the version of the current local project instance. If an error
 		occurs while trying to read version.txt, return n/a.
 	*/
-	cwd, err := os.Getwd()
-	if err != nil {
-		logging.GLogger.Log(err.Error())
-		return shared.NotAvailable
+	versionFilePath := shared.VersionFile
+	if !pkg.PathExist(versionFilePath) {
+		versionFilePath = filepath.Join("..", versionFilePath)
+		if !pkg.PathExist(versionFilePath) {
+			return shared.NotAvailable
+		}
 	}
-	versionFilePath := filepath.Join(cwd, shared.VersionFile)
 	content, err := os.ReadFile(versionFilePath)
 	if err != nil {
 		logging.GLogger.Log(err.Error())

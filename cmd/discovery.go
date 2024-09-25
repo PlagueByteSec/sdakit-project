@@ -39,6 +39,7 @@ func Finish(scanner *bufio.Scanner) {
 }
 
 func PassiveEnum(args *shared.Args, client *http.Client, filePaths *shared.FilePaths) {
+	fmt.Fprintln(shared.GStdout)
 	shared.GStdout.Flush()
 	startTime := time.Now()
 	utils.PrintVerbose("[*] Formatting db entries..\n")

@@ -5,7 +5,7 @@ import (
 )
 
 func IsPassiveEnumeration(args *shared.Args) bool {
-	return args.WordlistPath == "" && args.Domain != "" && !args.AnalyseHeaderSingle && args.IpAddress == ""
+	return args.Domain != "" && !args.DnsLookup && !args.EnableVHostEnum && args.IpAddress == ""
 }
 
 func IsActiveEnumeration(args *shared.Args) bool {
@@ -13,13 +13,13 @@ func IsActiveEnumeration(args *shared.Args) bool {
 }
 
 func IsDnsEnumeration(args *shared.Args) bool {
-	return args.DnsLookup && args.WordlistPath != "" && args.Domain != ""
+	return args.DnsLookup && args.Domain != ""
 }
 
 func IsVHostEnumeration(args *shared.Args) bool {
-	return args.EnableVHostEnum && args.IpAddress != "" && args.Domain != "" && args.Subdomain == "" && args.WordlistPath != ""
+	return args.EnableVHostEnum && args.Domain != "" && args.IpAddress != ""
 }
 
 func IsHttpHeaderAnalysis(args *shared.Args) bool {
-	return args.AnalyseHeaderSingle && args.Subdomain != "" && args.Domain == "" && args.WordlistPath == ""
+	return args.AnalyseHeaderSingle && args.Domain == "" && args.WordlistPath == ""
 }

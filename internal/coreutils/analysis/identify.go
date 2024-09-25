@@ -2,11 +2,13 @@ package analysis
 
 import (
 	"fmt"
+	"time"
 
 	pools "github.com/PlagueByteSec/sdakit-project/v2/internal/datapools"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/fhAnso/astkit"
+	"github.com/jlaffaye/ftp"
 )
 
 func (check *SubdomainCheck) MailServer() {
@@ -39,6 +41,23 @@ func (check *SubdomainCheck) api() {
 			break
 		}
 	}
+}
+
+func (check *SubdomainCheck) ftp() {
+	const port = "21"
+	const user = "anonymous"
+	const password = "anonymous"
+	connect, err := ftp.Dial(fmt.Sprintf("%s:%s", check.Subdomain, port), ftp.DialWithTimeout(5*time.Second))
+	if err != nil {
+		return
+	}
+	check.ConsoleOutput <- fmt.Sprintf(" | + FTP (%s: open)\n", port)
+	err = connect.Login(user, password)
+	if err != nil {
+		return
+	}
+	connect.Quit()
+	check.ConsoleOutput <- fmt.Sprintf(" | + FTP %s:%s login successful\n", user, password)
 }
 
 func (check *SubdomainCheck) investigateHtmlResponse() {
