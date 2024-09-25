@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/cli"
 	utils "github.com/PlagueByteSec/sdakit-project/v2/internal/coreutils"
@@ -10,7 +12,28 @@ import (
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/requests"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/shared"
 	"github.com/PlagueByteSec/sdakit-project/v2/internal/streams"
+	"github.com/PlagueByteSec/sdakit-project/v2/pkg"
 )
+
+func wordlistPathHandler(wordlistPath string) string {
+	const (
+		directory = "wordlists"
+		wordlist  = "SubdomainListB.txt"
+	)
+	defaultPath := filepath.Join(directory, wordlist)
+	if !pkg.PathExist(defaultPath) && len(wordlistPath) == 0 {
+		defaultPath = filepath.Join("..", defaultPath)
+		if !pkg.PathExist(defaultPath) {
+			utils.ProgramExit(utils.ExitParams{
+				ExitCode:    -1,
+				ExitMessage: fmt.Sprintf("Could not find wordlist in default path: %s Please specify the path manually (-w)\n", defaultPath),
+				ExitError:   nil,
+			})
+		}
+	}
+	// Set the default wordlist path if no wordlist specified
+	return pkg.Tern(len(wordlistPath) != 0, wordlistPath, defaultPath)
+}
 
 func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.FilePaths) {
 	// Manager for subdomain enumeration methods that require and HTTP client
@@ -19,25 +42,28 @@ func methodManager(args shared.Args, httpClient *http.Client, filePaths *shared.
 		switch key {
 		case shared.Passive: // Request endpoints (certificate transparency logs etc.)
 			if utils.IsPassiveEnumeration(&args) {
-				utils.PrintMethod(method.MethodKey)
+				utils.PrintStartInfo(args.Domain, "", method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.Active: // Brute-force by evaluating HTTP codes
 			if utils.IsActiveEnumeration(&args) {
-				utils.PrintMethod(method.MethodKey)
+				args.WordlistPath = wordlistPathHandler(args.WordlistPath)
+				utils.PrintStartInfo(args.Domain, args.WordlistPath, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.Dns: // Try to resolve a list of subdomains to IP addresses
 			if utils.IsDnsEnumeration(&args) {
-				utils.PrintMethod(method.MethodKey)
+				args.WordlistPath = wordlistPathHandler(args.WordlistPath)
+				utils.PrintStartInfo(args.Domain, args.WordlistPath, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
 		case shared.VHost:
 			if utils.IsVHostEnumeration(&args) {
-				utils.PrintMethod(method.MethodKey)
+				args.WordlistPath = wordlistPathHandler(args.WordlistPath)
+				utils.PrintStartInfo(args.Domain, args.WordlistPath, method.MethodKey)
 				method.Action(&args, httpClient, filePaths)
 				shared.GIsExec++
 			}
@@ -52,7 +78,7 @@ func Run(args shared.Args) {
 	var filePaths *shared.FilePaths = nil
 	InterruptListenerStart()
 	/*
-		Set up the HTTP client with a default timeout of 5 seconds
+		Set up the HTTP client with a default timeout of 2 seconds
 		or a custom timeout specified with the -t flag. If the -r flag
 		is provided, the standard HTTP client will be ignored, and
 		the client will be configured to route through TOR.

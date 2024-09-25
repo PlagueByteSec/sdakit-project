@@ -16,7 +16,6 @@ func CliParser() (shared.Args, error) {
 	help := flag.Bool("h", false, "Display this help banner")
 	verbose := flag.Bool("v", false, "Verbose output")
 	domain := flag.String("d", "", "Set the target domain name")
-	subdomain := flag.String("s", "", "Set the target subdomain")
 	ipAddresses := flag.String("i", "", "Specify target IP address")
 	// Path options
 	wordlistPath := flag.String("w", "", "Specify wordlist and direct bruteforce subdomains")
@@ -60,13 +59,9 @@ func CliParser() (shared.Args, error) {
 	if !*dnsLookup && *dnsLookupCustom != "" {
 		return shared.Args{}, errors.New("custom DNS address can only be set when -dns is specified")
 	}
-	if *dnsLookup && *wordlistPath == "" {
-		return shared.Args{}, errors.New("no wordlist specified, dns method cannot be used")
-	}
 	args := shared.Args{
 		Verbose:             *verbose,
 		Domain:              *domain,
-		Subdomain:           *subdomain,
 		NewOutputDirPath:    *newOutputPath,
 		HttpCode:            *httpCode,
 		WordlistPath:        *wordlistPath,

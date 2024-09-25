@@ -38,7 +38,6 @@ type Args struct {
 	HttpRequestDelay    int // in milliseconds
 	DisableAllOutput    bool
 	AnalyseHeaderSingle bool // HTTP
-	Subdomain           string
 	HttpRequestMethod   string
 	ShowAllHeaders      bool
 	DetectPurpose       bool // DNS lookups, HTTP header analysis (mail server, API etc.)

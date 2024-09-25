@@ -135,9 +135,14 @@ func WriteSummary(startTime time.Time, count int) {
 	fmt.Fprintf(shared.GStdout, "[*] Finished in %s\n", duration)
 }
 
-func PrintMethod(methodKey string) {
+func PrintStartInfo(domain string, wordlist string, methodKey string) {
 	shared.GScanMethod = methodKey
-	fmt.Fprintf(shared.GStdout, "[*] Discovery Method: %s\n\n", methodKey)
+	fmt.Fprintf(shared.GStdout, "[*] Domain: %s\n", domain)
+	fmt.Fprintf(shared.GStdout, "[*] Discovery Method: %s\n", methodKey)
+	if len(wordlist) != 0 {
+		fmt.Fprintf(shared.GStdout, "[*] Wordlist: %s\n", wordlist)
+	}
+	fmt.Fprintf(shared.GStdout, "[*] Start Time: %s\n", time.Now().Format(time.RFC850))
 }
 
 func PrintBanner(httpClient *http.Client) {
