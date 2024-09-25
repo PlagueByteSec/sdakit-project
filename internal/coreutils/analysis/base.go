@@ -101,4 +101,5 @@ func (check *SubdomainCheck) TargetAnalyseHTTP() {
 
 func (check *SubdomainCheck) TargetAnalyseNonHTTP() {
 	check.MailServer()
+	check.ftp()
 }
